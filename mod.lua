@@ -22,6 +22,32 @@ UsefulBots = UsefulBots or {
   }
 }
 
+if not AutoMenuBuilder then
+  dofile(ModPath .. "req/automenubuilder.lua")
+  AutoMenuBuilder:load_settings(UsefulBots, "useful_bots")
+end
+
+if RequiredScript == "lib/managers/menumanager" then
+
+  Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusUsefulBots", function(menu_manager, nodes)
+    managers.localization:add_localized_strings({
+      menu_useful_bots_assist_only = "Only assist",
+      menu_useful_bots_weapon_stats = "By weapon stats",
+      menu_useful_bots_distance = "By target distance"
+    })
+    AutoMenuBuilder:create_menu_from_table(nodes, UsefulBots, "useful_bots", "blt_options", {
+      targeting_priority = { 0, 5, 0.25 },
+      dominate_enemies = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" },
+      base_priority = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance" }
+    }, {
+      enabled = 100,
+      base_priority = 99,
+      enemies = -10
+    })
+  end)
+
+end
+
 -- no crouch
 if RequiredScript == "lib/tweak_data/charactertweakdata" then
 
@@ -534,30 +560,6 @@ if RequiredScript == "lib/units/weapons/newnpcraycastweaponbase" then
     if self._setup.user_unit and self._setup.user_unit:in_slot(16) then
       self._bullet_slotmask = self._bullet_slotmask - World:make_slot_mask(16)
     end
-  end)
-
-end
-
-if RequiredScript == "lib/managers/menumanager" then
-
-  dofile(ModPath .. "req/automenubuilder.lua")
-
-  Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusUsefulBots", function(menu_manager, nodes)
-    managers.localization:add_localized_strings({
-      menu_useful_bots_assist_only = "Only assist",
-      menu_useful_bots_weapon_stats = "By weapon stats",
-      menu_useful_bots_distance = "By target distance"
-    })
-    AutoMenuBuilder:load_settings(UsefulBots, "useful_bots")
-    AutoMenuBuilder:create_menu_from_table(nodes, UsefulBots, "useful_bots", "blt_options", {
-      targeting_priority = { 0, 5, 0.25 },
-      dominate_enemies = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" },
-      base_priority = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance" }
-    }, {
-      enabled = 100,
-      base_priority = 99,
-      enemies = -10
-    })
   end)
 
 end
