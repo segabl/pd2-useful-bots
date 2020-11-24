@@ -138,32 +138,36 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
   Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function (data, new_attention, new_reaction)
     local my_data = data.internal_data
     -- early abort
-    if data.cool or not new_attention or not new_reaction or my_data.acting or data.unit:anim_data().reload or my_data._turning_to_intimidate then
+    if data.cool or my_data.acting or data.unit:anim_data().reload or my_data._turning_to_intimidate then
       return
     end
-    -- melee
-    if new_reaction == AIAttentionObject.REACT_MELEE and (not my_data._melee_t or my_data._melee_t + 5 < data.t) then
-      TeamAILogicIdle.do_melee(data, new_attention)
-      my_data._melee_t = data.t
-      return
-    end
-    -- intimidate
-    local key = new_attention.unit:key()
-    local intimidate = TeamAILogicIdle._intimidate_progress[key]
-    local too_early = intimidate and data.t < intimidate + 1 or my_data._new_intimidate_t and data.t < my_data._new_intimidate_t + 2
-    if not too_early and new_reaction == AIAttentionObject.REACT_ARREST then
-      TeamAILogicIdle.intimidate_cop(data, new_attention.unit)
-      TeamAILogicIdle._intimidate_progress[key] = data.t
-      my_data._new_intimidate_t = data.t
-      return
-    end
-    -- mark
-    if UsefulBots.mark_specials and new_attention.char_tweak and new_attention.char_tweak.priority_shout and (not TeamAILogicAssault._mark_special_t or TeamAILogicAssault._mark_special_t + 8 < data.t) and (not new_attention.unit:contour()._contour_list or not new_attention.unit:contour():has_id("mark_enemy")) then
-      TeamAILogicAssault.mark_enemy(data, data.unit, new_attention.unit, true, true)
-      return
+    if new_attention then
+      -- melee
+      if new_reaction == AIAttentionObject.REACT_MELEE and (not my_data._melee_t or my_data._melee_t + 5 < data.t) then
+        TeamAILogicIdle.do_melee(data, new_attention)
+        my_data._melee_t = data.t
+        return
+      end
+      -- intimidate
+      if new_reaction == AIAttentionObject.REACT_ARREST then
+        local key = new_attention.unit:key()
+        local intimidate = TeamAILogicIdle._intimidate_progress[key]
+        local too_early = intimidate and data.t < intimidate + 1 or my_data._new_intimidate_t and data.t < my_data._new_intimidate_t + 2
+        if not too_early then
+          TeamAILogicIdle.intimidate_cop(data, new_attention.unit)
+          TeamAILogicIdle._intimidate_progress[key] = data.t
+          my_data._new_intimidate_t = data.t
+          return
+        end
+      end
+      -- mark
+      if UsefulBots.mark_specials and new_attention.char_tweak and new_attention.char_tweak.priority_shout and (not TeamAILogicAssault._mark_special_t or TeamAILogicAssault._mark_special_t + 8 < data.t) and (not new_attention.unit:contour()._contour_list or not new_attention.unit:contour():has_id("mark_enemy")) then
+        TeamAILogicAssault.mark_enemy(data, data.unit, new_attention.unit, true, true)
+        return
+      end
     end
     -- civ intimidate
-    if (not my_data._new_intimidate_t or my_data._new_intimidate_t + 2 < data.t) then
+    if not my_data._new_intimidate_t or my_data._new_intimidate_t + 2 < data.t then
       TeamAILogicIdle.intimidate_civilians(data, data.unit, true, true)
       my_data._new_intimidate_t = data.t
     end
@@ -217,7 +221,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       unit_base = unit:base()
       unit_anim_data = unit:anim_data()
       unit_brain = unit:brain()
-      if my_tracker.check_visibility(my_tracker, unit_movement:nav_tracker()) and not unit_movement:cool() and tweak_data.character[unit_base._tweak_table].intimidateable and not unit_base.unintimidateable and not unit_anim_data.unintimidateable and not unit_brain:is_tied() and not unit:unit_data().disable_shout and (not unit_brain._logic_data.internal_data.submission_meter or unit_brain._logic_data.internal_data.submission_meter < unit_brain._logic_data.internal_data.submission_max * 0.6) then
+      if my_tracker.check_visibility(my_tracker, unit_movement:nav_tracker()) and not unit_movement:cool() and tweak_data.character[unit_base._tweak_table].intimidateable and not unit_base.unintimidateable and not unit_anim_data.unintimidateable and not unit_brain:is_tied() and not unit:unit_data().disable_shout and (not unit_anim_data.drop or (unit_brain._logic_data.internal_data.submission_meter or 0) < (unit_brain._logic_data.internal_data.submission_max or 1) * 0.5) then
         local u_head_pos = unit_movement:m_head_pos() + math.UP * 30
         local vec = u_head_pos - head_pos
         local dis = mvector3.normalize(vec)
@@ -260,7 +264,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     if best_civ and can_turn and CopLogicAttack._chk_request_action_turn_to_enemy(data, data.internal_data, data.m_pos, best_civ:movement():m_pos()) then
       data.internal_data._turning_to_intimidate = true
       data.internal_data._primary_intimidation_target = best_civ
-      return
+      return best_civ
     end
 
     local plural = false
@@ -384,13 +388,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       end
     end
 
-    local success
-    if target:brain():interaction_voice() then
-      target:brain():set_objective(target:brain()._logic_data.objective.followup_objective)
-    else
-      success = target:brain()._current_logic.on_intimidated(target:brain()._logic_data, tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
-    end
-
+    local success = target:brain()._current_logic.on_intimidated(target:brain()._logic_data, tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
     if not success then
       TeamAILogicIdle._intimidate_resist[target:key()] = (TeamAILogicIdle._intimidate_resist[target:key()] or 0) + 1
     end
@@ -429,8 +427,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
   local math_max = math.max
   local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
   function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func, ...)
-    data.internal_data._intimidate_t = data.t -- hacky way to stop the vanilla civ intimidate code
-    TeamAILogicAssault._mark_special_chk_t = data.t  -- hacky way to stop the vanilla special mark code
+    data.internal_data._intimidate_t = data.t + 10 -- hacky way to stop the vanilla civ intimidate code
+    TeamAILogicAssault._mark_special_chk_t = data.t + 10  -- hacky way to stop the vanilla special mark code
 
     if not UsefulBots.targeting_improvement then
       return _get_priority_attention_original(data, attention_objects, reaction_func, ...)
