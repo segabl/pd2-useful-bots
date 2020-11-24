@@ -13,11 +13,17 @@ UsefulBots = UsefulBots or {
     damaged = 1.5,            -- enemies that damaged the bot
     domination = 2,           -- enemies that are in domination progress or valid targets
     enemies = {               -- multipliers for specific enemy types
-      tank_medic = 2,
       medic = 3,
+      phalanx_minion = 1,
+      phalanx_vip = 1,
+      shield = 1,
+      sniper = 3,
       spooc = 4,
-      taser = 2,
-      sniper = 3
+      tank = 1,
+      tank_hw = 1,
+      tank_medic = 2,
+      tank_mini = 1,
+      taser = 2
     }
   }
 }
@@ -58,8 +64,6 @@ if RequiredScript == "lib/tweak_data/charactertweakdata" then
       if type(v) == "table" then
         if v.access == "teamAI1" and UsefulBots.no_crouch then
           v.allowed_poses = { stand = true }
-        elseif v.priority_shout and not UsefulBots.targeting_priority.enemies[k] then
-          UsefulBots.targeting_priority.enemies[k] = 1
         end
       end
     end
