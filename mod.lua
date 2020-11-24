@@ -540,7 +540,7 @@ end
 
 if RequiredScript == "lib/managers/menumanager" then
 
-  dofile(ModPath .. "automenubuilder.lua")
+  dofile(ModPath .. "req/automenubuilder.lua")
 
   Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusUsefulBots", function(menu_manager, nodes)
     managers.localization:add_localized_strings({
