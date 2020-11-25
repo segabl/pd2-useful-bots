@@ -4,7 +4,6 @@ UsefulBots = UsefulBots or {
   use_melee = true,
   mark_specials = true,
   announce_low_hp = true,
-  attack_turrets = true,
   targeting_improvement = true,
   targeting_priority = {
     base_priority = 1,        -- 1 = by weapon stats, 2 = by distance
@@ -23,7 +22,8 @@ UsefulBots = UsefulBots or {
       tank_hw = 1,
       tank_medic = 2,
       tank_mini = 1,
-      taser = 2
+      taser = 2,
+      turret = 1
     }
   }
 }
@@ -112,7 +112,7 @@ end
 if RequiredScript == "lib/units/player_team/teamaibrain" then
 
   Hooks:PostHook(TeamAIBrain, "_reset_logic_data", "_reset_logic_data_ub", function (self)
-    if UsefulBots.attack_turrets then
+    if UsefulBots.targeting_priority.enemies.turret > 0 then
       self._logic_data.enemy_slotmask = self._logic_data.enemy_slotmask + World:make_slot_mask(25)
     end
   end)
@@ -481,6 +481,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         local is_tied = att_anim.hands_tied
         local is_dead = not att_damage or att_damage._dead
         local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
+        local is_turret = att_unit.base and att_unit:base().sentry_gun
         -- use the dmg multiplier of the given distance as priority
         local target_priority
         if ub_priority.base_priority == 1 then
@@ -500,7 +501,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
           reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or been_marked) and math_max(REACT_SHOOT, reaction) or reaction
 
           -- get target priority multipliers
-          target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (ub_priority.enemies[att_tweak_name] or 1)
+          target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
           -- melee reaction if distance is short enough
           if UsefulBots.use_melee and distance < 150 and reaction >= REACT_SHOOT and not att_tweak.immune_to_knock_down and att_tweak_name ~= "spooc" then
