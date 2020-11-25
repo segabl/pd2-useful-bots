@@ -213,7 +213,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     local best_civ, best_civ_wgt
     local highest_wgt = 1
     local my_tracker = criminal:movement():nav_tracker()
-    local unit, unit_movement, unit_base, unit_anim_data, unit_brain
+    local unit, unit_movement, unit_base, unit_anim_data, unit_brain, intimidatable
     local ai_visibility_slotmask = managers.slot:get_mask("AI_visibility")
     for key, u_data in pairs(managers.enemy:all_civilians()) do
       unit = u_data.unit
@@ -221,7 +221,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       unit_base = unit:base()
       unit_anim_data = unit:anim_data()
       unit_brain = unit:brain()
-      if my_tracker.check_visibility(my_tracker, unit_movement:nav_tracker()) and not unit_movement:cool() and tweak_data.character[unit_base._tweak_table].intimidateable and not unit_base.unintimidateable and not unit_anim_data.unintimidateable and not unit_brain:is_tied() and not unit:unit_data().disable_shout and (not unit_anim_data.drop or (unit_brain._logic_data.internal_data.submission_meter or 0) < (unit_brain._logic_data.internal_data.submission_max or 1) * 0.5) then
+      intimidatable = tweak_data.character[unit_base._tweak_table].is_escort and (unit_anim_data.panic or unit_anim_data.standing_hesitant) or tweak_data.character[unit_base._tweak_table].intimidateable and not unit_base.unintimidateable and not unit_anim_data.unintimidateable
+      if my_tracker.check_visibility(my_tracker, unit_movement:nav_tracker()) and not unit_movement:cool() and intimidatable and not unit_brain:is_tied() and not unit:unit_data().disable_shout and (not unit_anim_data.drop or (unit_brain._logic_data.internal_data.submission_meter or 0) < (unit_brain._logic_data.internal_data.submission_max or 0) * 0.5) then
         local u_head_pos = unit_movement:m_head_pos() + math.UP * 30
         local vec = u_head_pos - head_pos
         local dis = mvector3.normalize(vec)
@@ -274,7 +275,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       return
     end
 
-    local sound_name = (best_civ:anim_data().drop and "f03a_" or "f02x_") .. (plural and "plu" or "sin")
+    local is_escort = tweak_data.character[best_civ:base()._tweak_table].is_escort
+    local sound_name = is_escort and "f40_any" or (best_civ:anim_data().drop and "f03a_" or "f02x_") .. (plural and "plu" or "sin")
     if play_sound then
       criminal:sound():say(sound_name, true)
     end
@@ -284,7 +286,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         align_sync = true,
         body_part = 3,
         type = "act",
-        variant = best_civ:anim_data().move and "gesture_stop" or "arrest"
+        variant = is_escort and "cmd_point" or best_civ:anim_data().move and "gesture_stop" or "arrest"
       }
       if criminal:brain():action_request(new_action) then
         data.internal_data.gesture_arrest = true
