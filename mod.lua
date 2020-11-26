@@ -91,20 +91,17 @@ end
 -- add basic upgrades to make domination work
 if RequiredScript == "lib/units/player_team/teamaibase" then
 
-  Hooks:PostHook(TeamAIBase, "post_init", "post_init_ub", function (self)
+  TeamAIBase.set_upgrade_value = HuskPlayerBase.set_upgrade_value
+  TeamAIBase.upgrade_value = HuskPlayerBase.upgrade_value
+  TeamAIBase.upgrade_level = HuskPlayerBase.upgrade_level
+
+  Hooks:PostHook(TeamAIBase, "init", "init_ub", function (self)
     self._upgrades = self._upgrades or {}
     self._upgrade_levels = self._upgrade_levels or {}
     self._temporary_upgrades = self._temporary_upgrades or {}
     self._temporary_upgrades_map = self._temporary_upgrades_map or {}
-    if Network:is_server() then
-      self:set_upgrade_value("player", "intimidate_enemies", 1)
-      self:set_upgrade_value("player", "empowered_intimidation_mul", 1)
-      self:set_upgrade_value("player", "intimidation_multiplier", 1)
-    end
+    self:set_upgrade_value("player", "intimidate_enemies", 1)
   end)
-  TeamAIBase.set_upgrade_value = HuskPlayerBase.set_upgrade_value
-  TeamAIBase.upgrade_value = HuskPlayerBase.upgrade_value
-  TeamAIBase.upgrade_level = HuskPlayerBase.upgrade_level
 
 end
 
@@ -138,7 +135,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
   Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function (data, new_attention, new_reaction)
     local my_data = data.internal_data
     -- early abort
-    if data.cool or my_data.acting or data.unit:anim_data().reload or my_data._turning_to_intimidate then
+    if data.cool or my_data.acting or data.unit:anim_data().reload or my_data._turning_to_intimidate or data.unit:character_damage():is_downed() then
       return
     end
     if new_attention then
@@ -356,20 +353,18 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       -- resisted too often
       return false
     end
-    local all_players_dead = table.size(managers.groupai:state():all_player_criminals()) == 0
-    return all_players_dead or not TeamAILogicIdle.is_enemy_near(unit, data, 600)
-  end
-
-  -- check if there are enemies close to the unit
-  function TeamAILogicIdle.is_enemy_near(unit, data, distance)
-    local unit_movement = unit:movement()
-    local dist_sq = distance * distance
+    local num = 0
+    local max = 1 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
     for _, v in pairs(data.detected_attention_objects) do
-      if v.verified and v.unit ~= unit and managers.enemy:is_enemy(v.unit) and mvector3.distance_sq(v.unit:movement():m_pos(), unit_movement:m_pos()) < dist_sq then
-        return true
+      if v.verified and v.unit ~= unit and v.unit.character_damage and not v.unit:character_damage():dead() then
+        num = num + 1
+        if num > max then
+          -- too many detected attention objects
+          return false
+        end
       end
     end
-    return false
+    return true
   end
 
   function TeamAILogicIdle.intimidate_cop(data, target)
@@ -390,11 +385,11 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       end
     end
 
-    local success = target:brain()._current_logic.on_intimidated(target:brain()._logic_data, tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
-    if not success then
+    target:brain():on_intimidated(tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
+    local objective = target:brain():objective()
+    if not objective or objective.type ~= "surrender" then
       TeamAILogicIdle._intimidate_resist[target:key()] = (TeamAILogicIdle._intimidate_resist[target:key()] or 0) + 1
     end
-    return success
   end
 
   function TeamAILogicIdle.do_melee(data, att_obj)
