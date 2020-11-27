@@ -355,8 +355,10 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     end
     local num = 0
     local max = 1 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
+    local m_pos = data.unit:movement():m_pos()
+    local dist_sq = tweak_data.player.long_dis_interaction.intimidate_range_enemies * tweak_data.player.long_dis_interaction.intimidate_range_enemies * 4
     for _, v in pairs(data.detected_attention_objects) do
-      if v.verified and v.unit ~= unit and v.unit.character_damage and not v.unit:character_damage():dead() then
+      if v.verified and v.unit ~= unit and v.unit.character_damage and not v.unit:character_damage():dead() and mvector3.distance_sq(v.unit:movement():m_pos(), m_pos) < dist_sq then
         num = num + 1
         if num > max then
           -- too many detected attention objects
