@@ -46,8 +46,7 @@ if RequiredScript == "lib/managers/menumanager" then
       dominate_enemies = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" },
       base_priority = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance" }
     }, {
-      enabled = 100,
-      base_priority = 99,
+      base_priority = 100,
       enemies = -10
     })
   end)
@@ -76,14 +75,7 @@ end
 if RequiredScript == "lib/managers/group_ai_states/groupaistatebase" then
 
   function GroupAIStateBase:_get_balancing_multiplier(balance_multipliers)
-    local nr_crim = 0
-    for _, u_data in pairs(self:all_char_criminals()) do
-      if not u_data.status then
-        nr_crim = nr_crim + 1
-      end
-    end
-    nr_crim = math.clamp(nr_crim, 1, CriminalsManager.MAX_NR_CRIMINALS)
-    return balance_multipliers[nr_crim]
+    return balance_multipliers[math.clamp(table.count(self:all_char_criminals(), function (u_data) return not u_data.status end), 1, #balance_multipliers)]
   end
 
 end
@@ -219,7 +211,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       unit_anim_data = unit:anim_data()
       unit_brain = unit:brain()
       intimidatable = tweak_data.character[unit_base._tweak_table].is_escort and (unit_anim_data.panic or unit_anim_data.standing_hesitant) or tweak_data.character[unit_base._tweak_table].intimidateable and not unit_base.unintimidateable and not unit_anim_data.unintimidateable
-      if my_tracker.check_visibility(my_tracker, unit_movement:nav_tracker()) and not unit_movement:cool() and intimidatable and not unit_brain:is_tied() and not unit:unit_data().disable_shout and (not unit_anim_data.drop or (unit_brain._logic_data.internal_data.submission_meter or 0) < (unit_brain._logic_data.internal_data.submission_max or 0) * 0.5) then
+      if my_tracker.check_visibility(my_tracker, unit_movement:nav_tracker()) and not unit_movement:cool() and intimidatable and not unit_brain:is_tied() and not unit:unit_data().disable_shout and (not unit_anim_data.drop or (unit_brain._logic_data.internal_data.submission_meter or 0) < (unit_brain._logic_data.internal_data.submission_max or 0) * 0.25) then
         local u_head_pos = unit_movement:m_head_pos() + math.UP * 30
         local vec = u_head_pos - head_pos
         local dis = mvector3.normalize(vec)
@@ -248,7 +240,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
   end
 
   function TeamAILogicIdle.intimidate_civilians(data, criminal, play_sound, play_action, primary_target)
-    if alive(primary_target) and primary_target:unit_data().disable_shout then
+    if alive(primary_target) and primary_target:unit_data().disable_shout or criminal:movement():chk_action_forbidden("action") then
       return
     end
 
@@ -274,20 +266,15 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 
     local is_escort = tweak_data.character[best_civ:base()._tweak_table].is_escort
     local sound_name = is_escort and "f40_any" or (best_civ:anim_data().drop and "f03a_" or "f02x_") .. (plural and "plu" or "sin")
-    if play_sound then
-      criminal:sound():say(sound_name, true)
-    end
-
-    if play_action and not criminal:movement():chk_action_forbidden("action") then
-      local new_action = {
-        align_sync = true,
-        body_part = 3,
-        type = "act",
-        variant = is_escort and "cmd_point" or best_civ:anim_data().move and "gesture_stop" or "arrest"
-      }
-      if criminal:brain():action_request(new_action) then
-        data.internal_data.gesture_arrest = true
-      end
+    criminal:sound():say(sound_name, true)
+    local new_action = {
+      align_sync = true,
+      body_part = 3,
+      type = "act",
+      variant = is_escort and "cmd_point" or best_civ:anim_data().move and "gesture_stop" or "arrest"
+    }
+    if criminal:brain():action_request(new_action) then
+      data.internal_data.gesture_arrest = true
     end
 
     local intimidated_primary_target = false
@@ -370,23 +357,20 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
   end
 
   function TeamAILogicIdle.intimidate_cop(data, target)
-    if not alive(target) or target:unit_data().disable_shout then
+    if not alive(target) or target:unit_data().disable_shout or data.unit:movement():chk_action_forbidden("action") then
       return
     end
     local anim = target:anim_data()
     data.unit:sound():say(anim.hands_back and "l03x_sin" or anim.surrender and "l02x_sin" or "l01x_sin", true)
-    if not data.unit:movement():chk_action_forbidden("action") then
-      local new_action = {
-        type = "act",
-        variant = (anim.hands_back or anim.surrender) and "arrest" or "gesture_stop",
-        body_part = 3,
-        align_sync = true
-      }
-      if data.unit:brain():action_request(new_action) then
-        data.internal_data.gesture_arrest = true
-      end
+    local new_action = {
+      type = "act",
+      variant = (anim.hands_back or anim.surrender) and "arrest" or "gesture_stop",
+      body_part = 3,
+      align_sync = true
+    }
+    if data.unit:brain():action_request(new_action) then
+      data.internal_data.gesture_arrest = true
     end
-
     target:brain():on_intimidated(tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
     local objective = target:brain():objective()
     if not objective or objective.type ~= "surrender" then
@@ -395,7 +379,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
   end
 
   function TeamAILogicIdle.do_melee(data, att_obj)
-    if not att_obj then
+    if not att_obj or data.unit:movement():chk_action_forbidden("action") then
       return
     end
     local enemy_unit = att_obj.unit
@@ -415,7 +399,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
           variant = "melee"
         },
         col_ray = {
-          body = enemy_unit:body("body"),
+          body = enemy_unit:body("b_spine1"),
           position = my_pos
         },
         attack_dir = my_pos - enemy_unit:movement():m_pos()
@@ -485,9 +469,9 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         local target_priority
         if ub_priority.base_priority == 1 then
           local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage.FALLOFF)
-          target_priority = falloff_data.dmg_mul * falloff_data.acc[2]
+          target_priority = (falloff_data.dmg_mul / w_usage.FALLOFF[1].dmg_mul) * falloff_data.acc[2]
         else
-          target_priority = 4000 / math_max(1, distance)
+          target_priority = 500 / math_max(1, distance)
         end
 
         -- fine tune target priority
@@ -526,7 +510,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         end
       end
     end
-    return best_target, best_target_priority and math_max(1, math.floor(best_target_priority / 500)), best_target_reaction, best_selection_index
+    return best_target, best_target_priority and 1 / best_target_priority, best_target_reaction
   end
 
 end
@@ -534,11 +518,12 @@ end
 if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
 
   function TeamAILogicAssault.mark_enemy(data, criminal, to_mark, play_sound, play_action)
-    criminal:sound():say(to_mark:base():char_tweak().priority_shout .. "x_any", true)
-    if not criminal:movement():chk_action_forbidden("action") then
-      managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit, "cmd_point")
-      data.unit:movement():play_redirect("cmd_point")
+    if criminal:movement():chk_action_forbidden("action") then
+      return
     end
+    criminal:sound():say(to_mark:base():char_tweak().priority_shout .. "x_any", true)
+    managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit, "cmd_point")
+    data.unit:movement():play_redirect("cmd_point")
     to_mark:contour():add("mark_enemy", true)
     TeamAILogicAssault._mark_special_t = data.t
   end
