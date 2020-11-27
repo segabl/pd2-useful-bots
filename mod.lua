@@ -130,7 +130,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
     if data.cool or my_data.acting or data.unit:anim_data().reload or my_data._turning_to_intimidate or data.unit:character_damage():is_downed() then
       return
     end
-    if new_attention then
+    if new_attention and new_attention.verified and new_attention.unit.character_damage and not new_attention.unit:character_damage():dead() then
       -- melee
       if new_reaction == AIAttentionObject.REACT_MELEE and (not my_data._melee_t or my_data._melee_t + 5 < data.t) then
         TeamAILogicIdle.do_melee(data, new_attention)
@@ -138,11 +138,10 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
         return
       end
       -- intimidate
-      if new_reaction == AIAttentionObject.REACT_ARREST then
+      if new_reaction == AIAttentionObject.REACT_ARREST and (not my_data._new_intimidate_t or my_data._new_intimidate_t + 2 < data.t) then
         local key = new_attention.unit:key()
         local intimidate = TeamAILogicIdle._intimidate_progress[key]
-        local too_early = intimidate and data.t < intimidate + 1 or my_data._new_intimidate_t and data.t < my_data._new_intimidate_t + 2
-        if not too_early then
+        if intimidate and data.t < intimidate + 1 then
           TeamAILogicIdle.intimidate_cop(data, new_attention.unit)
           TeamAILogicIdle._intimidate_progress[key] = data.t
           my_data._new_intimidate_t = data.t
@@ -152,6 +151,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
       -- mark
       if UsefulBots.mark_specials and new_attention.char_tweak and new_attention.char_tweak.priority_shout and (not TeamAILogicAssault._mark_special_t or TeamAILogicAssault._mark_special_t + 8 < data.t) and (not new_attention.unit:contour()._contour_list or not new_attention.unit:contour():has_id("mark_enemy")) then
         TeamAILogicAssault.mark_enemy(data, data.unit, new_attention.unit, true, true)
+        TeamAILogicAssault._mark_special_t = data.t
         return
       end
     end
@@ -172,11 +172,11 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
   TeamAILogicIdle._MAX_INTIMIDATION_TIME = 2
 
   -- check if unit is sabotaging device
-  function TeamAILogicIdle.is_high_priority(unit, unit_movement, unit_damage, unit_brain)
-    if not managers.enemy:is_enemy(unit) or not unit_movement or not unit_damage or unit_damage:dead() or not unit_brain then
+  function TeamAILogicIdle.is_high_priority(unit, unit_movement, unit_brain)
+    if not unit_movement or not unit_brain then
       return false
     end
-    local data = att_brain and att_brain._logic_data and att_brain._logic_data.internal_data
+    local data = unit_brain._logic_data and unit_brain._logic_data.internal_data
     if data and (data.tasing or data.spooc_attack) then
       return true
     end
@@ -303,7 +303,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 
   -- check if attention_object is a valid intimidation target
   function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_anim, unit_damage, data, distance)
-    if UsefulBots.dominate_enemies > 2 or not unit_tweak or not unit_damage or unit_damage:dead() or not managers.enemy:is_enemy(unit) then
+    if UsefulBots.dominate_enemies > 2 then
       return false
     end
     if not unit_tweak.surrender or unit_tweak.surrender == tweak_data.character.presets.surrender.special or unit_anim.hands_tied then
@@ -407,6 +407,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     end
   end
 
+  local math_min = math.min
   local math_max = math.max
   local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
   function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func, ...)
@@ -418,10 +419,11 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     end
 
     reaction_func = reaction_func or TeamAILogicBase._chk_reaction_to_attention_object
-    local best_target, best_target_priority, best_target_reaction
+    local best_target, best_target_priority, best_target_reaction, best_priority_mul = nil, 0, nil, 0
     local REACT_SHOOT = data.cool and AIAttentionObject.REACT_SURPRISED or AIAttentionObject.REACT_SHOOT
     local REACT_MELEE = AIAttentionObject.REACT_MELEE
     local REACT_ARREST = AIAttentionObject.REACT_ARREST
+    local REACT_AIM = AIAttentionObject.REACT_AIM
     local w_tweak = data.unit:inventory():equipped_unit():base():weapon_tweak_data()
     local w_usage = w_tweak and data.char_tweak.weapon[w_tweak.usage]
     local ub_priority = UsefulBots.targeting_priority
@@ -459,58 +461,62 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
           mark_dt = mark_dt * 0.8
           distance = distance * 0.8
         end
+        local has_alerted = alert_dt < 5
         local has_damaged = dmg_dt < 2
         local been_marked = mark_dt < 10
         local is_tied = att_anim.hands_tied
-        local is_dead = not att_damage or att_damage._dead
+        local is_dead = not att_damage or att_damage:dead()
         local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
         local is_turret = att_unit.base and att_unit:base().sentry_gun
         -- use the dmg multiplier of the given distance as priority
+        local valid_target = false
         local target_priority
+        local priority_mul = 1
         if ub_priority.base_priority == 1 then
           local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage.FALLOFF)
-          target_priority = (falloff_data.dmg_mul / w_usage.FALLOFF[1].dmg_mul) * falloff_data.acc[2]
+          target_priority = falloff_data.dmg_mul * falloff_data.acc[2]
         else
-          target_priority = 500 / math_max(1, distance)
+          target_priority = 100 / math_max(1, distance)
         end
 
         -- fine tune target priority
         if att_unit:in_slot(data.enemy_slotmask) and not is_tied and not is_dead and attention_data.verified then
+          valid_target = true
 
-          local high_priority = TeamAILogicIdle.is_high_priority(att_unit, att_movement, att_damage, att_brain)
+          local high_priority = TeamAILogicIdle.is_high_priority(att_unit, att_movement, att_brain)
           local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
 
           -- check for reaction changes
           reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or been_marked) and math_max(REACT_SHOOT, reaction) or reaction
 
           -- get target priority multipliers
-          target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
+          priority_mul = (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
           -- melee reaction if distance is short enough
           if UsefulBots.use_melee and distance < 150 and reaction >= REACT_SHOOT and not att_tweak.immune_to_knock_down and att_tweak_name ~= "spooc" then
             reaction = REACT_MELEE
           end
 
-          -- reduce priority of shields if we can't hit them
-          if attention_data.is_shield then
-            local can_attack = not TeamAILogicIdle._ignore_shield(data.unit, attention_data) or reaction == REACT_MELEE
-            target_priority = can_attack and target_priority or target_priority * 0.1
+          -- reduce priority if we would hit a shield
+          if reaction ~= REACT_MELEE and TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
+            priority_mul = 0.1
           end
+        elseif has_alerted then
+          valid_target = true
+          reaction = math_min(reaction, REACT_AIM)
+          priority_mul = 0.1
+        end
 
-          -- if reaction is not combat, reduce priority
-          if reaction ~= REACT_ARREST and reaction < REACT_SHOOT then
-            target_priority = target_priority * 0.01
-          end
-
-          if not best_target or target_priority > best_target_priority then
-            best_target = attention_data
-            best_target_priority = target_priority
-            best_target_reaction = reaction
-          end
+        target_priority = target_priority * priority_mul
+        if valid_target and target_priority > best_target_priority then
+          best_target = attention_data
+          best_target_priority = target_priority
+          best_target_reaction = reaction
+          best_priority_mul = priority_mul
         end
       end
     end
-    return best_target, best_target_priority and 1 / best_target_priority, best_target_reaction
+    return best_target, 5 / math_max(best_priority_mul, 0.1), best_target_reaction
   end
 
 end
@@ -525,7 +531,6 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
     managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit, "cmd_point")
     data.unit:movement():play_redirect("cmd_point")
     to_mark:contour():add("mark_enemy", true)
-    TeamAILogicAssault._mark_special_t = data.t
   end
 
 end
