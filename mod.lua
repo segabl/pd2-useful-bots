@@ -424,7 +424,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     local REACT_MELEE = AIAttentionObject.REACT_MELEE
     local REACT_ARREST = AIAttentionObject.REACT_ARREST
     local REACT_AIM = AIAttentionObject.REACT_AIM
-    local w_tweak = data.unit:inventory():equipped_unit():base():weapon_tweak_data()
+    local w_unit = data.unit:inventory():equipped_unit()
+    local w_tweak = alive(w_unit) and w_unit:base():weapon_tweak_data()
     local w_usage = w_tweak and data.char_tweak.weapon[w_tweak.usage]
     local ub_priority = UsefulBots.targeting_priority
 
@@ -472,7 +473,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         local valid_target = false
         local target_priority
         local priority_mul = 1
-        if ub_priority.base_priority == 1 then
+        if ub_priority.base_priority == 1 and w_usage then
           local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage.FALLOFF)
           target_priority = falloff_data.dmg_mul * falloff_data.acc[2]
         else
