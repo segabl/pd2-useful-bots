@@ -141,7 +141,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
       if new_reaction == AIAttentionObject.REACT_ARREST and (not my_data._new_intimidate_t or my_data._new_intimidate_t + 2 < data.t) then
         local key = new_attention.unit:key()
         local intimidate = TeamAILogicIdle._intimidate_progress[key]
-        if intimidate and data.t < intimidate + 1 then
+        if not intimidate or intimidate + 1 < data.t then
           TeamAILogicIdle.intimidate_cop(data, new_attention.unit)
           TeamAILogicIdle._intimidate_progress[key] = data.t
           my_data._new_intimidate_t = data.t
