@@ -124,19 +124,25 @@ end
 -- main bot logic
 if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 
+  local tmp_vec = Vector3()
   Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function (data, att, react)
     if not att or not react then
       return
     end
     local my_data = data.internal_data
     -- early abort
-    if data.cool or my_data.turning or my_data.acting then
+    if data.cool or my_data.acting then
       return
     end
     if data.unit:movement():chk_action_forbidden("action") or data.unit:anim_data().reload or data.unit:character_damage():is_downed() then
       return
     end
     if not att.verified or not att.unit.character_damage or att.unit:character_damage():dead() then
+      return
+    end
+    mvector3.set(tmp_vec, att.unit:movement():m_head_pos())
+    mvector3.subtract(tmp_vec, data.unit:movement():m_head_pos())
+    if tmp_vec:angle(data.unit:movement():m_rot():y()) > 50 then
       return
     end
     -- melee
