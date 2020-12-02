@@ -1,7 +1,6 @@
 UsefulBots = UsefulBots or {
   no_crouch = true,
   dominate_enemies = 1,       -- 1 = yes, 2 = assist only, 3 = no
-  use_melee = true,
   mark_specials = true,
   announce_low_hp = true,
   targeting_improvement = true,
@@ -145,12 +144,6 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
     if tmp_vec:angle(data.unit:movement():m_rot():y()) > 50 then
       return
     end
-    -- melee
-    if react == AIAttentionObject.REACT_MELEE and (not my_data._next_melee_t or my_data._next_melee_t < data.t) then
-      TeamAILogicIdle.do_melee(data, att.unit)
-      my_data._next_melee_t = data.t + 5
-      return
-    end
     -- intimidate
     if react == AIAttentionObject.REACT_ARREST and (not my_data._next_intimidate_t or my_data._next_intimidate_t < data.t) then
       local key = att.unit:key()
@@ -201,14 +194,6 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
       end
     end
     return false
-  end
-
-  -- check if unit can be marked
-  function TeamAILogicIdle.is_markable(att)
-    if not UsefulBots.mark_specials then
-      return false
-    end
-    return att.char_tweak and att.char_tweak.priority_shout and (not att.unit:contour()._contour_list or not att.unit:contour():has_id("mark_enemy"))
   end
 
   function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_shout_shape, max_angle, max_dis)
@@ -365,32 +350,6 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     end
   end
 
-  function TeamAILogicIdle.do_melee(data, enemy_unit)
-    if not enemy_unit:character_damage()._call_listeners then
-      return
-    end
-
-    if data.unit:movement():play_redirect("melee") then
-      managers.network:session():send_to_peers("play_distance_interact_redirect", data.unit, "melee")
-      local my_pos = data.unit:movement():m_pos()
-      local is_shield = enemy_unit:base()._tweak_table == "shield"
-      enemy_unit:character_damage():_call_listeners({
-        variant = "melee",
-        damage = is_shield and 0 or data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].melee_dmg or 3,
-        attacker_unit = data.unit,
-        result = {
-          type = is_shield and "shield_knock" or "knock_down",
-          variant = "melee"
-        },
-        col_ray = {
-          body = enemy_unit:body("b_spine1"),
-          position = my_pos
-        },
-        attack_dir = my_pos - enemy_unit:movement():m_pos()
-      })
-    end
-  end
-
   local math_min = math.min
   local math_max = math.max
   local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
@@ -402,9 +361,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
     end
 
     reaction_func = reaction_func or TeamAILogicBase._chk_reaction_to_attention_object
-    local best_target, best_target_priority, best_target_reaction, best_priority_mul = nil, 0, nil, 0
+    local best_target, best_target_priority, best_target_reaction = nil, 0, nil
     local REACT_SHOOT = data.cool and AIAttentionObject.REACT_SURPRISED or AIAttentionObject.REACT_SHOOT
-    local REACT_MELEE = AIAttentionObject.REACT_MELEE
     local REACT_ARREST = AIAttentionObject.REACT_ARREST
     local REACT_AIM = AIAttentionObject.REACT_AIM
     local w_unit = data.unit:inventory():equipped_unit()
@@ -455,12 +413,11 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         -- use the dmg multiplier of the given distance as priority
         local valid_target = false
         local target_priority
-        local priority_mul = 1
         if ub_priority.base_priority == 1 and w_usage then
           local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage.FALLOFF)
-          target_priority = falloff_data.dmg_mul * falloff_data.acc[2]
+          target_priority = (falloff_data.dmg_mul / w_usage.FALLOFF[1].dmg_mul) * falloff_data.acc[2]
         else
-          target_priority = 100 / math_max(1, distance)
+          target_priority = math_max(0, 1 - distance / 3000)
         end
 
         -- fine tune target priority
@@ -474,33 +431,26 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
           reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or been_marked) and math_max(REACT_SHOOT, reaction) or reaction
 
           -- get target priority multipliers
-          priority_mul = (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
-
-          -- melee reaction if distance is short enough
-          if UsefulBots.use_melee and distance < 150 and reaction >= REACT_SHOOT and not att_tweak.immune_to_knock_down and att_tweak_name ~= "spooc" then
-            reaction = REACT_MELEE
-          end
+          target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
           -- reduce priority if we would hit a shield
-          if reaction ~= REACT_MELEE and TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
-            priority_mul = 0.1
+          if TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
+            target_priority = target_priority * 0.01
           end
         elseif has_alerted then
           valid_target = true
           reaction = math_min(reaction, REACT_AIM)
-          priority_mul = 0.1
+          target_priority = target_priority * 0.01
         end
 
-        target_priority = target_priority * priority_mul
         if valid_target and target_priority > best_target_priority then
           best_target = attention_data
           best_target_priority = target_priority
           best_target_reaction = reaction
-          best_priority_mul = priority_mul
         end
       end
     end
-    return best_target, 5 / math_max(best_priority_mul, 0.1), best_target_reaction
+    return best_target, best_target and 3 / math_max(best_target_priority, 0.1), best_target_reaction
   end
 
 end
