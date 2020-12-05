@@ -128,9 +128,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
     if not att or not react then
       return
     end
-    local my_data = data.internal_data
     -- early abort
-    if data.cool or my_data.acting then
+    if data.cool or data.internal_data.acting then
       return
     end
     if data.unit:movement():chk_action_forbidden("action") or data.unit:anim_data().reload or data.unit:character_damage():is_downed() then
@@ -145,21 +144,21 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
       return
     end
     -- intimidate
-    if react == AIAttentionObject.REACT_ARREST and (not my_data._next_intimidate_t or my_data._next_intimidate_t < data.t) then
+    if react == AIAttentionObject.REACT_ARREST and (not data._next_intimidate_t or data._next_intimidate_t < data.t) then
       local key = att.unit:key()
       local intimidate = TeamAILogicIdle._intimidate_progress[key]
       if not intimidate or intimidate + 1 < data.t then
         TeamAILogicIdle.intimidate_cop(data, att.unit)
         TeamAILogicIdle._intimidate_progress[key] = data.t
-        my_data._next_intimidate_t = data.t + 2
+        data._next_intimidate_t = data.t + 2
         return
       end
     end
     -- mark
-    if UsefulBots.mark_specials and (not my_data._next_mark_t or my_data._next_mark_t < data.t) then
+    if UsefulBots.mark_specials and (not data._next_mark_t or data._next_mark_t < data.t) then
       if att.char_tweak and att.char_tweak.priority_shout and (not att.unit:contour()._contour_list or not att.unit:contour():has_id("mark_enemy")) then
         TeamAILogicAssault.mark_enemy(data, data.unit, att.unit)
-        my_data._next_mark_t = data.t + 16
+        data._next_mark_t = data.t + 16
         return
       end
     end
@@ -247,6 +246,12 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
   end
 
   function TeamAILogicIdle.intimidate_civilians(data, criminal)
+    if data._next_intimidate_t and data.t < data._next_intimidate_t then
+      return
+    end
+
+    data._next_intimidate_t = data.t + 2
+
     local best_civ, highest_wgt, intimidateable_civilians = TeamAILogicIdle._find_intimidateable_civilians(criminal, true)
 
     local plural = false
