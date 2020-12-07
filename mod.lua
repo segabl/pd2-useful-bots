@@ -438,11 +438,16 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
           -- get target priority multipliers
           target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
+          -- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
+          if data.attention_obj == attention_data then
+            target_priority = target_priority * 1.1
+          end
+
           -- reduce priority if we would hit a shield
           if TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
             target_priority = target_priority * 0.01
           end
-        elseif has_alerted then
+        elseif has_alerted and not is_dead then
           valid_target = true
           reaction = math_min(reaction, REACT_AIM)
           target_priority = target_priority * 0.01
