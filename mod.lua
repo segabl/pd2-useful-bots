@@ -219,11 +219,11 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
         local vec = u_head_pos - head_pos
         local dis = mvector3.normalize(vec)
         local angle = vec:angle(look_vec)
-        if dis < max_dis and angle < (use_default_shout_shape and math.max(8, math.lerp(90, 30, dis / 1200)) or max_angle) then
+        if dis < (escort and 300 or max_dis) and angle < (use_default_shout_shape and math.max(8, math.lerp(90, 30, dis / 1200)) or max_angle) then
           local ray = World:raycast("ray", head_pos, u_head_pos, "slot_mask", ai_visibility_slotmask)
           if not ray then
             local inv_wgt = dis * dis * (1 - vec:dot(look_vec))
-            if escort and dis < 300 then
+            if escort then
               return unit, inv_wgt, { unit = unit, key = key, inv_wgt = inv_wgt }
             end
             table.insert(intimidateable_civilians, {
