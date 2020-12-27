@@ -1,53 +1,79 @@
-UsefulBots = UsefulBots or {
-	no_crouch = true,
-	dominate_enemies = 1,       -- 1 = yes, 2 = assist only, 3 = no
-	mark_specials = true,
-	announce_low_hp = true,
-	targeting_improvement = true,
-	targeting_priority = {
-		base_priority = 1,        -- 1 = by weapon stats, 2 = by distance
-		critical = 2,             -- sabotaging enemies, taser tasing, cloaker charging
-		marked = 1,               -- marked enemies
-		damaged = 1.5,            -- enemies that damaged the bot
-		domination = 2,           -- enemies that are in domination progress or valid targets
-		enemies = {               -- multipliers for specific enemy types
-			medic = 3,
-			phalanx_minion = 1,
-			phalanx_vip = 1,
-			shield = 1,
-			sniper = 3,
-			spooc = 4,
-			tank = 1,
-			tank_hw = 1,
-			tank_medic = 2,
-			tank_mini = 1,
-			taser = 2,
-			turret = 1
+if not HopLib then
+	return
+end
+
+if not UsefulBots then
+	UsefulBots = {}
+	UsefulBots.mod_path = ModPath
+	UsefulBots.settings = {
+		no_crouch = true,
+		dominate_enemies = 1, -- 1 = yes, 2 = assist only, 3 = no
+		mark_specials = true,
+		announce_low_hp = true,
+		targeting_priority = {
+			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
+			player_aim = 4,
+			critical = 2,
+			marked = 1,
+			damaged = 1.5,
+			domination = 2,
+			enemies = { -- multipliers for specific enemy types
+				medic = 3,
+				phalanx_minion = 1,
+				phalanx_vip = 1,
+				shield = 1,
+				sniper = 3,
+				spooc = 4,
+				tank = 1,
+				tank_hw = 1,
+				tank_medic = 2,
+				tank_mini = 1,
+				taser = 2,
+				turret = 1
+			}
 		}
 	}
-}
-
-if not AutoMenuBuilder then
-	dofile(ModPath .. "req/automenubuilder.lua")
-	AutoMenuBuilder:load_settings(UsefulBots, "useful_bots")
+	UsefulBots.params = {
+		dominate_enemies = {
+			priority = 100,
+			items = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" }
+		},
+		targeting_priority = {
+			priority = -1,
+			max = 5,
+		},
+		base_priority = {
+			priority = 100,
+			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" }
+		},
+		enemies = {
+			priority = -1,
+			max = 5
+		}
+	}
+	UsefulBots.menu_builder = MenuBuilder:new("useful_bots", UsefulBots.settings, UsefulBots.params)
 end
 
 if RequiredScript == "lib/managers/menumanager" then
 
 	Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusUsefulBots", function(menu_manager, nodes)
-		managers.localization:add_localized_strings({
-			menu_useful_bots_assist_only = "Only assist",
-			menu_useful_bots_weapon_stats = "By weapon stats",
-			menu_useful_bots_distance = "By target distance"
+		local loc = managers.localization
+		HopLib:load_localization(UsefulBots.mod_path .. "loc/", loc)
+		loc:add_localized_strings({
+			menu_useful_bots_medic = loc:text("ene_medic"),
+			menu_useful_bots_phalanx_minion = loc:text("ene_phalanx"),
+			menu_useful_bots_phalanx_vip = loc:text("ene_vip"),
+			menu_useful_bots_shield = loc:text("ene_shield"),
+			menu_useful_bots_sniper = loc:text("ene_sniper"),
+			menu_useful_bots_spooc = loc:text("ene_spook"),
+			menu_useful_bots_tank = loc:text("ene_bulldozer_1"),
+			menu_useful_bots_tank_hw = loc:text("ene_bulldozer_4"),
+			menu_useful_bots_tank_medic = loc:text("ene_bulldozer_medic"),
+			menu_useful_bots_tank_mini = loc:text("ene_bulldozer_minigun"),
+			menu_useful_bots_taser = loc:text("ene_tazer"),
+			menu_useful_bots_turret = loc:text("tweak_swat_van_turret_module"),
 		})
-		AutoMenuBuilder:create_menu_from_table(nodes, UsefulBots, "useful_bots", "blt_options", {
-			targeting_priority = { 0, 5, 0.25 },
-			dominate_enemies = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" },
-			base_priority = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance" }
-		}, {
-			base_priority = 100,
-			enemies = -10
-		})
+		UsefulBots.menu_builder:create_menu(nodes)
 	end)
 
 end
@@ -60,7 +86,7 @@ if RequiredScript == "lib/tweak_data/charactertweakdata" then
 		local result = init_original(self, ...)
 		for k, v in pairs(self) do
 			if type(v) == "table" then
-				if v.access == "teamAI1" and UsefulBots.no_crouch then
+				if v.access == "teamAI1" and UsefulBots.settings.no_crouch then
 					v.allowed_poses = { stand = true }
 				end
 			end
@@ -100,7 +126,7 @@ end
 if RequiredScript == "lib/units/player_team/teamaibrain" then
 
 	Hooks:PostHook(TeamAIBrain, "_reset_logic_data", "_reset_logic_data_ub", function (self)
-		if UsefulBots.targeting_priority.enemies.turret > 0 then
+		if UsefulBots.settings.targeting_priority.enemies.turret > 0 then
 			self._logic_data.enemy_slotmask = self._logic_data.enemy_slotmask + World:make_slot_mask(25)
 		end
 	end)
@@ -112,7 +138,7 @@ if RequiredScript == "lib/units/player_team/teamaidamage" then
 
 	Hooks:PostHook(TeamAIDamage, "_apply_damage", "_apply_damage_ub", function (self)
 		local t = TimerManager:game():time()
-		if UsefulBots.announce_low_hp and (not self._said_hurt_t or self._said_hurt_t + 10 < t) and self._health_ratio < 0.3 and not self:need_revive() and not self._unit:sound():speaking() then
+		if UsefulBots.settings.announce_low_hp and (not self._said_hurt_t or self._said_hurt_t + 10 < t) and self._health_ratio < 0.3 and not self:need_revive() and not self._unit:sound():speaking() then
 			self._said_hurt_t = t
 			self._unit:sound():say("g80x_plu", true, true)
 		end
@@ -155,12 +181,18 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 			end
 		end
 		-- mark
-		if UsefulBots.mark_specials and (not data._next_mark_t or data._next_mark_t < data.t) then
+		if UsefulBots.settings.mark_specials and (not data._next_mark_t or data._next_mark_t < data.t) then
 			if att.char_tweak and att.char_tweak.priority_shout and (not att.unit:contour()._contour_list or not att.unit:contour():has_id("mark_enemy")) then
 				TeamAILogicAssault.mark_enemy(data, data.unit, att.unit)
 				data._next_mark_t = data.t + 16
 				return
 			end
+		end
+	end)
+
+	Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", function (data)
+		if data.objective and data.objective.follow_unit then
+			data._latest_follow_unit = data.objective.follow_unit
 		end
 	end)
 
@@ -281,7 +313,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 
 	-- check if attention_object is a valid intimidation target
 	function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_anim, unit_damage, data, distance)
-		if UsefulBots.dominate_enemies > 2 then
+		if UsefulBots.settings.dominate_enemies > 2 then
 			return false
 		end
 		if unit:unit_data().disable_shout then
@@ -299,7 +331,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 			-- unit is already surrendering
 			return true
 		end
-		if UsefulBots.dominate_enemies > 1 then
+		if UsefulBots.settings.dominate_enemies > 1 then
 			-- unit is not surrendering and we only allow domination assists
 			return false
 		end
@@ -357,11 +389,15 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 
 	local math_min = math.min
 	local math_max = math.max
+	local math_lerp = math.lerp
+	local mvec_set = mvector3.set
+	local mvec_sub = mvector3.subtract
+	local mvec_norm = mvector3.normalize
+	local tmp_vec = Vector3()
 	local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
 	function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func, ...)
-		TeamAILogicAssault._mark_special_chk_t = data.t + 10  -- hacky way to stop the vanilla special mark code
-
-		if not UsefulBots.targeting_improvement then
+		local ub_priority = UsefulBots.settings.targeting_priority
+		if ub_priority.base_priority > 2 then
 			return _get_priority_attention_original(data, attention_objects, reaction_func, ...)
 		end
 
@@ -373,7 +409,9 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 		local w_unit = data.unit:inventory():equipped_unit()
 		local w_tweak = alive(w_unit) and w_unit:base():weapon_tweak_data()
 		local w_usage = w_tweak and data.char_tweak.weapon[w_tweak.usage]
-		local ub_priority = UsefulBots.targeting_priority
+		local follow_movement = alive(data._latest_follow_unit) and data._latest_follow_unit:movement()
+		local follow_head_pos = follow_movement and follow_movement:m_head_pos()
+		local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
 
 		for u_key, attention_data in pairs(attention_objects) do
 			local att_unit = attention_data.unit
@@ -447,6 +485,14 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 					if TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
 						target_priority = target_priority * 0.01
 					end
+
+					-- prefer shooting enemies the player is not aiming at
+					if ub_priority.player_aim ~= 1 and follow_look_vec then
+						mvec_set(tmp_vec, att_movement:m_head_pos())
+						mvec_sub(tmp_vec, follow_head_pos)
+						mvec_norm(tmp_vec)
+						target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
+					end
 				elseif has_alerted and not is_dead then
 					valid_target = true
 					reaction = math_min(reaction, REACT_AIM)
@@ -466,6 +512,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 end
 
 if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
+
+	TeamAILogicAssault._mark_special_chk_t = math.huge  -- hacky way to stop the vanilla special mark code
 
 	function TeamAILogicAssault.mark_enemy(data, criminal, to_mark)
 		criminal:sound():say(to_mark:base():char_tweak().priority_shout .. "x_any", true)
