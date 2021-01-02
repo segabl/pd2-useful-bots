@@ -357,8 +357,11 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 		local max = 1 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
 		local m_pos = data.unit:movement():m_pos()
 		local dist_sq = tweak_data.player.long_dis_interaction.intimidate_range_enemies * tweak_data.player.long_dis_interaction.intimidate_range_enemies * 4
+		local u_damage, u_movement
 		for _, v in pairs(data.detected_attention_objects) do
-			if v.verified and v.unit ~= unit and v.unit.character_damage and not v.unit:character_damage():dead() and mvector3.distance_sq(v.unit:movement():m_pos(), m_pos) < dist_sq then
+			u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
+			u_movement = v.unit and v.unit.movement and v.unit:movement()
+			if v.verified and v.unit ~= unit and u_damage and not u_damage:dead() and u_movement and mvector3.distance_sq(u_movement:m_pos(), m_pos) < dist_sq then
 				num = num + 1
 				if num > max then
 					-- too many detected attention objects
@@ -430,7 +433,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 				local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data)) or AIAttentionObject.REACT_CHECK
 				attention_data.aimed_at = TeamAILogicIdle.chk_am_i_aimed_at(data, attention_data, attention_data.aimed_at and 0.95 or 0.985)
 				-- attention unit data
-				local att_tweak_name = att_unit.base and att_unit:base()._tweak_table
+				local att_base = att_unit.base and att_unit:base()
+				local att_tweak_name = att_base and att_base._tweak_table
 				local att_tweak = attention_data.char_tweak or att_tweak_name and tweak_data.character[att_tweak_name] or {}
 				local att_brain = att_unit.brain and att_unit:brain()
 				local att_anim = att_unit.anim_data and att_unit:anim_data() or {}
@@ -452,7 +456,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 				local is_tied = att_anim.hands_tied
 				local is_dead = not att_damage or att_damage:dead()
 				local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
-				local is_turret = att_unit.base and att_unit:base().sentry_gun
+				local is_turret = att_base and att_base.sentry_gun
 				-- use the dmg multiplier of the given distance as priority
 				local valid_target = false
 				local target_priority
@@ -492,6 +496,12 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 						mvec_sub(tmp_vec, follow_head_pos)
 						mvec_norm(tmp_vec)
 						target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
+					end
+
+					-- ;)
+					if att_base._shiny_effect and reaction >= REACT_SHOOT then
+						target_priority = target_priority * 0.01
+						reaction = REACT_AIM
 					end
 				elseif has_alerted and not is_dead then
 					valid_target = true
