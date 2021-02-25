@@ -238,18 +238,9 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			local att_movement = att_unit.movement and att_unit:movement()
 			local att_damage = att_unit.character_damage and att_unit:character_damage()
 
-			local alert_dt = attention_data.alert_t and data.t - attention_data.alert_t or 10000
-			local dmg_dt = attention_data.dmg_t and data.t - attention_data.dmg_t or 10000
-			local mark_dt = attention_data.mark_t and data.t - attention_data.mark_t or 10000
-			if data.attention_obj and data.attention_obj.u_key == u_key then
-				alert_dt = alert_dt * 0.8
-				dmg_dt = dmg_dt * 0.8
-				mark_dt = mark_dt * 0.8
-				distance = distance * 0.8
-			end
-			local has_alerted = alert_dt < 5
-			local has_damaged = dmg_dt < 2
-			local been_marked = mark_dt < 10
+			local has_alerted = attention_data.alert_t and data.t - attention_data.alert_t < 3
+			local has_damaged = attention_data.dmg_t and data.t - attention_data.dmg_t < 2
+			local been_marked = attention_data.mark_t and data.t - attention_data.mark_t < 10
 			local is_tied = att_anim.hands_tied
 			local is_dead = not att_damage or att_damage:dead()
 			local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
