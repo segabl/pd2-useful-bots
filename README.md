@@ -12,6 +12,13 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to make bots announce when they are low on health, just like player characters do
 * Option to disable bots marking special enemies (for when you want to give a high priority to only your own marked targets)
 
+### Target priority
+
+By default, there is some basic setup for improved bot target priority which should already feel a lot better than the vanilla targeting. You can fine tune all priority modifiers to your liking in the mod options. Multipliers you set in the options are applied to the calculated base priority of a target. The base priority settings define the initial priority of an enemy, based on the setting:  
+"By weapon stats" means targets are prioritized based on the bots weapon stats at the target's distance.
+"By distance" means enemies will just be prioritized based on their distance to the bot, the bot's weapon will not be accounted for.
+"No changes" disables the custom target priority code entirely and use the vanilla code. Any multipliers defined will be ignored if this setting is used.
+
 ## Improvements
 
 * Improved special spotting code so bots only mark targets they see and are higher priority
