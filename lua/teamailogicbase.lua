@@ -32,9 +32,11 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 	-- mark
 	if UsefulBots.settings.mark_specials and (not data._next_mark_t or data._next_mark_t < data.t) then
 		if att.char_tweak and att.char_tweak.priority_shout and (not att.unit:contour()._contour_list or not att.unit:contour():has_id("mark_enemy")) then
-			TeamAILogicAssault.mark_enemy(data, data.unit, att.unit)
-			data._next_mark_t = data.t + 16
-			return
+			if att.unit:character_damage():health_ratio() > 0.5 then
+				TeamAILogicAssault.mark_enemy(data, data.unit, att.unit)
+				data._next_mark_t = data.t + 16
+				return
+			end
 		end
 	end
 end)
