@@ -10,7 +10,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Ability for bots to dominate enemies on their own or assist your domination attempts (normal game rules apply to bots)
 * Option to make bots not crouch and always use a standing pose
 * Option to make bots announce when they are low on health, just like player characters do
-* Option to disable bots marking special enemies (for when you want to give a high priority to only your own marked targets)
+* Option to disable bots marking special enemies
 
 ### Target priority
 

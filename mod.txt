@@ -14,6 +14,7 @@
 	"hooks" : [
 		{ "hook_id" : "lib/managers/group_ai_states/groupaistatebase", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/tweak_data/charactertweakdata", "script_path" : "mod.lua" },
+		{ "hook_id" : "lib/units/contourext", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/logics/teamailogicidle", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/logics/teamailogicassault", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/logics/teamailogicbase", "script_path" : "mod.lua" },

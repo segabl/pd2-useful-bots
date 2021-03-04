@@ -261,12 +261,14 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				local high_priority = TeamAILogicIdle.is_high_priority(att_unit, att_movement, att_brain)
 				local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
+				local marked_contour = is_special and att_unit.contour and att_unit:contour():find_id_match("^mark_enemy")
+				local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
 
 				-- check for reaction changes
 				reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or been_marked) and math_max(REACT_SHOOT, reaction) or reaction
 
 				-- get target priority multipliers
-				target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (been_marked and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
+				target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (marked_by_player and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
 				-- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
 				if data.attention_obj == attention_data then
