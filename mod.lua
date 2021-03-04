@@ -6,30 +6,30 @@ if not UsefulBots then
 	UsefulBots = {}
 	UsefulBots.mod_path = ModPath
 	UsefulBots.settings = {
-		no_crouch = true,
+		no_crouch = false,
 		dominate_enemies = 1, -- 1 = yes, 2 = assist only, 3 = no
 		mark_specials = true,
 		announce_low_hp = true,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
-			player_aim = 3,
+			player_aim = 1.5,
 			critical = 2,
-			marked = 1,
-			damaged = 1.5,
+			marked = 1.5,
+			damaged = 1.2,
 			domination = 2,
 			enemies = { -- multipliers for specific enemy types
-				medic = 3,
+				medic = 2,
 				phalanx_minion = 1,
 				phalanx_vip = 1,
 				shield = 1,
-				sniper = 3,
-				spooc = 4,
+				sniper = 1.5,
+				spooc = 2,
 				tank = 1,
 				tank_hw = 1,
 				tank_medic = 2,
 				tank_mini = 1,
-				taser = 2,
-				turret = 1
+				taser = 1.7,
+				turret = 0.5
 			}
 		}
 	}
