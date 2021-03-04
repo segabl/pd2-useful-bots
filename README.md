@@ -29,4 +29,4 @@ By default, there is some basic setup for improved bot target priority which sho
 
 ## Changes
 
-* Bots will now fully count for game balancing, so 4 bots will result in the same enemy spawns as 4 players instead of only 3
+* Bots will now fully count for game balancing, so 1 player + 3 bots will result in the same enemy spawns as 4 players
