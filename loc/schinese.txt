@@ -10,6 +10,8 @@
 	"menu_useful_bots_mark_specials_desc" : "Bots会标记那些想嗦拉斯特牛子的特殊兵种",
 	"menu_useful_bots_announce_low_hp" : "语音提示低血量",
 	"menu_useful_bots_announce_low_hp_desc" : "例如达拉斯会说\"Ahhhhh, I neeeeeed a medic bag!\"",
+	"menu_useful_bots_hold_position" : "坚守原地",
+	"menu_useful_bots_hold_position_desc" : "Bots被命令停止后，无论你离他们多远，他们都会坚守在原地不动。",
 	"menu_useful_bots_targeting_priority" : "目标优先级",
 	"menu_useful_bots_targeting_priority_desc" : "调整Bots更喜欢捅谁的ASS",
 	"menu_useful_bots_base_priority" : "基础优先级",

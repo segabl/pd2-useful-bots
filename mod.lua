@@ -10,6 +10,7 @@ if not UsefulBots then
 		dominate_enemies = 1, -- 1 = yes, 2 = assist only, 3 = no
 		mark_specials = true,
 		announce_low_hp = true,
+		hold_position = true,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
 			player_aim = 1.5,

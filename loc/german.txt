@@ -10,6 +10,8 @@
 	"menu_useful_bots_mark_specials_desc" : "Bots werden Specials markieren",
 	"menu_useful_bots_announce_low_hp" : "Niedrige HP ankündigen",
 	"menu_useful_bots_announce_low_hp_desc" : "Bots werden mittels Sprache mitteilen, wenn ihre Gesundheit niedrig ist",
+	"menu_useful_bots_hold_position" : "Position halten",
+	"menu_useful_bots_hold_position_desc" : "Bots werden ihre Position halten wenn sie gestoppt werden, egal wie weit entfernt der Spieler ist",
 	"menu_useful_bots_targeting_priority" : "Zielprioritäten",
 	"menu_useful_bots_targeting_priority_desc" : "Passe an wie Bots ihre Ziele priorisieren",
 	"menu_useful_bots_base_priority" : "Basis Zielwahl",
