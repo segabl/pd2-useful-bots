@@ -9,7 +9,7 @@
 	"menu_useful_bots_mark_specials" : "Marcar Especiais",
 	"menu_useful_bots_mark_specials_desc" : "Bots irão marcar os especiais",
 	"menu_useful_bots_announce_low_hp" : "Pedir ajuda com vida baixa",
-	"menu_useful_bots_announce_low_hp_desc" : "Bots irão usar falas de "Ah! I need a Medic Bag!" para avisar que estão com vida baixa",
+	"menu_useful_bots_announce_low_hp_desc" : "Bots irão usar falas de \"Ah! I need a Medic Bag!\" para avisar que estão com vida baixa",
 	"menu_useful_bots_hold_position" : "Fique aí",
 	"menu_useful_bots_hold_position_desc" : "Bots vão ficar na sua posição, independente da distância do jogador",
 	"menu_useful_bots_targeting_priority" : "Prioridade de alvo",
