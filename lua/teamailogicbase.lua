@@ -1,6 +1,6 @@
 local tmp_vec = Vector3()
 Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function (data, att, react)
-	if not att or not react then
+	if not att or not att.verified or not react then
 		return
 	end
 	-- early abort
@@ -10,7 +10,7 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 	if data.unit:movement():chk_action_forbidden("action") or data.unit:anim_data().reload or data.unit:character_damage():is_downed() then
 		return
 	end
-	if not att.verified or not att.unit.character_damage or att.unit:character_damage():dead() then
+	if not alive(att.unit) or not att.unit.character_damage or att.unit:character_damage():dead() then
 		return
 	end
 	mvector3.set(tmp_vec, att.unit:movement():m_head_pos())
