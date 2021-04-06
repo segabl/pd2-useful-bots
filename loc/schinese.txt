@@ -12,6 +12,8 @@
 	"menu_useful_bots_announce_low_hp_desc" : "例如达拉斯会说\"Ahhhhh, I neeeeeed a medic bag!\"",
 	"menu_useful_bots_hold_position" : "坚守原地",
 	"menu_useful_bots_hold_position_desc" : "Bots被命令停止后，无论你离他们多远，他们都会坚守在原地不动。",
+	"menu_useful_bots_battle_cries" : "战斗中呼喊",
+	"menu_useful_bots_battle_cries_desc" : "Bots时不时会在战斗中做出呼喊或嘲讽。\n例如拉斯特有时候会说：\"Easy, it's fucking easy I tell ya!\"",
 	"menu_useful_bots_targeting_priority" : "目标优先级",
 	"menu_useful_bots_targeting_priority_desc" : "调整Bots更喜欢捅谁的ASS",
 	"menu_useful_bots_base_priority" : "基础优先级",

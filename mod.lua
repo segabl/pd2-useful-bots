@@ -11,6 +11,7 @@ if not UsefulBots then
 		mark_specials = true,
 		announce_low_hp = true,
 		hold_position = true,
+		battle_cries = true,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
 			player_aim = 1.5,

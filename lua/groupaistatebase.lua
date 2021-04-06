@@ -7,3 +7,8 @@ if UsefulBots.settings.hold_position then
 	function GroupAIStateBase:upd_team_AI_distance()
 	end
 end
+
+if not UsefulBots.settings.battle_cries then
+	function GroupAIStateBase:chk_say_teamAI_combat_chatter()
+	end
+end

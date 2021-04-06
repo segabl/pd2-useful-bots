@@ -12,6 +12,8 @@
 	"menu_useful_bots_announce_low_hp_desc" : "Bots will use voice lines to announce when they are on low health",
 	"menu_useful_bots_hold_position" : "Hold position",
 	"menu_useful_bots_hold_position_desc" : "Bots will hold their position when told to stay, no matter how far away the player is",
+	"menu_useful_bots_battle_cries" : "Battle cries",
+	"menu_useful_bots_battle_cries_desc" : "Bots will occasionally do battle cries",
 	"menu_useful_bots_targeting_priority" : "Targeting priority",
 	"menu_useful_bots_targeting_priority_desc" : "Tweak how bots will prioritize targets",
 	"menu_useful_bots_base_priority" : "Base targeting",
