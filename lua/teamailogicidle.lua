@@ -202,18 +202,20 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	end
 
 	reaction_func = reaction_func or TeamAILogicBase._chk_reaction_to_attention_object
-	local best_target, best_target_priority, best_target_reaction = nil, 0, nil
+	local best_target, best_target_priority, best_target_reaction, best_target_selection_index = nil, 0, nil, nil
 	local REACT_SHOOT = data.cool and AIAttentionObject.REACT_SURPRISED or AIAttentionObject.REACT_SHOOT
 	local REACT_ARREST = AIAttentionObject.REACT_ARREST
 	local REACT_AIM = AIAttentionObject.REACT_AIM
-	local w_unit = data.unit:inventory():equipped_unit()
-	local w_tweak = alive(w_unit) and w_unit:base():weapon_tweak_data()
-	local w_usage = w_tweak and data.char_tweak.weapon[w_tweak.usage]
+
+	local w_usage_tweaks = data.unit:inventory()._available_w_usage_tweak
+	local current_selection = data.unit:inventory():equipped_selection()
+	local can_switch_weapon = not data._next_weapon_switch_t or data._next_weapon_switch_t < data.t
+
 	local follow_movement = alive(data._latest_follow_unit) and data._latest_follow_unit:movement()
 	local follow_head_pos = follow_movement and follow_movement:m_head_pos()
 	local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
 
-	for u_key, attention_data in pairs(attention_objects) do
+	for _, attention_data in pairs(attention_objects) do
 		local att_unit = attention_data.unit
 		if not attention_data.identified then
 		elseif attention_data.pause_expire_t then
@@ -247,10 +249,23 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			local is_turret = att_base and att_base.sentry_gun
 			-- use the dmg multiplier of the given distance as priority
 			local valid_target = false
-			local target_priority
-			if ub_priority.base_priority == 1 and w_usage then
-				local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage.FALLOFF)
-				target_priority = (falloff_data.dmg_mul / w_usage.FALLOFF[1].dmg_mul) * falloff_data.acc[2]
+			local target_selection_index = current_selection
+			local target_priority = 0
+			if ub_priority.base_priority == 1 and w_usage_tweaks then
+				if can_switch_weapon then
+					for i, v in pairs(w_usage_tweaks) do
+						local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, v.FALLOFF)
+						local base_priority = falloff_data.dmg_mul * falloff_data.acc[2]
+						if base_priority > target_priority then
+							target_priority = base_priority
+							target_selection_index = i
+						end
+					end
+					target_priority = target_priority / w_usage_tweaks[target_selection_index].FALLOFF[1].dmg_mul
+				else
+					local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage_tweaks[current_selection].FALLOFF)
+					target_priority = (falloff_data.dmg_mul / w_usage_tweaks[current_selection].FALLOFF[1].dmg_mul) * falloff_data.acc[2]
+				end
 			else
 				target_priority = math_max(0, 1 - distance / 3000)
 			end
@@ -297,14 +312,17 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				valid_target = true
 				reaction = math_min(reaction, REACT_AIM)
 				target_priority = target_priority * 0.01
+				target_selection_index = current_selection
 			end
 
 			if valid_target and target_priority > best_target_priority then
 				best_target = attention_data
 				best_target_priority = target_priority
 				best_target_reaction = reaction
+				best_target_selection_index = target_selection_index
 			end
 		end
 	end
+	data._preferred_selection_index = best_target_selection_index
 	return best_target, best_target and 3 / math_max(best_target_priority, 0.1), best_target_reaction
 end

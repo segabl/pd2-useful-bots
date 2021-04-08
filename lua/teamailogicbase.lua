@@ -7,15 +7,16 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 	if data.cool or data.internal_data.acting then
 		return
 	end
-	if data.unit:movement():chk_action_forbidden("action") or data.unit:anim_data().reload or data.unit:character_damage():is_downed() then
+	local movement = data.unit:movement()
+	if movement:chk_action_forbidden("action") or data.unit:anim_data().reload or data.unit:character_damage():is_downed() then
 		return
 	end
 	if not alive(att.unit) or not att.unit.character_damage or att.unit:character_damage():dead() then
 		return
 	end
 	mvector3.set(tmp_vec, att.unit:movement():m_head_pos())
-	mvector3.subtract(tmp_vec, data.unit:movement():m_head_pos())
-	if tmp_vec:angle(data.unit:movement():m_rot():y()) > 50 then
+	mvector3.subtract(tmp_vec, movement:m_head_pos())
+	if tmp_vec:angle(movement:m_rot():y()) > 50 then
 		return
 	end
 	-- intimidate
@@ -38,6 +39,13 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 				data._next_mark_t = data.t + 16
 				return
 			end
+		end
+	end
+	-- switch weapon
+	if data._preferred_selection_index ~= data.unit:inventory():equipped_selection() and (not data._next_weapon_switch_t or data._next_weapon_switch_t < data.t) then
+		if HuskPlayerMovement._can_play_weapon_switch_anim(movement) then
+			data._next_weapon_switch_t = data.t + 8
+			movement:switch_weapon(data._preferred_selection_index)
 		end
 	end
 end)
