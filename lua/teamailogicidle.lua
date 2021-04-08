@@ -61,7 +61,7 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 				if not ray then
 					local inv_wgt = dis * dis * (1 - vec:dot(look_vec))
 					if escort then
-						return unit, inv_wgt, { unit = unit, key = key, inv_wgt = inv_wgt }
+						return unit, inv_wgt, {{ unit = unit, key = key, inv_wgt = inv_wgt }}
 					end
 					table.insert(intimidateable_civilians, {
 						unit = unit,
