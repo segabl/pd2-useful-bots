@@ -14,6 +14,8 @@
 	"menu_useful_bots_hold_position_desc" : "Bots vão ficar na sua posição, independente da distância do jogador",
 	"menu_useful_bots_battle_cries" : "Gritos de batalha",
 	"menu_useful_bots_battle_cries_desc" : "Os bots vão fazer gritos de batalha em certas ocasiões",
+	"menu_useful_bots_save_hostages" : "Previnir Reféns",
+	"menu_useful_bots_save_hostages_desc" : "Bots não podem fazer dano contra civis presos",
 	"menu_useful_bots_targeting_priority" : "Prioridade de alvo",
 	"menu_useful_bots_targeting_priority_desc" : "Mude como os bots priorizem os seus alvos",
 	"menu_useful_bots_base_priority" : "Base de alvo",

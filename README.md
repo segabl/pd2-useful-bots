@@ -12,6 +12,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to make bots not abandon their positions when they are too far from the player
 * Option to make bots announce when they are low on health, just like player characters do
 * Option to disable bots marking special enemies
+* Option to make weapons shots of bots go through tied down enemy hostages
 
 ### Target priority
 

@@ -14,6 +14,8 @@
 	"menu_useful_bots_hold_position_desc" : "Bots werden ihre Position halten wenn sie gestoppt werden, egal wie weit entfernt der Spieler ist",
 	"menu_useful_bots_battle_cries" : "Kampfschreie",
 	"menu_useful_bots_battle_cries_desc" : "Bots werden gelegentlich Kampfschreie rufen",
+	"menu_useful_bots_save_hostages" : "Schütze Geiseln",
+	"menu_useful_bots_save_hostages_desc" : "Bots können Geiseln nicht verletzen",
 	"menu_useful_bots_targeting_priority" : "Zielprioritäten",
 	"menu_useful_bots_targeting_priority_desc" : "Passe an wie Bots ihre Ziele priorisieren",
 	"menu_useful_bots_base_priority" : "Basis Zielwahl",
