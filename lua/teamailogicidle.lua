@@ -281,6 +281,12 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					target_priority = target_priority * 0.01
 				end
 
+				-- reduce reaction and priority if someone is trying to intimidate, but we are not
+				if not should_intimidate and TeamAILogicIdle._intimidate_progress[u_key] and TeamAILogicIdle._intimidate_progress[u_key] + 2 > data.t then
+					reaction = math_min(REACT_AIM, reaction)
+					target_priority = target_priority * 0.01
+				end
+
 				-- prefer shooting enemies the player is not aiming at
 				if ub_priority.player_aim ~= 1 and follow_look_vec then
 					mvec_set(tmp_vec, att_movement:m_head_pos())
