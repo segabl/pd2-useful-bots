@@ -143,13 +143,11 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- no room for police hostage
 		return false
 	end
-	local health_min, health_max
+	local health_max = 0
 	for k, _ in pairs(unit_tweak.surrender.reasons and unit_tweak.surrender.reasons.health or {}) do
-		health_min = (not health_min or k < health_min) and k or health_min
-		health_max = (not health_max or k > health_max) and k or health_max
+		health_max = k > health_max and k or health_max
 	end
-	local is_hurt = health_min and health_max and unit_damage:health_ratio() < health_min + (health_max - health_min) / 2
-	if not is_hurt then
+	if unit_damage:health_ratio() > health_max / 2 then
 		-- not vulnerable
 		return false
 	end
