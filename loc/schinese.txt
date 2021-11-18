@@ -16,6 +16,8 @@
 	"menu_useful_bots_battle_cries_desc" : "Bots时不时会在战斗中做出呼喊或嘲讽。\n例如拉斯特有时候会说：\"Easy, it's fucking easy I tell ya!\"",
 	"menu_useful_bots_save_hostages" : "保住人质",
 	"menu_useful_bots_save_hostages_desc" : "Bots不会伤害被制服的敌人",
+	"menu_useful_bots_block_slow_vehicles" : "别上慢载具",
+	"menu_useful_bots_block_slow_vehicles_desc" : "Bots不会乘上速度比自己慢的载具",
 	"menu_useful_bots_targeting_priority" : "目标优先级",
 	"menu_useful_bots_targeting_priority_desc" : "调整Bots更喜欢捅谁的ASS",
 	"menu_useful_bots_base_priority" : "基础优先级",

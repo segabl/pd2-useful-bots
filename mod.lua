@@ -13,6 +13,7 @@ if not UsefulBots then
 		hold_position = true,
 		battle_cries = true,
 		save_hostages = true,
+		block_slow_vehicles = true,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
 			player_aim = 1.5,

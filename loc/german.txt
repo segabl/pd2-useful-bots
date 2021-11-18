@@ -16,6 +16,8 @@
 	"menu_useful_bots_battle_cries_desc" : "Bots werden gelegentlich Kampfschreie rufen",
 	"menu_useful_bots_save_hostages" : "Schütze Geiseln",
 	"menu_useful_bots_save_hostages_desc" : "Bots können Geiseln nicht verletzen",
+	"menu_useful_bots_block_slow_vehicles" : "Langsame Fahrzeuge vermeiden",
+	"menu_useful_bots_block_slow_vehicles_desc" : "Bots werden sich nicht in Fahrzeuge setzen, die langsamer als sie selbst sind",
 	"menu_useful_bots_targeting_priority" : "Zielprioritäten",
 	"menu_useful_bots_targeting_priority_desc" : "Passe an wie Bots ihre Ziele priorisieren",
 	"menu_useful_bots_base_priority" : "Basis Zielwahl",
