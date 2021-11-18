@@ -12,7 +12,9 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to make bots not abandon their positions when they are too far from the player
 * Option to make bots announce when they are low on health, just like player characters do
 * Option to disable bots marking special enemies
+* Option to disable bot battle cries
 * Option to make weapons shots of bots go through tied down enemy hostages
+* Option to prevent bots from getting into slow vehicles like forklifts
 
 ### Target priority
 
@@ -31,4 +33,4 @@ By default, there is some basic setup for improved bot target priority which sho
 
 ## Changes
 
-* Bots will now fully count for game balancing, so 1 player + 3 bots will result in the same enemy spawns as 4 players
+* Bots will now fully count for game balancing and crew alive bonus, so 1 player + 3 bots will result in the same enemy spawns as 4 players
