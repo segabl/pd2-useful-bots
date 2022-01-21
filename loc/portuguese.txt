@@ -32,7 +32,7 @@
 	"menu_useful_bots_marked" : "Multiplicador de marcado",
 	"menu_useful_bots_marked_desc" : "Prioridade de alvos marcados",
 	"menu_useful_bots_damaged" : "Multiplicador de machucado",
-	"menu_useful_bots_damaged_desc" : "Prioridade de inimigos que machucaram o bot",
+	"menu_useful_bots_damaged_desc" : "Prioridade de inimigos que causaram dano contra o bot",
 	"menu_useful_bots_domination" : "Multiplicador de dominação",
 	"menu_useful_bots_domination_desc" : "Prioridade de dominar os inimigos",
 	"menu_useful_bots_enemies" : "Multiplicadores de inimigos específicos",
