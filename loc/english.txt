@@ -18,6 +18,8 @@
 	"menu_useful_bots_save_hostages_desc" : "Bots cannot damage tied down enemies",
 	"menu_useful_bots_block_slow_vehicles" : "Avoid slow vehicles",
 	"menu_useful_bots_block_slow_vehicles_desc" : "Bots will not get into vehicles that move slower than them",
+	"menu_useful_bots_ammo_drops" : "Ammo drops",
+	"menu_useful_bots_ammo_drops_desc" : "Enemies killed by bots drop ammo",
 	"menu_useful_bots_targeting_priority" : "Targeting priority",
 	"menu_useful_bots_targeting_priority_desc" : "Tweak how bots will prioritize targets",
 	"menu_useful_bots_base_priority" : "Base targeting",

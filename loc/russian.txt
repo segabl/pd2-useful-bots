@@ -18,6 +18,8 @@
 	"menu_useful_bots_save_hostages_desc" : "Боты не смогут нанести урон заложникам",
 	"menu_useful_bots_block_slow_vehicles" : "Avoid slow vehicles",
 	"menu_useful_bots_block_slow_vehicles_desc" : "Bots will not get into vehicles that move slower than them",
+	"menu_useful_bots_disable_ammo_drops" : "Disable ammo drops",
+	"menu_useful_bots_disable_ammo_drops_desc" : "Enemies killed by bots will not drop ammo",
 	"menu_useful_bots_targeting_priority" : "Приоритет прицеливания",
 	"menu_useful_bots_targeting_priority_desc" : "Настроить приоритеты прицеливания ботов",
 	"menu_useful_bots_base_priority" : "Базовая приоритезация",
