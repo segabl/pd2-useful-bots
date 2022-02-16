@@ -15,6 +15,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to disable bot battle cries
 * Option to make weapons shots of bots go through tied down enemy hostages
 * Option to prevent bots from getting into slow vehicles like forklifts
+* Option to disable ammo drops from enemies killed by bots
 
 ### Target priority
 
@@ -33,4 +34,5 @@ By default, there is some basic setup for improved bot target priority which sho
 
 ## Changes
 
-* Bots will now fully count for game balancing and crew alive bonus, so 1 player + 3 bots will result in the same enemy spawns as 4 players
+* Bots will now fully count for game balancing, so 1 player + 3 bots will result in the same enemy spawns as 4 players
+* Bots will now count for the crew alive bonus
