@@ -314,5 +314,5 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			end
 		end
 	end
-	return best_target, best_target and 3 / math_max(best_target_priority, 0.1), best_target_reaction
+	return best_target, 3 / math_max(best_target_priority, 0.1), best_target_reaction
 end
