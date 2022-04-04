@@ -15,7 +15,9 @@ function SpoocLogicAttack._chk_request_action_spooc_attack(data, ...)
 					attacker_unit = data.unit,
 					result = {}
 				})
-				CopLogicBase.unqueue_task(internal_logic_data, internal_logic_data.detection_task_key)
+				if internal_logic_data.queued_tasks then
+					CopLogicBase.unqueue_task(internal_logic_data, internal_logic_data.detection_task_key)
+				end
 				logic._upd_enemy_detection(logic_data)
 			end
 		end
