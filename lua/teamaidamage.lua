@@ -6,3 +6,18 @@ Hooks:PostHook(TeamAIDamage, "_apply_damage", "_apply_damage_ub", function (self
 		self._unit:sound():say("g80x_plu", true, true)
 	end
 end)
+
+-- mark taser when tased
+local damage_tase_original = TeamAIDamage.damage_tase
+function TeamAIDamage:damage_tase(attack_data, ...)
+	local result = damage_tase_original(self, attack_data, ...)
+
+	if result then
+		local attacker = attack_data.attacker_unit
+		if alive(attacker) and attacker:base() and attacker:base().has_tag and attacker:base():has_tag("taser") then
+			attacker:contour():add("mark_enemy", true)
+		end
+	end
+
+	return result
+end
