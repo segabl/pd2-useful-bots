@@ -212,6 +212,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local follow_head_pos = follow_movement and follow_movement:m_head_pos()
 	local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
 	local my_team = data.unit:movement():team()
+	local not_reviving = not data.objective or data.objective.type ~= "revive"
 
 	for u_key, attention_data in pairs(attention_objects) do
 		local att_unit = attention_data.unit
@@ -258,8 +259,6 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				-- fine tune target priority
 				if att_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
-					valid_target = true
-
 					local high_priority = TeamAILogicIdle.is_high_priority(att_unit, att_movement, att_brain)
 					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
 					local marked_contour = is_special and att_unit.contour and att_unit:contour():find_id_match("^mark_enemy")
@@ -271,37 +270,42 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					-- get target priority multipliers
 					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (marked_by_player and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
-					-- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
-					if data.attention_obj == attention_data then
-						target_priority = target_priority * 1.1
-					end
+					-- if we have a revive objective and target priority isn't high, ignore the enemy
+					valid_target = not_reviving or target_priority >= 1
 
-					-- reduce priority if we would hit a shield
-					if TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
-						target_priority = target_priority * 0.01
-					end
+					if valid_target then
+						-- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
+						if data.attention_obj == attention_data then
+							target_priority = target_priority * 1.1
+						end
 
-					-- reduce reaction and priority if someone is trying to intimidate, but we are not
-					if not should_intimidate and TeamAILogicIdle._intimidate_progress[u_key] and TeamAILogicIdle._intimidate_progress[u_key] + 2 > data.t then
-						reaction = math_min(REACT_AIM, reaction)
-						target_priority = target_priority * 0.01
-					end
+						-- reduce priority if we would hit a shield
+						if TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
+							target_priority = target_priority * 0.01
+						end
 
-					-- prefer shooting enemies the player is not aiming at
-					if ub_priority.player_aim ~= 1 and follow_look_vec then
-						mvec_set(tmp_vec, att_movement:m_head_pos())
-						mvec_sub(tmp_vec, follow_head_pos)
-						mvec_norm(tmp_vec)
-						target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
-					end
+						-- reduce reaction and priority if someone is trying to intimidate, but we are not
+						if not should_intimidate and TeamAILogicIdle._intimidate_progress[u_key] and TeamAILogicIdle._intimidate_progress[u_key] + 2 > data.t then
+							reaction = math_min(REACT_AIM, reaction)
+							target_priority = target_priority * 0.01
+						end
 
-					-- ;)
-					if att_base._shiny_effect and reaction >= REACT_SHOOT then
-						target_priority = target_priority * 0.01
-						reaction = REACT_AIM
+						-- prefer shooting enemies the player is not aiming at
+						if ub_priority.player_aim ~= 1 and follow_look_vec then
+							mvec_set(tmp_vec, att_movement:m_head_pos())
+							mvec_sub(tmp_vec, follow_head_pos)
+							mvec_norm(tmp_vec)
+							target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
+						end
+
+						-- ;)
+						if att_base._shiny_effect and reaction >= REACT_SHOOT and not ub_priority.enemies[att_tweak_name] then
+							target_priority = target_priority * 0.01
+							reaction = REACT_AIM
+						end
 					end
 				elseif has_alerted then
-					valid_target = true
+					valid_target = not_reviving
 					reaction = math_min(reaction, REACT_AIM)
 					target_priority = target_priority * 0.01
 				end
