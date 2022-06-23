@@ -320,3 +320,18 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	end
 	return best_target, 3 / math_max(best_target_priority, 0.1), best_target_reaction
 end
+
+-- Stop bots from dropping light bags when going to revive a player
+local on_long_dis_interacted_original = TeamAILogicIdle.on_long_dis_interacted
+function TeamAILogicIdle.on_long_dis_interacted(data, ...)
+	local movement = data.unit:movement()
+	local bag = movement._carry_unit
+	local can_run = bag and movement:carry_tweak() and movement:carry_tweak().can_run
+
+	on_long_dis_interacted_original(data, ...)
+
+	if data.objective and data.objective.type == "revive" and bag and can_run and not movement:carrying_bag() then
+		bag:carry_data():link_to(data.unit, false)
+		movement:set_carrying_bag(bag)
+	end
+end
