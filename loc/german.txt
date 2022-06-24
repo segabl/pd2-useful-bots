@@ -20,6 +20,8 @@
 	"menu_useful_bots_block_slow_vehicles_desc" : "Bots werden sich nicht in Fahrzeuge setzen, die langsamer als sie selbst sind",
 	"menu_useful_bots_ammo_drops" : "Munitionsdrops",
 	"menu_useful_bots_ammo_drops_desc" : "Gegner die von Bots getötet werden lassen Munition fallen",
+	"menu_useful_bots_save_inspire" : "Inspire aufsparen",
+	"menu_useful_bots_save_inspire_desc" : "Bots werden Inspire nicht benutzen wenn sie schon nahe genug an einem Spieler sind",
 	"menu_useful_bots_targeting_priority" : "Zielprioritäten",
 	"menu_useful_bots_targeting_priority_desc" : "Passe an wie Bots ihre Ziele priorisieren",
 	"menu_useful_bots_base_priority" : "Basis Zielwahl",

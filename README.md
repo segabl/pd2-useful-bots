@@ -16,6 +16,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to make weapons shots of bots go through tied down enemy hostages
 * Option to prevent bots from getting into slow vehicles like forklifts
 * Option to disable ammo drops from enemies killed by bots
+* Option to make bots avoid using Inspire when they are already within revive range
 
 ### Target priority
 
