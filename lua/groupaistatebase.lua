@@ -75,7 +75,7 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 		end
 	end
 
-	if (not UsefulBots.settings.save_inspire or closest_dis > 1000) and inspire_u_data then
+	if closest_dis > 1000 and inspire_u_data then
 		closest_u_data = inspire_u_data
 	end
 
@@ -83,9 +83,7 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 		return
 	end
 
-	local objective_copy = self.clone_objective(so_objective)
-	objective_copy.no_inspire = UsefulBots.settings.save_inspire and closest_dis <= 1000
-	closest_u_data.unit:brain():set_objective(objective_copy)
+	closest_u_data.unit:brain():set_objective(self.clone_objective(so_objective))
 	if so_data.admin_clbk then
 		so_data.admin_clbk(closest_u_data.unit)
 	end
