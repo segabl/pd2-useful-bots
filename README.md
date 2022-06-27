@@ -35,6 +35,7 @@ By default, there is some basic setup for improved bot target priority which sho
 * Escort targets are now considered for civilian intimidation and bots will shout at stopped escorts to keep them moving
 * Bots will use player animations for spotting enemies and intimidating civilians
 * Bots will not drop light bags when they are going to revive someone
+* Bots will try to kill Cloakers and Tasers before starting to revive
 
 ## Changes
 
