@@ -17,7 +17,7 @@ end
 local _execute_so_original = GroupAIStateBase._execute_so
 function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 	local so_objective = so_data.objective
-	if so_data.AI_group ~= "friendlies" or so_objective.type ~= "revive" then
+	if so_data.AI_group ~= "friendlies" then
 		return _execute_so_original(self, so_data, so_rooms, so_administered, ...)
 	end
 
@@ -26,10 +26,11 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 	local pos = so_data.search_pos
 	local nav_seg = so_objective.nav_seg
 	local so_access = so_data.access
+	local max_dis = so_data.search_dis_sq or math.huge
 	local closest_u_data, closest_dis = nil, math.huge
 	local nav_manager = managers.navigation
 	local access_f = nav_manager.check_access
-	local inspire_available = managers.player:is_custom_cooldown_not_active("team", "crew_inspire")
+	local inspire_available = so_objective.type == "revive" and managers.player:is_custom_cooldown_not_active("team", "crew_inspire")
 	local inspire_u_data
 
 	local function check_allowed(u_key, u_unit_dat)
@@ -63,14 +64,17 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 
 	for u_key, u_unit_data in pairs(self._ai_criminals) do
 		if check_allowed(u_key, u_unit_data) then
-			if inspire_available and not inspire_u_data and mvec_dis_sq(pos, u_unit_data.m_pos) < 810000 then
-				inspire_u_data = u_unit_data
-			end
+			local dis_sq =  mvec_dis_sq(pos, u_unit_data.m_pos)
+			if dis_sq < max_dis then
+				if inspire_available and not inspire_u_data and dis_sq < 810000 then
+					inspire_u_data = u_unit_data
+				end
 
-			local dis = get_distance(u_key, u_unit_data)
-			if dis < closest_dis then
-				closest_u_data = u_unit_data
-				closest_dis = dis
+				local dis = get_distance(u_key, u_unit_data)
+				if dis < closest_dis and dis < max_dis then
+					closest_u_data = u_unit_data
+					closest_dis = dis
+				end
 			end
 		end
 	end
