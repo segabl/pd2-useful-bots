@@ -1,14 +1,18 @@
 -- Make bots actually use inspire, not only if you are in their detected attention objects
 local check_inspire_original = TeamAILogicTravel.check_inspire
 function TeamAILogicTravel.check_inspire(data, attention, ...)
+	if data.objective and data.objective.action and data.objective.action.variant == "untie" then
+		return
+	end
+
 	attention = attention or { unit = data.objective.follow_unit }
 
 	if UsefulBots.settings.save_inspire and data.unit:character_damage():health_ratio() > 0.35 then
 		local timer = 0
 		if attention.unit:base().is_local_player then
-			timer = attention.unit:character_damage()._downed_timer
+			timer = attention.unit:character_damage()._downed_timer or timer
 		elseif attention.unit:interaction().get_waypoint_time then
-			timer = attention.unit:interaction():get_waypoint_time()
+			timer = attention.unit:interaction():get_waypoint_time() or timer
 		end
 
 		local path_ratio = 1
