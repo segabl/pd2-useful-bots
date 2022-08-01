@@ -7,6 +7,10 @@ function CopLogicTravel.upd_advance(data, ...)
 		return upd_advance_original(data, ...)
 	end
 
+	if data.unit:character_damage():health_ratio() < 0.5 then
+		return upd_advance_original(data, ...)
+	end
+
 	local timer = math.huge
 	if revive_unit:base().is_local_player then
 		timer = revive_unit:character_damage()._downed_timer or timer
@@ -14,7 +18,7 @@ function CopLogicTravel.upd_advance(data, ...)
 		timer = revive_unit:interaction():get_waypoint_time() or timer
 	end
 
-	if timer < 5 then
+	if timer < 10 then
 		return upd_advance_original(data, ...)
 	end
 
