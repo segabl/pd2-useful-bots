@@ -36,6 +36,7 @@ By default, there is some basic setup for improved bot target priority which sho
 * Bots will use player animations for spotting enemies and intimidating civilians
 * Bots will not drop light bags when they are going to revive someone
 * Bots will try to kill Cloakers and Tasers before starting to revive
+* Bots and Jokers will follow more directly to better keep up with players
 
 ## Changes
 
