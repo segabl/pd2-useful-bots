@@ -7,7 +7,8 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 
 	attention = attention or { unit = data.objective.follow_unit }
 
-	if UsefulBots.settings.save_inspire and data.unit:character_damage():health_ratio() > 0.35 then
+	local is_ai = managers.groupai:state():is_unit_team_AI(attention.unit)
+	if (UsefulBots.settings.save_inspire or is_ai) and data.unit:character_damage():health_ratio() > 0.3 then
 		local timer = 0
 		if attention.unit:base().is_local_player then
 			timer = attention.unit:character_damage()._downed_timer or timer
@@ -22,7 +23,7 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 			path_ratio = math.max(data.internal_data.coarse_path_index, 1) / #data.internal_data.coarse_path
 		end
 
-		if timer * path_ratio > 10 then
+		if timer * path_ratio > (is_ai and 2 or 8) then
 			return
 		end
 	end
