@@ -30,3 +30,11 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 
 	return check_inspire_original(data, attention, ...)
 end
+
+-- Update pathing when walking action is finished
+Hooks:PostHook(TeamAILogicTravel, "action_complete_clbk", "action_complete_clbk_ub", function (data, action)
+	local my_data = data.internal_data
+	if action:type() == "walk" and my_data.coarse_path and my_data.coarse_path_index < #my_data.coarse_path then
+		TeamAILogicTravel.update(data)
+	end
+end)
