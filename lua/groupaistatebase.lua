@@ -27,7 +27,7 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 	local nav_seg = so_objective.nav_seg
 	local so_access = so_data.access
 	local max_dis = so_data.search_dis_sq or math.huge
-	local closest_u_data, closest_dis = nil, math.huge
+	local closest_u_data, closest_dis, closest_dis_sq = nil, math.huge, math.huge
 	local nav_manager = managers.navigation
 	local access_f = nav_manager.check_access
 	local inspire_available = so_objective.type == "revive" and managers.player:is_custom_cooldown_not_active("team", "crew_inspire")
@@ -71,9 +71,10 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 				end
 
 				local dis = get_distance(u_key, u_unit_data)
-				if dis < closest_dis and dis < max_dis then
+				if dis < closest_dis or dis == closest_dis and dis_sq < closest_dis_sq then
 					closest_u_data = u_unit_data
 					closest_dis = dis
+					closest_dis_sq = dis_sq
 				end
 			end
 		end
