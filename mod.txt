@@ -9,6 +9,9 @@
 		"identifier" : "pd2-useful-bots",
 		"host": { "meta": "https://updates.hoppip.at/pd2-useful-bots" }
 	}],
+	"dependencies" : {
+		"pd2-hoplib" : { "meta" : "https://updates.hoppip.at/pd2-hoplib" }
+	},
 	"hooks" : [
 		{ "hook_id" : "lib/managers/group_ai_states/groupaistatebase", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/managers/mission/elementmissionend", "script_path" : "mod.lua" },
