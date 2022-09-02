@@ -31,6 +31,10 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 	return check_inspire_original(data, attention, ...)
 end
 
+if Iter and Iter.settings and Iter.settings.streamline_path then
+	return
+end
+
 -- Update pathing when walking action is finished
 Hooks:PostHook(TeamAILogicTravel, "action_complete_clbk", "action_complete_clbk_ub", function (data, action)
 	local my_data = data.internal_data

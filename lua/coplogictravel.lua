@@ -38,6 +38,9 @@ function CopLogicTravel.upd_advance(data, ...)
 	return upd_advance_original(data, ...)
 end
 
+if Iter and Iter.settings and Iter.settings.streamline_path then
+	return
+end
 
 -- Make bots and jokers follow more directly
 local _get_exact_move_pos_original = CopLogicTravel._get_exact_move_pos
