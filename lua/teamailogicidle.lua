@@ -276,7 +276,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					if valid_target then
 						-- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
 						if data.attention_obj == attention_data then
-							target_priority = target_priority * 1.1
+							target_priority = target_priority * 1.25
 						end
 
 						-- reduce priority if we would hit a shield
