@@ -81,14 +81,4 @@ if not UsefulBots then
 
 end
 
-local required = {}
-if RequiredScript and not required[RequiredScript] then
-
-	local fname = UsefulBots.mod_path .. RequiredScript:gsub(".+/(.+)", "lua/%1.lua")
-	if io.file_is_readable(fname) then
-		dofile(fname)
-	end
-
-	required[RequiredScript] = true
-
-end
+HopLib:run_required(UsefulBots.mod_path .. "lua/")
