@@ -321,7 +321,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	return best_target, 3 / math_max(best_target_priority, 0.1), best_target_reaction
 end
 
--- Stop bots from dropping light bags when going to revive a player
+-- Stop bots from dropping light bags when going to revive a player and stop them immediately on being told to hold position
 local on_long_dis_interacted_original = TeamAILogicIdle.on_long_dis_interacted
 function TeamAILogicIdle.on_long_dis_interacted(data, ...)
 	local movement = data.unit:movement()
@@ -330,8 +330,16 @@ function TeamAILogicIdle.on_long_dis_interacted(data, ...)
 
 	on_long_dis_interacted_original(data, ...)
 
-	if data.objective and data.objective.type == "revive" and bag and can_run and not movement:carrying_bag() then
+	local objective_type = data.objective and data.objective.type
+	if objective_type == "revive" and bag and can_run and not movement:carrying_bag() then
 		bag:carry_data():link_to(data.unit, false)
 		movement:set_carrying_bag(bag)
+	elseif not Keepers and objective_type == "follow" and movement._should_stay then
+		movement._should_stay_pos = mvector3.copy(data.m_pos)
+		movement:action_request({
+			body_part = 2,
+			type = "idle"
+		})
+		data.brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(data.unit))
 	end
 end

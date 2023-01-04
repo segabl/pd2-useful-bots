@@ -95,3 +95,19 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 
 	return closest_u_data
 end
+
+-- Make bots return to their hold objective
+local _determine_objective_for_criminal_AI_original = GroupAIStateBase._determine_objective_for_criminal_AI
+function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
+	local movement = unit:movement()
+	if movement._should_stay and movement._should_stay_pos then
+		return {
+			forced = true,
+			type = "defend_area",
+			pos = movement._should_stay_pos,
+			nav_seg = managers.navigation:get_nav_seg_from_pos(movement._should_stay_pos)
+		}
+	end
+
+	return _determine_objective_for_criminal_AI_original(self, unit, ...)
+end
