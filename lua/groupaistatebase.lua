@@ -96,6 +96,10 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 	return closest_u_data
 end
 
+if Keepers then
+	return
+end
+
 -- Make bots return to their hold objective
 local _determine_objective_for_criminal_AI_original = GroupAIStateBase._determine_objective_for_criminal_AI
 function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
@@ -111,3 +115,16 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 
 	return _determine_objective_for_criminal_AI_original(self, unit, ...)
 end
+
+Hooks:PostHook(GroupAIStateBase, "on_player_criminal_death", "on_player_criminal_death_ub", function (self)
+	for _, u_data in pairs(self._player_criminals) do
+		if u_data.status ~= "dead" then
+			return
+		end
+	end
+
+	for _, u_data in pairs(self._ai_criminals) do
+		u_data.unit:movement():set_should_stay(false)
+		u_data.unit:brain():set_objective(nil)
+	end
+end)
