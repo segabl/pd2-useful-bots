@@ -324,6 +324,10 @@ end
 -- Stop bots from dropping light bags when going to revive a player and stop them immediately on being told to hold position
 local on_long_dis_interacted_original = TeamAILogicIdle.on_long_dis_interacted
 function TeamAILogicIdle.on_long_dis_interacted(data, ...)
+	if data.brain._current_logic_name == "disabled" then
+		return
+	end
+
 	local movement = data.unit:movement()
 	local bag = movement._carry_unit
 	local can_run = bag and movement:carry_tweak() and movement:carry_tweak().can_run
