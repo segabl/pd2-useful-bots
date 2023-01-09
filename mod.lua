@@ -25,6 +25,8 @@ if not UsefulBots then
 			damaged = 1.2,
 			domination = 2,
 			enemies = { -- multipliers for specific enemy types
+				marshal_marksman = 1,
+				marshal_shield = 1,
 				medic = 2,
 				phalanx_minion = 1,
 				phalanx_vip = 1,
@@ -45,25 +47,36 @@ if not UsefulBots then
 			priority = 100,
 			items = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" }
 		},
-		mark_specials = { priority = 99 },
-		save_inspire = { priority = 98 },
-		hold_position = { priority = 97 },
-		stop_at_player = { priority = 96 },
-		block_slow_vehicles = { priority = 95 },
-		no_crouch = { priority = 94 },
-		announce_low_hp = { priority = 93 },
-		battle_cries = { priority = 92 },
+		mark_specials = {
+			priority = 99,
+			divider = 16
+		},
+		hold_position = { priority = 98 },
+		stop_at_player = { priority = 97 },
+		block_slow_vehicles = { priority = 96 },
+		no_crouch = {
+			priority = 95,
+			divider = 16
+		},
+		announce_low_hp = { priority = 94 },
+		battle_cries = {
+			priority = 93,
+			divider = 16
+		},
 		targeting_priority = {
 			priority = -1000,
 			max = 5,
+			divider = -16
 		},
 		base_priority = {
 			priority = 100,
-			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" }
+			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" },
+			divider = 16
 		},
 		enemies = {
 			priority = -1000,
-			max = 5
+			max = 5,
+			divider = -16
 		}
 	}
 	UsefulBots.menu_builder = MenuBuilder:new("useful_bots", UsefulBots.settings, UsefulBots.params)
@@ -72,6 +85,8 @@ if not UsefulBots then
 		local loc = managers.localization
 		HopLib:load_localization(UsefulBots.mod_path .. "loc/", loc)
 		loc:add_localized_strings({
+			menu_useful_bots_marshal_marksman = loc:text("ene_male_marshal_marksman"),
+			menu_useful_bots_marshal_shield = loc:text("ene_male_marshal_shield"),
 			menu_useful_bots_medic = loc:text("ene_medic"),
 			menu_useful_bots_phalanx_minion = loc:text("ene_phalanx"),
 			menu_useful_bots_phalanx_vip = loc:text("ene_vip"),
