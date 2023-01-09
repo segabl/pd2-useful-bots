@@ -323,7 +323,7 @@ end
 
 -- Stop bots from dropping light bags when going to revive a player and stop them immediately on being told to hold position
 local on_long_dis_interacted_original = TeamAILogicIdle.on_long_dis_interacted
-function TeamAILogicIdle.on_long_dis_interacted(data, ...)
+function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, ...)
 	if data.brain._current_logic_name == "disabled" then
 		return
 	end
@@ -332,14 +332,14 @@ function TeamAILogicIdle.on_long_dis_interacted(data, ...)
 	local bag = movement._carry_unit
 	local can_run = bag and movement:carry_tweak() and movement:carry_tweak().can_run
 
-	on_long_dis_interacted_original(data, ...)
+	on_long_dis_interacted_original(data, other_unit, ...)
 
 	local objective_type = data.objective and data.objective.type
 	if objective_type == "revive" and bag and can_run and not movement:carrying_bag() then
 		bag:carry_data():link_to(data.unit, false)
 		movement:set_carrying_bag(bag)
 	elseif not Keepers and objective_type == "follow" and movement._should_stay then
-		movement._should_stay_pos = mvector3.copy(data.m_pos)
+		movement._should_stay_pos = mvector3.copy(UsefulBots.settings.stop_at_player and other_unit:movement():m_pos() or data.m_pos)
 		movement:action_request({
 			body_part = 2,
 			type = "idle"

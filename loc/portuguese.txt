@@ -22,6 +22,8 @@
 	"menu_useful_bots_ammo_drops_desc" : "Os inimigos que os Bots matam dropem munição",
 	"menu_useful_bots_save_inspire" : "Conservar Inspire",
 	"menu_useful_bots_save_inspire_desc" : "Bots vão evitarem de usar Inspire quando estiverem perto do jogador",
+	"menu_useful_bots_stop_at_player" : "Stop at player",
+	"menu_useful_bots_stop_at_player_desc" : "Bots will move to and hold the player's current position instead of their own when told to stay",
 	"menu_useful_bots_targeting_priority" : "Prioridade de alvo",
 	"menu_useful_bots_targeting_priority_desc" : "Mude como os bots priorizem os seus alvos",
 	"menu_useful_bots_base_priority" : "Base de alvo",

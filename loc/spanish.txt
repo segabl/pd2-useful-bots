@@ -22,6 +22,8 @@
 	"menu_useful_bots_ammo_drops_desc" : "Los enemigos asesinados por bots dejarán munición.",
 	"menu_useful_bots_save_inspire" : "Conservan \"Inspirar\"",
 	"menu_useful_bots_save_inspire_desc" : "Los bots evitarán usar la habilidad inspirar cuando estén lo suficientemente cerca del jugador derribado, sin embargo la usarán si el jugador derribado está en los segundos críticos y está muy cerca de ir a custodia.",
+	"menu_useful_bots_stop_at_player" : "Stop at player",
+	"menu_useful_bots_stop_at_player_desc" : "Bots will move to and hold the player's current position instead of their own when told to stay",
 	"menu_useful_bots_targeting_priority" : "Prioridad de objetivos",
 	"menu_useful_bots_targeting_priority_desc" : "Modifica cómo los bots priorizarán los objetivos.",
 	"menu_useful_bots_base_priority" : "Apuntado base",

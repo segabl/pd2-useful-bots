@@ -16,6 +16,7 @@ if not UsefulBots then
 		block_slow_vehicles = true,
 		ammo_drops = true,
 		save_inspire = true,
+		stop_at_player = false,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
 			player_aim = 1.5,
@@ -44,8 +45,16 @@ if not UsefulBots then
 			priority = 100,
 			items = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" }
 		},
+		mark_specials = { priority = 99 },
+		save_inspire = { priority = 98 },
+		hold_position = { priority = 97 },
+		stop_at_player = { priority = 96 },
+		block_slow_vehicles = { priority = 95 },
+		no_crouch = { priority = 94 },
+		announce_low_hp = { priority = 93 },
+		battle_cries = { priority = 92 },
 		targeting_priority = {
-			priority = -1,
+			priority = -1000,
 			max = 5,
 		},
 		base_priority = {
@@ -53,7 +62,7 @@ if not UsefulBots then
 			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" }
 		},
 		enemies = {
-			priority = -1,
+			priority = -1000,
 			max = 5
 		}
 	}
