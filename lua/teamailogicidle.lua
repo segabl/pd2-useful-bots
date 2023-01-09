@@ -340,10 +340,6 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, ...)
 		movement:set_carrying_bag(bag)
 	elseif not Keepers and objective_type == "follow" and movement._should_stay then
 		movement._should_stay_pos = mvector3.copy(UsefulBots.settings.stop_at_player and other_unit:movement():m_pos() or data.m_pos)
-		movement:action_request({
-			body_part = 2,
-			type = "idle"
-		})
 		data.brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(data.unit))
 	end
 end
