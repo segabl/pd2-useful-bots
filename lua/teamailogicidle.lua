@@ -323,23 +323,48 @@ end
 
 -- Stop bots from dropping light bags when going to revive a player and stop them immediately on being told to hold position
 local on_long_dis_interacted_original = TeamAILogicIdle.on_long_dis_interacted
-function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, ...)
-	if data.brain._current_logic_name == "disabled" then
+function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...)
+	if data.brain._current_logic_name == "disabled" or data.objective and data.objective.type == "revive" then
 		return
 	end
 
 	local movement = data.unit:movement()
+
+	if not Keepers and secondary then
+		movement:set_should_stay(true, UsefulBots.settings.stop_at_player and other_unit:movement():m_pos() or data.m_pos)
+		return
+	end
+
 	local bag = movement._carry_unit
 	local can_run = bag and movement:carry_tweak() and movement:carry_tweak().can_run
 
-	on_long_dis_interacted_original(data, other_unit, ...)
+	on_long_dis_interacted_original(data, other_unit, secondary, ...)
 
 	local objective_type = data.objective and data.objective.type
 	if objective_type == "revive" and bag and can_run and not movement:carrying_bag() then
 		bag:carry_data():link_to(data.unit, false)
 		movement:set_carrying_bag(bag)
-	elseif not Keepers and objective_type == "follow" and movement._should_stay then
-		movement._should_stay_pos = mvector3.copy(UsefulBots.settings.stop_at_player and other_unit:movement():m_pos() or data.m_pos)
-		data.brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(data.unit))
 	end
+end
+
+function TeamAILogicIdle._check_objective_pos(data)
+	local objective = data.objective
+	if not objective or objective.type ~= "defend_area" or not objective.in_place or not objective.pos then
+		return
+	end
+
+	if data.path_fail_t and data.t - data.path_fail_t < 6 then
+		return
+	end
+
+	if mvector3.distance_sq(data.m_pos, objective.pos) < 10000 then
+		return
+	end
+
+	objective.in_place = false
+	TeamAILogicBase._exit(data.unit, "travel")
+end
+
+if not Keepers then
+	Hooks:PostHook(TeamAILogicIdle, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
 end

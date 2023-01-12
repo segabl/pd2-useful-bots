@@ -8,3 +8,7 @@ function TeamAILogicAssault.mark_enemy(data, criminal, to_mark)
 	data.unit:movement():play_redirect("cmd_point")
 	to_mark:contour():add("mark_enemy", true)
 end
+
+if not Keepers then
+	Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
+end

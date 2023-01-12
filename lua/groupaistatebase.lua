@@ -104,13 +104,8 @@ end
 local _determine_objective_for_criminal_AI_original = GroupAIStateBase._determine_objective_for_criminal_AI
 function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 	local movement = unit:movement()
-	if movement._should_stay and movement._should_stay_pos then
-		return {
-			forced = true,
-			type = "defend_area",
-			pos = movement._should_stay_pos,
-			nav_seg = managers.navigation:get_nav_seg_from_pos(movement._should_stay_pos)
-		}
+	if movement._should_stay and movement._should_stay_objective then
+		return movement._should_stay_objective
 	end
 
 	return _determine_objective_for_criminal_AI_original(self, unit, ...)
@@ -125,6 +120,5 @@ Hooks:PostHook(GroupAIStateBase, "on_player_criminal_death", "on_player_criminal
 
 	for _, u_data in pairs(self._ai_criminals) do
 		u_data.unit:movement():set_should_stay(false)
-		u_data.unit:brain():set_objective(nil)
 	end
 end)
