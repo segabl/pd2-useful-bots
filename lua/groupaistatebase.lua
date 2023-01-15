@@ -105,6 +105,7 @@ local _determine_objective_for_criminal_AI_original = GroupAIStateBase._determin
 function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 	local movement = unit:movement()
 	if movement._should_stay and movement._should_stay_objective then
+		movement._should_stay_objective.in_place = nil
 		return movement._should_stay_objective
 	end
 
