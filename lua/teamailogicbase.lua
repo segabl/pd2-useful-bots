@@ -53,5 +53,7 @@ Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", funct
 end)
 
 -- This function is disabled in vanilla but is not part of TeamAILogicBase so it might crash in other logics when called with data.logic._upd_sneak_spotting
-function TeamAILogicBase._upd_sneak_spotting(data, my_data)
-end
+function TeamAILogicBase._upd_sneak_spotting() end
+
+-- This may be called due to enemy detection update in logics that don't have this function so add it to base
+function TeamAILogicBase.chk_should_turn() end

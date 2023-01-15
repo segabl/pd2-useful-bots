@@ -81,6 +81,54 @@ if not UsefulBots then
 	}
 	UsefulBots.menu_builder = MenuBuilder:new("useful_bots", UsefulBots.settings, UsefulBots.params)
 
+	function UsefulBots:get_assist_SO(unit)
+		return {
+			interval = 2,
+			chance_inc = 1,
+			search_dis_sq = 16000000,
+			base_chance = 0,
+			usage_amount = 1,
+			AI_group = "friendlies",
+			search_pos = unit:position(),
+			objective = {
+				type = "free",
+				follow_unit = unit,
+				pos = unit:position(),
+				nav_seg = unit:movement():nav_tracker():nav_segment()
+			}
+		}
+	end
+
+	function UsefulBots:stop_assist_SO(unit)
+		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
+			local brain = c_data.unit:brain()
+			local objective = brain:objective()
+			if objective and objective.type == "free" and objective.follow_unit == unit then
+				brain:set_objective(nil)
+			end
+		end
+	end
+
+	function UsefulBots:force_attention(unit)
+		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
+			local brain = c_data.unit:brain()
+			local logic = brain._current_logic
+			local logic_data = brain._logic_data
+			local internal_logic_data = logic_data.internal_data
+
+			if internal_logic_data.detection_task_key then
+				logic.damage_clbk(logic_data, {
+					attacker_unit = unit,
+					result = {}
+				})
+				if internal_logic_data.queued_tasks then
+					CopLogicBase.unqueue_task(internal_logic_data, internal_logic_data.detection_task_key)
+				end
+				logic._upd_enemy_detection(logic_data)
+			end
+		end
+	end
+
 	Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusUsefulBots", function(menu_manager, nodes)
 		local loc = managers.localization
 		HopLib:load_localization(UsefulBots.mod_path .. "loc/", loc)
