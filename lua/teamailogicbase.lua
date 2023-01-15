@@ -51,3 +51,7 @@ Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", funct
 		data._latest_follow_unit = data.objective.follow_unit
 	end
 end)
+
+-- This function is disabled in vanilla but is not part of TeamAILogicBase so it might crash in other logics when called with data.logic._upd_sneak_spotting
+function TeamAILogicBase._upd_sneak_spotting(data, my_data)
+end

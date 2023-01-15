@@ -12,3 +12,7 @@ end
 if not Keepers then
 	Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
 end
+
+-- This function is disabled in vanilla but is not part of TeamAILogicAssault so it might crash in other logics when called with data.logic._upd_sneak_spotting
+function TeamAILogicAssault._upd_sneak_spotting(data, my_data)
+end
