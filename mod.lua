@@ -92,7 +92,7 @@ if not UsefulBots then
 			search_pos = unit:position(),
 			objective = {
 				type = "free",
-				follow_unit = unit,
+				assist_unit = unit,
 				pos = unit:position(),
 				nav_seg = unit:movement():nav_tracker():nav_segment()
 			}
@@ -103,7 +103,7 @@ if not UsefulBots then
 		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
 			local brain = c_data.unit:brain()
 			local objective = brain:objective()
-			if objective and objective.type == "free" and objective.follow_unit == unit then
+			if objective and objective.type == "free" and objective.assist_unit == unit then
 				brain:set_objective(nil)
 			end
 		end

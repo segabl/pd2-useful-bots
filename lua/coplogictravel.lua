@@ -38,6 +38,14 @@ function CopLogicTravel.upd_advance(data, ...)
 	return upd_advance_original(data, ...)
 end
 
+-- Sanity checks
+local _chk_stop_for_follow_unit_original = CopLogicTravel._chk_stop_for_follow_unit
+function CopLogicTravel._chk_stop_for_follow_unit(data, ...)
+	if data.objective and alive(data.objective.follow_unit) then
+		return _chk_stop_for_follow_unit_original(data, ...)
+	end
+end
+
 if Iter and Iter.settings and Iter.settings.streamline_path then
 	return
 end
