@@ -46,6 +46,13 @@ function CopLogicTravel._chk_stop_for_follow_unit(data, ...)
 	end
 end
 
+local _on_destination_reached_original = CopLogicTravel._on_destination_reached
+function CopLogicTravel._on_destination_reached(data, ...)
+	if data.objective then
+		return _on_destination_reached_original(data, ...)
+	end
+end
+
 if Iter and Iter.settings and Iter.settings.streamline_path then
 	return
 end
