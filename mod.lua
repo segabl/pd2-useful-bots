@@ -91,7 +91,8 @@ if not UsefulBots then
 			AI_group = "friendlies",
 			search_pos = unit:position(),
 			objective = {
-				type = "free",
+				type = "defend_area",
+				scan = true,
 				assist_unit = unit,
 				pos = unit:position(),
 				nav_seg = unit:movement():nav_tracker():nav_segment()
@@ -103,8 +104,8 @@ if not UsefulBots then
 		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
 			local brain = c_data.unit:brain()
 			local objective = brain:objective()
-			if objective and objective.type == "free" and objective.assist_unit == unit then
-				brain:set_objective(nil)
+			if objective and objective.type == "defend_area" and objective.assist_unit == unit then
+				brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(c_data.unit))
 			end
 		end
 	end

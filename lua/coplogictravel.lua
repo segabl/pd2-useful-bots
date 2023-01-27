@@ -40,9 +40,9 @@ end
 
 -- Sanity checks
 local _chk_stop_for_follow_unit_original = CopLogicTravel._chk_stop_for_follow_unit
-function CopLogicTravel._chk_stop_for_follow_unit(data, ...)
-	if data.objective and alive(data.objective.follow_unit) then
-		return _chk_stop_for_follow_unit_original(data, ...)
+function CopLogicTravel._chk_stop_for_follow_unit(data, my_data, ...)
+	if data.objective and alive(data.objective.follow_unit) and my_data.coarse_path_index and my_data.coarse_path and my_data.coarse_path[my_data.coarse_path_index + 1] then
+		return _chk_stop_for_follow_unit_original(data, my_data, ...)
 	end
 end
 

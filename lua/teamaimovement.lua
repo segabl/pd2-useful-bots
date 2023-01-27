@@ -4,15 +4,9 @@ end
 
 TeamAIMovement.chk_action_forbidden = CopMovement.chk_action_forbidden
 
-Hooks:PreHook(TeamAIMovement, "set_should_stay", "set_should_stay_ub", function (self, should_stay, pos)
+Hooks:PostHook(TeamAIMovement, "set_should_stay", "set_should_stay_ub", function (self, should_stay, pos)
 	if should_stay and pos then
-		self._should_stay_objective = {
-			type = "defend_area",
-			pos = mvector3.copy(pos),
-			nav_seg = managers.navigation:get_nav_seg_from_pos(pos)
-		}
-		self._ext_brain:set_objective(self._should_stay_objective)
-	elseif not should_stay and self._should_stay then
-		self._ext_brain:set_objective(nil)
+		self._should_stay_pos = mvector3.copy(pos)
 	end
+	self._ext_brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(self._unit))
 end)
