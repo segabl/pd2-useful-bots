@@ -213,6 +213,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
 	local my_team = data.unit:movement():team()
 	local not_reviving = not data.objective or data.objective.type ~= "revive"
+	local ai_visibility_slotmask = managers.slot:get_mask("AI_visibility")
 
 	for u_key, attention_data in pairs(attention_objects) do
 		local att_unit = attention_data.unit
@@ -292,10 +293,13 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 						-- prefer shooting enemies the player is not aiming at
 						if ub_priority.player_aim ~= 1 and follow_look_vec then
-							mvec_set(tmp_vec, att_movement:m_head_pos())
-							mvec_sub(tmp_vec, follow_head_pos)
-							mvec_norm(tmp_vec)
-							target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
+							local att_head_pos = att_movement:m_head_pos()
+							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", ai_visibility_slotmask, "ray_type", "ai_vision", "report") then
+								mvec_set(tmp_vec, att_head_pos)
+								mvec_sub(tmp_vec, follow_head_pos)
+								mvec_norm(tmp_vec)
+								target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
+							end
 						end
 
 						-- ;)
