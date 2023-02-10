@@ -13,6 +13,6 @@ if not Network:is_server() then
 end
 
 Hooks:PostHook(PlayerTased, "exit", "exit_ub", function (self)
-	UsefulBots:stop_assist_SO(self._unit)
+	UsefulBots:stop_assist_objective(self._unit)
 	self._SO_id = nil
 end)

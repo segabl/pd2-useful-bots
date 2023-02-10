@@ -16,6 +16,10 @@ function TeamAIDamage:damage_tase(attack_data, ...)
 		local attacker = attack_data.attacker_unit
 		if alive(attacker) and attacker:base() and attacker:base().has_tag and attacker:base():has_tag("taser") then
 			attacker:contour():add("mark_enemy", true)
+			local priority_shout = attacker:base():char_tweak().priority_shout
+			if priority_shout then
+				self._unit:sound():say(priority_shout .. "x_any", true)
+			end
 		end
 	end
 

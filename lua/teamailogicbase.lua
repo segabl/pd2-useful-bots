@@ -3,21 +3,26 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 	if not att or not att.verified or not react then
 		return
 	end
+
 	-- early abort
-	if data.cool or data.internal_data.acting then
+	if data.cool or data.internal_data.acting or data.objective and data.objective.type == "revive" then
 		return
 	end
+
 	if data.unit:movement():chk_action_forbidden("action") or data.unit:anim_data().reload or data.unit:character_damage():is_downed() then
 		return
 	end
+
 	if not alive(att.unit) or not att.unit:character_damage() or att.unit:character_damage():dead() then
 		return
 	end
+
 	mvector3.set(tmp_vec, att.unit:movement():m_head_pos())
 	mvector3.subtract(tmp_vec, data.unit:movement():m_head_pos())
 	if tmp_vec:angle(data.unit:movement():m_rot():y()) > 50 then
 		return
 	end
+
 	-- intimidate
 	if react == AIAttentionObject.REACT_ARREST and (not data._next_intimidate_t or data._next_intimidate_t < data.t) then
 		local key = att.unit:key()
@@ -29,6 +34,7 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 			return
 		end
 	end
+
 	-- mark
 	if UsefulBots.settings.mark_specials and (not data._next_mark_t or data._next_mark_t < data.t) then
 		if att.char_tweak and att.char_tweak.priority_shout and not att.unit:contour():find_id_match("^mark_enemy") then

@@ -212,7 +212,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local follow_head_pos = follow_movement and follow_movement:m_head_pos()
 	local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
 	local my_team = data.unit:movement():team()
-	local not_reviving = not data.objective or data.objective.type ~= "revive"
+	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
 	local ai_visibility_slotmask = managers.slot:get_mask("AI_visibility")
 
 	for u_key, attention_data in pairs(attention_objects) do
@@ -272,7 +272,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (marked_by_player and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
 					-- if we have a revive objective and target priority isn't high, ignore the enemy
-					valid_target = not_reviving or target_priority >= 1
+					valid_target = not_assisting or target_priority >= 1
 
 					if valid_target then
 						-- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
@@ -309,7 +309,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						end
 					end
 				elseif has_alerted then
-					valid_target = not_reviving
+					valid_target = not_assisting
 					reaction = math_min(reaction, REACT_AIM)
 					target_priority = target_priority * 0.01
 				end
@@ -351,9 +351,9 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 	end
 end
 
-function TeamAILogicIdle._check_objective_pos(data)
-	local objective = data.objective
-	if not objective or objective.type ~= "defend_area" or not objective.in_place or not objective.pos then
+function TeamAILogicIdle._check_objective_pos(data, action)
+	local action_type = action:type()
+	if action_type == "shoot" or action_type == "turn" then
 		return
 	end
 
@@ -361,11 +361,21 @@ function TeamAILogicIdle._check_objective_pos(data)
 		return
 	end
 
-	if mvector3.distance_sq(data.m_pos, objective.pos) < 10000 then
+	local objective = data.objective
+	if not objective or objective.type ~= "defend_area" or not objective.in_place then
+		return
+	end
+
+	if objective.pos then
+		if mvector3.distance_sq(data.m_pos, objective.pos) < 10000 then
+			return
+		end
+	elseif objective.nav_seg == data.unit:movement():nav_tracker():nav_segment() then
 		return
 	end
 
 	objective.in_place = false
+	objective.path_data = nil
 	TeamAILogicBase._exit(data.unit, "travel")
 end
 

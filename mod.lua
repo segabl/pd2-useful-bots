@@ -83,28 +83,32 @@ if not UsefulBots then
 
 	function UsefulBots:get_assist_SO(unit)
 		return {
-			interval = 2,
+			interval = 1,
 			chance_inc = 1,
-			search_dis_sq = 16000000,
 			base_chance = 0,
 			usage_amount = 1,
 			AI_group = "friendlies",
 			search_pos = unit:position(),
-			objective = {
-				type = "defend_area",
-				scan = true,
-				assist_unit = unit,
-				pos = unit:position(),
-				nav_seg = unit:movement():nav_tracker():nav_segment()
-			}
+			objective = self:get_assist_objective(unit)
 		}
 	end
 
-	function UsefulBots:stop_assist_SO(unit)
+	function UsefulBots:get_assist_objective(unit)
+		return {
+			type = "defend_area",
+			scan = true,
+			assist_unit = unit,
+			haste = "run",
+			pose = "stand",
+			nav_seg = unit:movement():nav_tracker():nav_segment()
+		}
+	end
+
+	function UsefulBots:stop_assist_objective(unit)
 		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
 			local brain = c_data.unit:brain()
 			local objective = brain:objective()
-			if objective and objective.type == "defend_area" and objective.assist_unit == unit then
+			if objective and objective.assist_unit == unit then
 				brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(c_data.unit))
 			end
 		end

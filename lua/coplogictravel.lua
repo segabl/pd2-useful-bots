@@ -1,9 +1,12 @@
 -- Stop moving towards revive target if a dangerous special is close to the bot
 local upd_advance_original = CopLogicTravel.upd_advance
 function CopLogicTravel.upd_advance(data, ...)
-	local objective = data.objective
-	local revive_unit = objective and objective.follow_unit
-	if not objective or objective.type ~= "revive" or not alive(revive_unit) or mvector3.distance_sq(data.m_pos, revive_unit:position()) > 250000 then
+	if not data.is_team_ai then
+		return upd_advance_original(data, ...)
+	end
+
+	local revive_unit = data.objective and data.objective.type == "revive" and data.objective.follow_unit
+	if not alive(revive_unit) or mvector3.distance_sq(data.m_pos, revive_unit:position()) > 250000 then
 		return upd_advance_original(data, ...)
 	end
 
@@ -31,6 +34,9 @@ function CopLogicTravel.upd_advance(data, ...)
 					type = "idle"
 				})
 			end
+
+			TeamAILogicAssault._upd_aim(data, data.internal_data)
+
 			return
 		end
 	end
