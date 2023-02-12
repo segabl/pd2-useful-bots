@@ -56,6 +56,13 @@ Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", funct
 	if data.objective and data.objective.follow_unit then
 		data._latest_follow_unit = data.objective.follow_unit
 	end
+
+	if data.objective and (data.objective.type == "revive" or data.objective.assist_unit) then
+		data.brain:action_request({
+			body_part = 3,
+			type = "idle"
+		})
+	end
 end)
 
 -- This function is disabled in vanilla but is not part of TeamAILogicBase so it might crash in other logics when called with data.logic._upd_sneak_spotting
