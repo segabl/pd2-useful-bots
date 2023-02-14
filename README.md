@@ -31,7 +31,7 @@ By default, there is some basic setup for improved bot target priority which sho
 * Improved special spotting code so bots only mark targets they see and are higher priority
 * Improved civilian intimidation code so bots will keep civilians down more reliably and not only when civilians are already running away
 * Improved distance check to determine which bot is selected to revive a player
-* Improved Inpire check to not rely on detected attention objects
+* Improved Inspire check to not rely on detected attention objects
 * Changed weapon raycast and enemy slot masks so players and bots can shoot through each other and bots can target SWAT turrets
 * Escort targets are now considered for civilian intimidation and bots will shout at stopped escorts to keep them moving
 * Bots will use player animations for spotting enemies and intimidating civilians
@@ -42,5 +42,5 @@ By default, there is some basic setup for improved bot target priority which sho
 
 ## Changes
 
-* Bots will now fully count for game balancing, so 1 player + 3 bots will result in the same enemy spawns as 4 players
+* Bots will now fully count for game balancing
 * Bots will now count for the crew alive bonus
