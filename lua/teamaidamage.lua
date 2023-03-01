@@ -25,3 +25,16 @@ function TeamAIDamage:damage_tase(attack_data, ...)
 
 	return result
 end
+
+-- fix for bots losing their i-frames in rare cases
+local damage_bullet_original = TeamAIDamage.damage_bullet
+function TeamAIDamage:damage_bullet(...)
+	local result = damage_bullet_original(self, ...)
+
+	if result then
+		-- _chk_dmg_too_soon uses managers.player:player_timer():time() so use it here too
+		self._next_allowed_dmg_t = managers.player:player_timer():time() + self._dmg_interval
+	end
+
+	return result
+end
