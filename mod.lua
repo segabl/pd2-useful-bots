@@ -114,7 +114,11 @@ if not UsefulBots then
 		end
 	end
 
-	function UsefulBots:force_attention(unit)
+	function UsefulBots:force_attention(attention_unit)
+		if not attention_unit:movement():team().foes.criminal1 then
+			return
+		end
+
 		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
 			local brain = c_data.unit:brain()
 			local logic = brain._current_logic
@@ -123,7 +127,7 @@ if not UsefulBots then
 
 			if internal_logic_data.detection_task_key then
 				logic.damage_clbk(logic_data, {
-					attacker_unit = unit,
+					attacker_unit = attention_unit,
 					result = {}
 				})
 				if internal_logic_data.queued_tasks then

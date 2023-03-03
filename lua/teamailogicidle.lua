@@ -9,26 +9,17 @@ local tmp_vec = Vector3()
 TeamAILogicIdle._intimidate_resist = {}
 TeamAILogicIdle._intimidate_progress = {}
 
-function TeamAILogicIdle.is_high_priority(unit, unit_movement, unit_brain)
-	if not unit_movement or not unit_brain then
+function TeamAILogicIdle.is_high_priority(unit_movement)
+	if type(unit_movement._active_actions) ~= "table" then
 		return false
 	end
-	local data = unit_brain._logic_data and unit_brain._logic_data.internal_data
-	if data and (data.tasing or data.spooc_attack) then
-		return true
-	end
-	local anim = unit:anim_data() or {}
-	if anim.hands_back or anim.surrender or anim.hands_tied then
-		return false
-	end
-	for _, action in ipairs(unit_movement._active_actions or {}) do
-		if type(action) == "table" and action:type() == "act" and action._action_desc.variant then
-			local variant = action._action_desc.variant
-			if variant:find("untie") or variant:find("^e_so_") or variant:find("^sabotage_") then
-				return true
-			end
+
+	for _, action in pairs(unit_movement._active_actions) do
+		if type(action) == "table" and action._is_sabotaging_action then
+			return true
 		end
 	end
+
 	return false
 end
 
@@ -235,7 +226,6 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				local att_base = att_unit.base and att_unit:base()
 				local att_tweak_name = att_base and att_base._tweak_table
 				local att_tweak = attention_data.char_tweak or att_tweak_name and tweak_data.character[att_tweak_name] or {}
-				local att_brain = att_unit.brain and att_unit:brain()
 				local att_anim = att_unit.anim_data and att_unit:anim_data() or {}
 
 				local distance = mvector3.distance(data.m_pos, attention_data.m_pos)
@@ -260,7 +250,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				-- fine tune target priority
 				if att_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
-					local high_priority = TeamAILogicIdle.is_high_priority(att_unit, att_movement, att_brain)
+					local high_priority = TeamAILogicIdle.is_high_priority(att_movement)
 					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
 					local marked_contour = is_special and att_unit.contour and att_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
