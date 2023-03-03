@@ -335,7 +335,12 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 	local movement = data.unit:movement()
 
 	if not Keepers and secondary then
-		movement:set_should_stay(true, UsefulBots.settings.stop_at_player and other_unit:movement():m_pos() or data.m_pos)
+		if UsefulBots.settings.stop_at_player then
+			local tracker = other_unit:movement():nav_tracker()
+			movement:set_should_stay(true, tracker:lost() and tracker:field_position() or tracker:position())
+		else
+			movement:set_should_stay(true, data.m_pos)
+		end
 		return
 	end
 
