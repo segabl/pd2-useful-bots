@@ -208,7 +208,8 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 	for u_key, attention_data in pairs(attention_objects) do
 		local att_unit = attention_data.unit
-		if not attention_data.identified then
+		if not attention_data.identified or not alive(att_unit) then
+			-- Skip
 		elseif attention_data.pause_expire_t then
 			if data.t > attention_data.pause_expire_t then
 				attention_data.pause_expire_t = nil
@@ -218,17 +219,17 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				attention_data.stare_expire_t = nil
 				attention_data.pause_expire_t = data.t + math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
 			end
-		elseif alive(att_unit) then
+		else
 			-- attention unit data
-			local att_movement = att_unit.movement and att_unit:movement()
-			local att_damage = att_unit.character_damage and att_unit:character_damage()
+			local att_movement = att_unit:movement()
+			local att_damage = att_unit:character_damage()
 			if att_damage and not att_damage:dead() and att_movement and att_movement.team and my_team.foes[att_movement:team().id] then
 				local att_base = att_unit.base and att_unit:base()
 				local att_tweak_name = att_base and att_base._tweak_table
 				local att_tweak = attention_data.char_tweak or att_tweak_name and tweak_data.character[att_tweak_name] or {}
 				local att_anim = att_unit.anim_data and att_unit:anim_data() or {}
 
-				local distance = mvector3.distance(data.m_pos, attention_data.m_pos)
+				local distance = attention_data.dis or mvector3.distance(data.m_pos, attention_data.m_pos)
 				local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data)) or AIAttentionObject.REACT_CHECK
 				attention_data.aimed_at = TeamAILogicIdle.chk_am_i_aimed_at(data, attention_data, attention_data.aimed_at and 0.95 or 0.985)
 
@@ -298,8 +299,8 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 							reaction = REACT_AIM
 						end
 					end
-				elseif has_alerted then
-					valid_target = not_assisting
+				elseif has_alerted and not_assisting and distance < 2000 then
+					valid_target = true
 					reaction = math_min(reaction, REACT_AIM)
 					target_priority = target_priority * 0.01
 				end
@@ -348,7 +349,7 @@ end
 
 function TeamAILogicIdle._check_objective_pos(data, action)
 	local action_type = action:type()
-	if action_type == "shoot" or action_type == "turn" then
+	if action_type == "idle" or action_type == "turn" then
 		return
 	end
 
@@ -362,7 +363,7 @@ function TeamAILogicIdle._check_objective_pos(data, action)
 	end
 
 	if objective.pos then
-		if mvector3.distance_sq(data.m_pos, objective.pos) < 10000 then
+		if math.abs(data.m_pos.x - objective.pos.x) < 10 and math.abs(data.m_pos.y - objective.pos.y) < 10 then
 			return
 		end
 	elseif objective.nav_seg == data.unit:movement():nav_tracker():nav_segment() then

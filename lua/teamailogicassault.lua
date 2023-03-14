@@ -16,3 +16,25 @@ end
 -- This function is disabled in vanilla but is not part of TeamAILogicAssault so it might crash in other logics when called with data.logic._upd_sneak_spotting
 function TeamAILogicAssault._upd_sneak_spotting(data, my_data)
 end
+
+-- Wait before switching to idle
+local _chk_exit_attack_logic_original = TeamAILogicAssault._chk_exit_attack_logic
+function TeamAILogicAssault._chk_exit_attack_logic(data, new_reaction, ...)
+	local my_data = data.internal_data
+	local wanted_state = TeamAILogicBase._get_logic_state_from_reaction(data, new_reaction)
+
+	if wanted_state == "idle" then
+		if not my_data.switch_to_idle_t then
+			if CopLogicBase.is_obstructed(data, data.objective, nil, nil) then
+				my_data.switch_to_idle_t = data.t + 8
+			end
+			return
+		elseif my_data.switch_to_idle_t > data.t then
+			return
+		end
+	end
+
+	my_data.switch_to_idle_t = nil
+
+	return _chk_exit_attack_logic_original(data, new_reaction, ...)
+end
