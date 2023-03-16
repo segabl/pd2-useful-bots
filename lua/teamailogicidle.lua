@@ -188,7 +188,8 @@ local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
 function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func, ...)
 	local ub_priority = UsefulBots.settings.targeting_priority
 	if ub_priority.base_priority > 2 then
-		return _get_priority_attention_original(data, attention_objects, reaction_func, ...)
+		local target, slot, reaction = _get_priority_attention_original(data, attention_objects, reaction_func, ...)
+		return target, (slot or 30), reaction
 	end
 
 	reaction_func = reaction_func or TeamAILogicBase._chk_reaction_to_attention_object
