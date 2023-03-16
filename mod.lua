@@ -71,7 +71,13 @@ if not UsefulBots then
 		base_priority = {
 			priority = 100,
 			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" },
-			divider = 16
+			divider = 16,
+			callback = function (val)
+				local menu = MenuHelper:GetMenu("useful_bots_targeting_priority")
+				for _, item in pairs(menu and menu._items_list or {}) do
+					item:set_enabled(item:name() == "targeting_priority/base_priority" or val <= 2)
+				end
+			end
 		},
 		enemies = {
 			priority = -1000,
@@ -158,6 +164,11 @@ if not UsefulBots then
 			menu_useful_bots_turret = loc:text("tweak_swat_van_turret_module"),
 		})
 		UsefulBots.menu_builder:create_menu(nodes)
+
+		local menu = MenuHelper:GetMenu("useful_bots_targeting_priority")
+		for _, item in pairs(menu and menu._items_list or {}) do
+			item:set_enabled(item:name() == "targeting_priority/base_priority" or UsefulBots.settings.targeting_priority.base_priority <= 2)
+		end
 	end)
 
 end
