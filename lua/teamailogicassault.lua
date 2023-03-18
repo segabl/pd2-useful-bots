@@ -26,7 +26,7 @@ function TeamAILogicAssault._chk_exit_attack_logic(data, new_reaction, ...)
 	if wanted_state == "idle" then
 		if not my_data.switch_to_idle_t then
 			if CopLogicBase.is_obstructed(data, data.objective, nil, nil) then
-				my_data.switch_to_idle_t = data.t + 8
+				my_data.switch_to_idle_t = data.t + (data.objective and data.objective.type == "defend_area" and 12 or 6)
 			end
 			return
 		elseif my_data.switch_to_idle_t > data.t then

@@ -9,7 +9,7 @@ function TeamAIMovement:action_request(action_desc, ...)
 		if action_desc.type == "idle" and not action_desc.skip_wait then
 			local t = TimerManager:game():time()
 			if not self._switch_upper_body_to_idle_t then
-				self._switch_upper_body_to_idle_t = t + 4
+				self._switch_upper_body_to_idle_t = t + (self._ext_brain:objective() and self._ext_brain:objective().type == "defend_area" and 6 or 3)
 				return
 			elseif self._switch_upper_body_to_idle_t > t then
 				return
