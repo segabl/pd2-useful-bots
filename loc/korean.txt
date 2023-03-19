@@ -42,5 +42,9 @@
 	"menu_useful_bots_domination" : "제압 배율",
 	"menu_useful_bots_domination_desc" : "제압할 수 있는 적에 대한 우선 순위 배율을 조정합니다.",
 	"menu_useful_bots_enemies" : "특수 적 배율",
-	"menu_useful_bots_enemies_desc" : "특정 적에 대한 우선 순위 배율을 조정합니다."
+	"menu_useful_bots_enemies_desc" : "특정 적에 대한 우선 순위 배율을 조정합니다.",
+	"menu_useful_bots_defend_reviving" : "소생 중인 플레이어 보호",
+	"menu_useful_bots_defend_reviving_desc" : "원래 소생하도록 선택된 봇이 소생 중인 플레이어를 보호합니다.",
+	"menu_useful_bots_revive_distance" : "봇 소생 거리",
+	"menu_useful_bots_revive_distance_desc" : "봇이 다른 봇을 소생시키기 위해 이동할 수 있는 최대 거리 배율을 조정합니다.",	
 }
