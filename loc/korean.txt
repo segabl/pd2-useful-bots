@@ -23,7 +23,7 @@
 	"menu_useful_bots_save_inspire" : "인스파이어 절약",
 	"menu_useful_bots_save_inspire_desc" : "봇은 쓰러진 플레이어와 이미 충분히 가까우면 인스파이어를 사용하지 않습니다.",
 	"menu_useful_bots_stop_at_player" : "플레이어 위치에 멈춤",
-	"menu_useful_bots_stop_at_player_desc" : "봇은 머무르라는 지시를 받았을 때 자신의 위치 대신 플레이어의 현재 위치로 이동하여 유지합니다.",
+	"menu_useful_bots_stop_at_player_desc" : "봇은 머무르라는 지시를 받았을 때 자신의 위치 대신 플레이어의 현재 위치로 이동하고 유지합니다.",
 	"menu_useful_bots_targeting_priority" : "타겟팅 우선 순위",
 	"menu_useful_bots_targeting_priority_desc" : "봇이 우선 순위 대상을 지정하는 방식을 조정합니다.",
 	"menu_useful_bots_base_priority" : "기본 타겟팅",
