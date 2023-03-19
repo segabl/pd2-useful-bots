@@ -53,11 +53,16 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 end)
 
 Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", function (data)
-	if data.objective and data.objective.follow_unit then
-		data._latest_follow_unit = data.objective.follow_unit
+	local objective = data.objective
+	if not objective then
+		return
 	end
 
-	if data.objective and (data.objective.type == "revive" or data.objective.assist_unit) then
+	if objective.type == "follow" then
+		data._latest_follow_unit = objective.follow_unit
+	end
+
+	if objective.type == "revive" or objective.assist_unit then
 		data.brain:action_request({
 			body_part = 3,
 			type = "idle",

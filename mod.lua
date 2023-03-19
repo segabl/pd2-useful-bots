@@ -17,6 +17,8 @@ if not UsefulBots then
 		ammo_drops = true,
 		save_inspire = true,
 		stop_at_player = false,
+		defend_reviving = true,
+		revive_distance = 25,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
 			player_aim = 1.5,
@@ -44,23 +46,28 @@ if not UsefulBots then
 	}
 	UsefulBots.params = {
 		dominate_enemies = {
-			priority = 100,
+			priority = 99,
 			items = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" }
 		},
 		mark_specials = {
-			priority = 99,
+			priority = 98,
 			divider = 16
 		},
-		hold_position = { priority = 98 },
-		stop_at_player = { priority = 97 },
-		block_slow_vehicles = { priority = 96 },
-		no_crouch = {
-			priority = 95,
+		hold_position = { priority = 89 },
+		stop_at_player = { priority = 88 },
+		block_slow_vehicles = { priority = 87 },
+		no_crouch = { priority = 86 },
+		defend_reviving = { priority = 85 },
+		revive_distance = {
+			priority = 84,
+			min = 0,
+			max = 50,
+			step = 1,
 			divider = 16
 		},
-		announce_low_hp = { priority = 94 },
+		announce_low_hp = { priority = 79 },
 		battle_cries = {
-			priority = 93,
+			priority = 78,
 			divider = 16
 		},
 		targeting_priority = {
@@ -116,6 +123,16 @@ if not UsefulBots then
 			local objective = brain:objective()
 			if objective and objective.assist_unit == unit then
 				brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(c_data.unit))
+			end
+		end
+	end
+
+	function UsefulBots:get_reviving_unit(unit)
+		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
+			local brain = c_data.unit:brain()
+			local objective = brain:objective()
+			if objective and objective.type == "revive" and objective.follow_unit == unit then
+				return c_data.unit
 			end
 		end
 	end

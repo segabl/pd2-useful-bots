@@ -278,7 +278,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						end
 
 						-- reduce reaction and priority if someone is trying to intimidate, but we are not
-						if not should_intimidate and TeamAILogicIdle._intimidate_progress[u_key] and TeamAILogicIdle._intimidate_progress[u_key] + 2 > data.t then
+						if not should_intimidate and TeamAILogicIdle._intimidate_progress[u_key] and TeamAILogicIdle._intimidate_progress[u_key] + 5 > data.t then
 							reaction = math_min(REACT_AIM, reaction)
 							target_priority = target_priority * 0.01
 						end

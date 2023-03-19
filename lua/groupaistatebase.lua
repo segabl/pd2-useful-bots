@@ -21,6 +21,13 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 		return _execute_so_original(self, so_data, so_rooms, so_administered, ...)
 	end
 
+	-- If someone else is reviving, ignore SO
+	if so_objective.type == "revive" and alive(so_objective.follow_unit) then
+		if so_objective.follow_unit:interaction() and so_objective.follow_unit:interaction()._block_revive_SO then
+			return
+		end
+	end
+
 	local mvec_dis = mvector3.distance
 	local mvec_dis_sq = mvector3.distance_sq
 	local pos = so_data.search_pos
@@ -96,13 +103,31 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 	return closest_u_data
 end
 
+-- Increase bot revive distance
+Hooks:PreHook(GroupAIStateBase, "add_special_objective", "add_special_objective_ub", function (self, id, objective_data)
+	if type(id) ~= "string" then
+		return
+	end
+
+	if id:match("^Playerrevive") or id:match("^PlayerHusk_revive") or id:match("^TeamAIrevive") then
+		if objective_data.search_dis_sq then
+			objective_data.search_dis_sq = (UsefulBots.settings.revive_distance * 100) ^ 2
+		end
+
+		if objective_data.interval then
+			objective_data.interval = math.min(4, objective_data.interval)
+		end
+	end
+end)
+
 if Keepers then
 	return
 end
 
--- Make bots return to their hold objective
+-- Make bots return to their previous objective
 local _determine_objective_for_criminal_AI_original = GroupAIStateBase._determine_objective_for_criminal_AI
 function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
+	local brain = unit:brain()
 	local movement = unit:movement()
 	if movement._should_stay and movement._should_stay_pos then
 		return {
@@ -110,6 +135,13 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 			scan = true,
 			pos = movement._should_stay_pos,
 			nav_seg = managers.navigation:get_nav_seg_from_pos(movement._should_stay_pos)
+		}
+	elseif alive(brain._logic_data._latest_follow_unit) then
+		return {
+			type = "follow",
+			scan = true,
+			is_default = true,
+			follow_unit = brain._logic_data._latest_follow_unit
 		}
 	end
 
