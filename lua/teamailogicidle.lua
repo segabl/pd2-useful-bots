@@ -143,7 +143,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		return false
 	end
 	local resist = TeamAILogicIdle._intimidate_resist[unit:key()]
-	if resist and resist > 1 then
+	if resist and resist > 2 then
 		-- resisted too often
 		return false
 	end
@@ -205,7 +205,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
 	local my_team = data.unit:movement():team()
 	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
-	local ai_visibility_slotmask = managers.slot:get_mask("AI_visibility")
+	local visibility_slotmask = data.visibility_slotmask
 
 	for u_key, attention_data in pairs(attention_objects) do
 		local att_unit = attention_data.unit
@@ -218,7 +218,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 		elseif attention_data.stare_expire_t and data.t > attention_data.stare_expire_t then
 			if attention_data.settings.pause then
 				attention_data.stare_expire_t = nil
-				attention_data.pause_expire_t = data.t + math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
+				attention_data.pause_expire_t = data.t + math.rand(attention_data.settings.pause[1], attention_data.settings.pause[2])
 			end
 		else
 			-- attention unit data
@@ -286,7 +286,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						-- prefer shooting enemies the player is not aiming at
 						if ub_priority.player_aim ~= 1 and follow_look_vec then
 							local att_head_pos = att_movement:m_head_pos()
-							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", ai_visibility_slotmask, "ray_type", "ai_vision", "report") then
+							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", visibility_slotmask, "ray_type", "ai_vision", "report") then
 								mvec_set(tmp_vec, att_head_pos)
 								mvec_sub(tmp_vec, follow_head_pos)
 								mvec_norm(tmp_vec)
@@ -349,11 +349,6 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 end
 
 function TeamAILogicIdle._check_objective_pos(data, action)
-	local action_type = action:type()
-	if action_type == "idle" or action_type == "turn" then
-		return
-	end
-
 	if data.path_fail_t and data.t - data.path_fail_t < 6 then
 		return
 	end

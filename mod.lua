@@ -80,9 +80,19 @@ if not UsefulBots then
 			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" },
 			divider = 16,
 			callback = function (val)
+				local enabled = val <= 2
 				local menu = MenuHelper:GetMenu("useful_bots_targeting_priority")
 				for _, item in pairs(menu and menu._items_list or {}) do
-					item:set_enabled(item:name() == "targeting_priority/base_priority" or val <= 2)
+					item:set_enabled(item:name() == "targeting_priority/base_priority" or enabled)
+				end
+				menu = MenuHelper:GetMenu("useful_bots")
+				for _, item in pairs(menu and menu._items_list or {}) do
+					if item:name() == "dominate_enemies" then
+						item:set_enabled(enabled)
+						if not enabled then
+							item:set_value(3)
+						end
+					end
 				end
 			end
 		},
@@ -138,26 +148,9 @@ if not UsefulBots then
 	end
 
 	function UsefulBots:force_attention(attention_unit)
-		if not attention_unit:movement():team().foes.criminal1 then
-			return
-		end
-
 		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
-			local brain = c_data.unit:brain()
-			local logic = brain._current_logic
-			local logic_data = brain._logic_data
-			local internal_logic_data = logic_data.internal_data
-
-			if internal_logic_data.detection_task_key then
-				logic.damage_clbk(logic_data, {
-					attacker_unit = attention_unit,
-					result = {}
-				})
-				if internal_logic_data.queued_tasks then
-					CopLogicBase.unqueue_task(internal_logic_data, internal_logic_data.detection_task_key)
-				end
-				logic._upd_enemy_detection(logic_data)
-			end
+			local logic_data = c_data.unit:brain()._logic_data
+			TeamAILogicBase.force_attention(logic_data, logic_data.internal_data, attention_unit)
 		end
 	end
 
@@ -182,10 +175,7 @@ if not UsefulBots then
 		})
 		UsefulBots.menu_builder:create_menu(nodes)
 
-		local menu = MenuHelper:GetMenu("useful_bots_targeting_priority")
-		for _, item in pairs(menu and menu._items_list or {}) do
-			item:set_enabled(item:name() == "targeting_priority/base_priority" or UsefulBots.settings.targeting_priority.base_priority <= 2)
-		end
+		UsefulBots.params.base_priority.callback(UsefulBots.settings.targeting_priority.base_priority)
 	end)
 
 end
