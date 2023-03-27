@@ -1,3 +1,12 @@
+if not Network:is_server() then
+	return
+end
+
+-- queued actions are not initialized for some reason
+Hooks:PostHook(TeamAIMovement, "init", "init_ub", function (self)
+	self._queued_actions = {}
+end)
+
 local action_request_original = TeamAIMovement.action_request
 function TeamAIMovement:action_request(action_desc, ...)
 	if not self:can_request_actions() then
@@ -23,7 +32,7 @@ function TeamAIMovement:action_request(action_desc, ...)
 	return action_request_original(self, action_desc, ...)
 end
 
-if Keepers or not Network:is_server() then
+if Keepers then
 	return
 end
 

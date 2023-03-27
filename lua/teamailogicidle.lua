@@ -1,13 +1,9 @@
-local math_min = math.min
-local math_max = math.max
 local math_lerp = math.lerp
-local mvec_set = mvector3.set
-local mvec_sub = mvector3.subtract
-local mvec_norm = mvector3.normalize
+local math_map_range = math.map_range
+local math_max = math.max
+local math_min = math.min
+local mvec_dir = mvector3.direction
 local tmp_vec = Vector3()
-
-TeamAILogicIdle._intimidate_resist = {}
-TeamAILogicIdle._intimidate_progress = {}
 
 function TeamAILogicIdle.is_high_priority(unit_movement)
 	if type(unit_movement._active_actions) ~= "table" then
@@ -81,16 +77,12 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal)
 	data._next_intimidate_t = data.t + 2
 
 	local best_civ, highest_wgt, intimidateable_civilians = TeamAILogicIdle._find_intimidateable_civilians(criminal, true)
-
-	local plural = false
-	if #intimidateable_civilians > 1 then
-		plural = true
-	elseif #intimidateable_civilians <= 0 then
+	if #intimidateable_civilians <= 0 then
 		return
 	end
 
 	local is_escort = tweak_data.character[best_civ:base()._tweak_table].is_escort
-	local sound_name = is_escort and "f40_any" or (best_civ:anim_data().drop and "f03a_" or "f02x_") .. (plural and "plu" or "sin")
+	local sound_name = is_escort and "f40_any" or (best_civ:anim_data().drop and "f03a_" or "f02x_") .. (#intimidateable_civilians > 1 and "plu" or "sin")
 	criminal:sound():say(sound_name, true)
 	criminal:brain():action_request({
 		align_sync = true,
@@ -118,8 +110,13 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- unit can't surrender
 		return false
 	end
+	local surrender_window = unit:brain()._logic_data.surrender_window
+	if surrender_window and TimerManager:game():time() > surrender_window.window_expire_t then
+		-- unit will not surrender
+		return false
+	end
 	if distance > tweak_data.player.long_dis_interaction.intimidate_range_enemies then
-		-- too far away
+		-- unit is too far away
 		return false
 	end
 	if unit_anim.hands_back or unit_anim.surrender then
@@ -142,20 +139,12 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- not vulnerable
 		return false
 	end
-	local resist = TeamAILogicIdle._intimidate_resist[unit:key()]
-	if resist and resist > 2 then
-		-- resisted too often
-		return false
-	end
 	local num = 0
-	local max = 1 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
-	local m_pos = data.unit:movement():m_pos()
-	local dist_sq = tweak_data.player.long_dis_interaction.intimidate_range_enemies * tweak_data.player.long_dis_interaction.intimidate_range_enemies * 4
-	local u_damage, u_movement
+	local max = 2 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
+	local dis = tweak_data.player.long_dis_interaction.intimidate_range_enemies
 	for _, v in pairs(data.detected_attention_objects) do
-		u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
-		u_movement = v.unit and v.unit.movement and v.unit:movement()
-		if v.verified and v.unit ~= unit and u_damage and not u_damage:dead() and u_movement and mvector3.distance_sq(u_movement:m_pos(), m_pos) < dist_sq then
+		local u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
+		if v.verified and v.unit ~= unit and v.dis < dis and u_damage and not u_damage:dead() then
 			num = num + 1
 			if num > max then
 				-- too many detected attention objects
@@ -169,19 +158,13 @@ end
 function TeamAILogicIdle.intimidate_cop(data, target)
 	local anim = target:anim_data()
 	data.unit:sound():say(anim.hands_back and "l03x_sin" or anim.surrender and "l02x_sin" or "l01x_sin", true)
-	local new_action = {
+	data.unit:brain():action_request({
 		type = "act",
 		variant = (anim.hands_back or anim.surrender) and "arrest" or "gesture_stop",
 		body_part = 3,
 		align_sync = true
-	}
-	data.unit:brain():action_request(new_action)
+	})
 	target:brain():on_intimidated(tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
-
-	local objective = target:brain():objective()
-	if not objective or objective.type ~= "surrender" then
-		TeamAILogicIdle._intimidate_resist[target:key()] = (TeamAILogicIdle._intimidate_resist[target:key()] or 0) + 1
-	end
 end
 
 local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
@@ -207,7 +190,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
 	local visibility_slotmask = data.visibility_slotmask
 
-	for u_key, attention_data in pairs(attention_objects) do
+	for _, attention_data in pairs(attention_objects) do
 		local att_unit = attention_data.unit
 		if not attention_data.identified or not alive(att_unit) then
 			-- Skip
@@ -222,24 +205,23 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			end
 		else
 			-- attention unit data
-			local att_movement = att_unit:movement()
+			local att_base = att_unit:base()
 			local att_damage = att_unit:character_damage()
-			if att_damage and not att_damage:dead() and att_movement and att_movement.team and my_team.foes[att_movement:team().id] then
-				local att_base = att_unit.base and att_unit:base()
-				local att_tweak_name = att_base and att_base._tweak_table
+			local att_movement = att_unit:movement()
+			if att_base and att_damage and not att_damage:dead() and att_movement and att_movement.team and my_team.foes[att_movement:team().id] then
+				local att_tweak_name = att_base._tweak_table
 				local att_tweak = attention_data.char_tweak or att_tweak_name and tweak_data.character[att_tweak_name] or {}
 				local att_anim = att_unit.anim_data and att_unit:anim_data() or {}
 
-				local distance = attention_data.dis or mvector3.distance(data.m_pos, attention_data.m_pos)
+				local distance = attention_data.dis
 				local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data)) or AIAttentionObject.REACT_CHECK
 				attention_data.aimed_at = TeamAILogicIdle.chk_am_i_aimed_at(data, attention_data, attention_data.aimed_at and 0.95 or 0.985)
 
 				local has_alerted = attention_data.alert_t and data.t - attention_data.alert_t < 3
-				local has_damaged = attention_data.dmg_t and data.t - attention_data.dmg_t < 2
+				local has_damaged = attention_data.dmg_t and data.t - attention_data.dmg_t < 3
 				local been_marked = attention_data.mark_t and data.t - attention_data.mark_t < 10
 				local is_tied = att_anim.hands_tied
 				local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
-				local is_turret = att_base and att_base.sentry_gun
 				-- use the dmg multiplier of the given distance as priority
 				local valid_target = false
 				local target_priority
@@ -254,14 +236,14 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				if att_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
 					local high_priority = TeamAILogicIdle.is_high_priority(att_movement)
 					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
-					local marked_contour = is_special and att_unit.contour and att_unit:contour():find_id_match("^mark_enemy")
+					local marked_contour = att_unit:contour() and att_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
 
 					-- check for reaction changes
-					reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or been_marked) and math_max(REACT_SHOOT, reaction) or reaction
+					reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or marked_contour) and math_max(REACT_SHOOT, reaction) or reaction
 
 					-- get target priority multipliers
-					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (has_damaged and ub_priority.damaged or 1) * (marked_by_player and ub_priority.marked or 1) * (is_turret and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
+					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (marked_by_player and ub_priority.marked or 1) * (att_base.sentry_gun and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
 
 					-- if we have a revive objective and target priority isn't high, ignore the enemy
 					valid_target = not_assisting or target_priority >= 1
@@ -272,13 +254,19 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 							target_priority = target_priority * 1.25
 						end
 
+						-- slightly boost priority of enemies that damaged us
+						if has_damaged then
+							target_priority = target_priority * 1.1
+						end
+
 						-- reduce priority if we would hit a shield
 						if TeamAILogicIdle._ignore_shield(data.unit, attention_data) then
 							target_priority = target_priority * 0.01
 						end
 
 						-- reduce reaction and priority if someone is trying to intimidate, but we are not
-						if not should_intimidate and TeamAILogicIdle._intimidate_progress[u_key] and TeamAILogicIdle._intimidate_progress[u_key] + 5 > data.t then
+						local logic_data = att_unit:brain()._logic_data
+						if not should_intimidate and logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t then
 							reaction = math_min(REACT_AIM, reaction)
 							target_priority = target_priority * 0.01
 						end
@@ -287,10 +275,9 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						if ub_priority.player_aim ~= 1 and follow_look_vec then
 							local att_head_pos = att_movement:m_head_pos()
 							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", visibility_slotmask, "ray_type", "ai_vision", "report") then
-								mvec_set(tmp_vec, att_head_pos)
-								mvec_sub(tmp_vec, follow_head_pos)
-								mvec_norm(tmp_vec)
+								mvec_dir(tmp_vec, follow_head_pos, att_head_pos)
 								target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
+								target_priority = target_priority * math_map_range(follow_look_vec:dot(tmp_vec), -1, 1, ub_priority.player_aim, 1)
 							end
 						end
 
@@ -348,7 +335,7 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 	end
 end
 
-function TeamAILogicIdle._check_objective_pos(data, action)
+function TeamAILogicIdle._check_objective_pos(data)
 	if data.path_fail_t and data.t - data.path_fail_t < 6 then
 		return
 	end

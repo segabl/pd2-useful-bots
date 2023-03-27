@@ -1,4 +1,5 @@
 local tmp_vec = Vector3()
+
 Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function (data, att, react)
 	if not att or not att.verified or not react then
 		return
@@ -17,6 +18,7 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 		return
 	end
 
+	-- only do intimidation/marking if we are actually looking in that direction
 	mvector3.set(tmp_vec, att.unit:movement():m_head_pos())
 	mvector3.subtract(tmp_vec, data.unit:movement():m_head_pos())
 	if tmp_vec:angle(data.unit:movement():m_rot():y()) > 50 then
@@ -25,12 +27,10 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 
 	-- intimidate
 	if react == AIAttentionObject.REACT_ARREST and (not data._next_intimidate_t or data._next_intimidate_t < data.t) then
-		local key = att.unit:key()
-		local intimidate = TeamAILogicIdle._intimidate_progress[key]
-		if not intimidate or intimidate + 1 < data.t then
+		local act_action = att.unit:movement():_get_latest_act_action()
+		if not act_action or not act_action._enter_t or act_action._enter_t + 1 < data.t then
 			TeamAILogicIdle.intimidate_cop(data, att.unit)
-			TeamAILogicIdle._intimidate_progress[key] = data.t
-			data._next_intimidate_t = data.t + 2
+			data._next_intimidate_t = data.t + tweak_data.player.movement_state.interaction_delay
 			return
 		end
 	end
@@ -38,7 +38,7 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 	-- mark
 	if UsefulBots.settings.mark_specials and (not data._next_mark_t or data._next_mark_t < data.t) then
 		if att.char_tweak and att.char_tweak.priority_shout and not att.unit:contour():find_id_match("^mark_enemy") then
-			if att.unit:character_damage():health_ratio() > 0.5 and att.dis <= tweak_data.player.long_dis_interaction.highlight_range then
+			if att.unit:character_damage():health_ratio() > 0.6 and att.dis <= tweak_data.player.long_dis_interaction.highlight_range then
 				if not TeamAILogicIdle.is_high_priority(att.unit:movement()) then
 					if not World:raycast("ray", data.m_pos, att.m_pos, "slot_mask", data.visibility_slotmask, "report") then
 						TeamAILogicAssault.mark_enemy(data, data.unit, att.unit)
@@ -101,6 +101,7 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		return
 	end
 
+	local is_new = data.attention_obj ~= new_attention
 	data.attention_obj = new_attention
 	data.attention_obj.reaction = new_reaction
 
@@ -115,5 +116,13 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		end
 	end
 
+	if is_new then
+		data.unit:movement():_cancel_latest_action("turn")
+		CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, new_attention.m_pos)
+	end
+
 	CopLogicAttack._upd_aim(data, my_data)
 end
+
+-- This function is disabled in vanilla but is not part of other logics so it might crash in other logics when called with data.logic._upd_sneak_spotting
+function TeamAILogicBase._upd_sneak_spotting() end

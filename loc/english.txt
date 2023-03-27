@@ -41,8 +41,6 @@
 	"menu_useful_bots_critical_desc" : "Priority multiplier for critical targets\nIncludes charging cloakers, tasing Tasers and sabotaging enemies",
 	"menu_useful_bots_marked" : "Marked multiplier",
 	"menu_useful_bots_marked_desc" : "Priority multiplier for marked enemies",
-	"menu_useful_bots_damaged" : "Damaged multiplier",
-	"menu_useful_bots_damaged_desc" : "Priority multiplier for enemies that have damaged the bot",
 	"menu_useful_bots_domination" : "Domination multiplier",
 	"menu_useful_bots_domination_desc" : "Priority multiplier for enemies that can be dominated",
 	"menu_useful_bots_enemies" : "Enemy specific multipliers",

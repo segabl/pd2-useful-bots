@@ -41,8 +41,6 @@
 	"menu_useful_bots_critical_desc" : "Prioritätsmultiplikator für kritische Gegner\nBeinhaltet attackierende Cloaker und Taser sowie sabotierende Gegner",
 	"menu_useful_bots_marked" : "Markiert Multiplikator",
 	"menu_useful_bots_marked_desc" : "Prioritätsmultiplikator für markierte Gegner",
-	"menu_useful_bots_damaged" : "Verletzt Multiplikator",
-	"menu_useful_bots_damaged_desc" : "Prioritätsmultiplikator für Gegner die den Bot verletzt haben",
 	"menu_useful_bots_domination" : "Dominierung Multiplikator",
 	"menu_useful_bots_domination_desc" : "Prioritätsmultiplikator für Gegner die dominiert werden können",
 	"menu_useful_bots_enemies" : "Gegnerspezifische Multiplikatoren",

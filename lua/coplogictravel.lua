@@ -58,26 +58,3 @@ function CopLogicTravel._on_destination_reached(data, ...)
 		return _on_destination_reached_original(data, ...)
 	end
 end
-
-if Iter and Iter.settings and Iter.settings.streamline_path then
-	return
-end
-
--- Make bots and jokers follow more directly
-local _get_exact_move_pos_original = CopLogicTravel._get_exact_move_pos
-function CopLogicTravel._get_exact_move_pos(data, nav_index, ...)
-	local my_data = data.internal_data
-	local coarse_path = my_data.coarse_path
-	if nav_index >= #coarse_path or data.team.id ~= "criminal1" and data.team.id ~= "converted_enemy" then
-		return _get_exact_move_pos_original(data, nav_index, ...)
-	end
-
-	if my_data.moving_to_cover then
-		managers.navigation:release_cover(my_data.moving_to_cover[1])
-		my_data.moving_to_cover = nil
-	end
-
-	local doors = managers.navigation:find_segment_doors(coarse_path[nav_index][1], function (seg) return seg == coarse_path[nav_index + 1][1] end)
-	local door = table.random(doors)
-	return door and door.center or _get_exact_move_pos_original(data, nav_index, ...)
-end

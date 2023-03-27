@@ -37,8 +37,6 @@
 	"menu_useful_bots_critical_desc" : "크리티컬 대상에 대한 우선 순위 배율을 조정합니다.\n돌진 공격하는 클로커, 테이저의 전기 공격, 적의 방해 공작도 포함됩니다.",
 	"menu_useful_bots_marked" : "마킹 배율",
 	"menu_useful_bots_marked_desc" : "마킹된 적에 대한 우선 순위 배율을 조정합니다.",
-	"menu_useful_bots_damaged" : "피해 배율",
-	"menu_useful_bots_damaged_desc" : "봇에게 피해를 입힌 적에 대한 우선 순위 배율을 조정합니다.",
 	"menu_useful_bots_domination" : "제압 배율",
 	"menu_useful_bots_domination_desc" : "제압할 수 있는 적에 대한 우선 순위 배율을 조정합니다.",
 	"menu_useful_bots_enemies" : "특수 적 배율",
@@ -46,5 +44,5 @@
 	"menu_useful_bots_defend_reviving" : "소생 중인 플레이어 보호",
 	"menu_useful_bots_defend_reviving_desc" : "원래 소생하도록 선택된 봇이 소생 중인 플레이어를 보호합니다.",
 	"menu_useful_bots_revive_distance" : "봇 소생 거리",
-	"menu_useful_bots_revive_distance_desc" : "봇이 다른 봇을 소생시키기 위해 이동할 수 있는 최대 거리 배율을 조정합니다.",	
+	"menu_useful_bots_revive_distance_desc" : "봇이 다른 봇을 소생시키기 위해 이동할 수 있는 최대 거리 배율을 조정합니다."
 }

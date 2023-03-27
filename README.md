@@ -7,7 +7,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 ## Customizable Features
 
 * Highly customizable target priority settings to tweak which enemies have priority and how priority is calculated
-* Ability for bots to dominate enemies on their own or assist your domination attempts (normal game rules apply to bots, only works with custom target priority enabled)
+* Option to make bots dominate enemies on their own or assist player domination attempts (normal game rules apply to bots, only works with custom target priority enabled)
 * Option to make bots not crouch and always use a standing pose
 * Option to make bots not abandon their positions when they are too far from the player
 * Option to make bots stop at the player's position when they are told to hold position
@@ -18,12 +18,14 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to prevent bots from getting into slow vehicles like forklifts
 * Option to disable ammo drops from enemies killed by bots
 * Option to make bots avoid using Inspire when they are already within revive range
+* Option to make a bots defend a reviving player
+* Option to increase revive range for bots reviving other bots
 
 ### Target priority
 
 By default, there is some basic setup for improved bot target priority which should already feel a lot better than the vanilla targeting. You can fine tune all priority modifiers to your liking in the mod options. Multipliers you set in the options are applied to the calculated base priority of a target. The base priority settings define the initial priority of an enemy, based on the setting:  
-"By weapon stats" means targets are prioritized based on the bots weapon stats at the target's distance.
-"By distance" means enemies will just be prioritized based on their distance to the bot, the bot's weapon will not be accounted for.
+"By weapon stats" prioritizes targets based on the bots weapon stats for the target distance.
+"By distance" prioritizes targets only based on their distance to the bot, the bot's weapon stats will not be accounted for.
 "No changes" disables the custom target priority code entirely and use the vanilla code. Any multipliers defined will be ignored if this setting is used.
 
 ## Improvements
@@ -38,6 +40,7 @@ By default, there is some basic setup for improved bot target priority which sho
 * Bots will not drop light bags when they are going to revive someone
 * Bots will try to kill Cloakers and Tasers before starting to revive
 * Bots and Jokers will follow more directly to better keep up with players
+* Bots will stop reviving when someone else starts reviving the same person
 * Bots will stop immediately when told to stay and will return to their positions after helping up a downed player
 
 ## Changes

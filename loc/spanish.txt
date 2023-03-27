@@ -41,8 +41,6 @@
 	"menu_useful_bots_critical_desc" : "Multiplicador de prioridad para objetivos críticos.\nIncluye Cloakers que cargan, Tasers y enemigos que están saboteando.",
 	"menu_useful_bots_marked" : "Multiplicador de marcado",
 	"menu_useful_bots_marked_desc" : "Multiplicador de prioridad para los enemigos marcados.",
-	"menu_useful_bots_damaged" : "Multiplicador por daños",
-	"menu_useful_bots_damaged_desc" : "Multiplicador de prioridad para los enemigos que hayan dañado al bot.",
 	"menu_useful_bots_domination" : "Multiplicador de dominación",
 	"menu_useful_bots_domination_desc" : "Multiplicador de prioridad para los enemigos que pueden ser dominados.",
 	"menu_useful_bots_enemies" : "Multiplicadores específicos de los enemigos",

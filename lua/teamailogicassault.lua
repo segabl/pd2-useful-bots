@@ -9,13 +9,8 @@ function TeamAILogicAssault.mark_enemy(data, criminal, to_mark)
 	to_mark:contour():add("mark_enemy", true)
 end
 
-if not Keepers then
-	Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
-end
-
 -- This function is disabled in vanilla but is not part of TeamAILogicAssault so it might crash in other logics when called with data.logic._upd_sneak_spotting
-function TeamAILogicAssault._upd_sneak_spotting(data, my_data)
-end
+function TeamAILogicAssault._upd_sneak_spotting() end
 
 -- Wait before switching to idle
 local _chk_exit_attack_logic_original = TeamAILogicAssault._chk_exit_attack_logic
@@ -37,4 +32,8 @@ function TeamAILogicAssault._chk_exit_attack_logic(data, new_reaction, ...)
 	my_data.switch_to_idle_t = nil
 
 	return _chk_exit_attack_logic_original(data, new_reaction, ...)
+end
+
+if not Keepers then
+	Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
 end

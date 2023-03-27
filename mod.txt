@@ -4,7 +4,7 @@
 	"author" : "Hoppip",
 	"color" : "0.043 0.808 0.6",
 	"image" : "mod.png",
-	"version" : "2.4.0",
+	"version" : "2.4.1",
 	"updates" : [{
 		"identifier" : "pd2-useful-bots",
 		"host": { "meta": "https://updates.hoppip.at/pd2-useful-bots" }
@@ -23,7 +23,6 @@
 		{ "hook_id" : "lib/units/enemies/cop/actions/full_body/copactionact", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/cop/actions/upper_body/copactiontase", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/cop/logics/coplogicattack", "script_path" : "mod.lua" },
-		{ "hook_id" : "lib/units/enemies/cop/logics/coplogicidle", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/cop/logics/coplogictravel", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/cop/copdamage", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/spooc/actions/lower_body/actionspooc", "script_path" : "mod.lua" },
