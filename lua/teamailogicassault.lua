@@ -34,6 +34,15 @@ function TeamAILogicAssault._chk_exit_attack_logic(data, new_reaction, ...)
 	return _chk_exit_attack_logic_original(data, new_reaction, ...)
 end
 
-if not Keepers then
-	Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
-end
+-- Fix attention unit reset
+Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", function (data, action)
+	local my_data = data.internal_data
+	if action:type() == "shoot" and my_data.attention_unit then
+		CopLogicBase._reset_attention(data)
+		my_data.attention_unit = nil
+	end
+
+	if not Keepers then
+		TeamAILogicIdle._check_objective_pos(data)
+	end
+end)
