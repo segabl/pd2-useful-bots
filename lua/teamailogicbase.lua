@@ -106,10 +106,9 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 	data.attention_obj.reaction = new_reaction
 
 	if data.name ~= "assault" and data.name ~= "travel" then
-		if not data.logic.is_available_for_assignment(data) then
-			return
+		if data.logic.is_available_for_assignment(data) then
+			CopLogicBase._exit(data.unit, "assault")
 		end
-		CopLogicBase._exit(data.unit, "assault")
 
 		if data.name ~= "assault" then
 			return
@@ -117,11 +116,10 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 	end
 
 	if is_new then
-		data.unit:movement():_cancel_latest_action("turn")
 		CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, new_attention.m_pos)
 	end
 
-	CopLogicAttack._upd_aim(data, my_data)
+	TeamAILogicAssault._upd_aim(data, my_data)
 end
 
 -- This function is disabled in vanilla but is not part of other logics so it might crash in other logics when called with data.logic._upd_sneak_spotting

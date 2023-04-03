@@ -25,17 +25,21 @@ function CopLogicTravel.upd_advance(data, ...)
 		return upd_advance_original(data, ...)
 	end
 
+	local my_data = data.internal_data
 	local focus_enemy = data.attention_obj
 	if focus_enemy and focus_enemy.verified and focus_enemy.dis < 1000 and focus_enemy.unit:base() and focus_enemy.unit:base().has_tag then
 		if focus_enemy.unit:base():has_tag("spooc") or focus_enemy.unit:base():has_tag("taser") then
-			if data.internal_data.advancing then
+			if my_data.advancing then
 				data.unit:brain():action_request({
 					body_part = 2,
 					type = "idle"
 				})
 			end
 
-			TeamAILogicAssault._upd_aim(data, data.internal_data)
+			if not my_data.turning then
+				CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, focus_enemy.m_pos)
+			end
+			TeamAILogicAssault._upd_aim(data, my_data)
 
 			return
 		end
