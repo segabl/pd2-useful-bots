@@ -105,6 +105,10 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 	data.attention_obj = new_attention
 	data.attention_obj.reaction = new_reaction
 
+	if new_attention.dis > (new_attention.verified and 4000 or 400) then
+		return
+	end
+
 	if data.name ~= "assault" and data.name ~= "travel" then
 		if data.logic.is_available_for_assignment(data) then
 			CopLogicBase._exit(data.unit, "assault")
@@ -115,10 +119,13 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		end
 	end
 
+	if data.objective and data.objective.type == "act" then
+		data.objective_failed_clbk(data.unit, data.objective)
+	end
+
 	if is_new then
 		CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, new_attention.m_pos)
 	end
-
 	TeamAILogicAssault._upd_aim(data, my_data)
 end
 
