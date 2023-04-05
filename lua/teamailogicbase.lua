@@ -110,17 +110,19 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 	end
 
 	if data.name ~= "assault" and data.name ~= "travel" then
-		if data.logic.is_available_for_assignment(data) then
-			CopLogicBase._exit(data.unit, "assault")
+		if not data.logic.is_available_for_assignment(data) then
+			return
 		end
+
+		if data.objective and data.objective.type == "act" then
+			data.objective_failed_clbk(data.unit, data.objective)
+		end
+
+		CopLogicBase._exit(data.unit, "assault")
 
 		if data.name ~= "assault" then
 			return
 		end
-	end
-
-	if data.objective and data.objective.type == "act" then
-		data.objective_failed_clbk(data.unit, data.objective)
 	end
 
 	if is_new then
@@ -131,3 +133,5 @@ end
 
 -- This function is disabled in vanilla but is not part of other logics so it might crash in other logics when called with data.logic._upd_sneak_spotting
 function TeamAILogicBase._upd_sneak_spotting() end
+
+function TeamAILogicBase.chk_should_turn() end
