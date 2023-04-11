@@ -1,7 +1,29 @@
-local _create_seat_SO_original = VehicleDrivingExt._create_seat_SO
-function VehicleDrivingExt:_create_seat_SO(...)
-	-- Dont enter vehicles that are slower than the bot
-	if not UsefulBots.settings.block_slow_vehicles or self._tweak_data.max_speed * (1000 / 60) > tweak_data.character.russian.move_speed.stand.run.cbt.fwd then
-		return _create_seat_SO_original(self, ...)
+function VehicleDrivingExt:_find_unit_seat(unit)
+	for _, seat in pairs(self._seats) do
+		if alive(seat.occupant) and seat.occupant == unit then
+			return seat
+		end
 	end
+end
+
+
+local clbk_drive_SO_verification_original = VehicleDrivingExt.clbk_drive_SO_verification
+function VehicleDrivingExt:clbk_drive_SO_verification(seat, candidate_unit, ...)
+	-- If bot was told to hold, don't enter
+	if UsefulBots.settings.hold_position and candidate_unit:movement()._should_stay then
+		return
+	end
+
+	-- If vehicle is slower than bot running speed, don't enter
+	if UsefulBots.settings.block_slow_vehicles and self._tweak_data.max_speed * (1000 / 60) < candidate_unit:base():char_tweak().move_speed.stand.run.cbt.fwd then
+		return
+	end
+
+	-- If our follow unit is not in the vehicle don't enter
+	local objective = candidate_unit:brain() and candidate_unit:brain():objective()
+	if objective and objective.follow_unit and not self:_find_unit_seat(objective.follow_unit) then
+		return
+	end
+
+	return clbk_drive_SO_verification_original(self, seat, candidate_unit, ...)
 end
