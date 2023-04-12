@@ -63,10 +63,10 @@ Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", funct
 	end
 
 	if objective.type == "revive" or objective.assist_unit then
+		objective.no_idle_delay = true
 		data.brain:action_request({
 			body_part = 3,
-			type = "idle",
-			skip_wait = true
+			type = "idle"
 		})
 	end
 end)

@@ -14,23 +14,30 @@ function TeamAIMovement:action_request(action_desc, ...)
 	end
 
 	-- Wait a bit before ending shoot action
-	if action_desc.body_part == 3 then
-		local active_action = self._active_actions[3]
-		if active_action and active_action:type() == "shoot" and action_desc.type == "idle" and not action_desc.skip_wait then
-			local t = TimerManager:game():time()
-			if not self._switch_upper_body_to_idle_t then
-				self._switch_upper_body_to_idle_t = t + (self._ext_brain:objective() and self._ext_brain:objective().type == "defend_area" and 6 or 3)
-				return
-			elseif self._switch_upper_body_to_idle_t > t then
-				return
+	local objective = self._ext_brain:objective()
+	if not objective or not objective.no_idle_delay then
+		if action_desc.body_part == 3 then
+			local active_action = self._active_actions[3]
+			if active_action and active_action:type() == "shoot" and action_desc.type == "idle" then
+				local t = TimerManager:game():time()
+				if not self._switch_upper_body_to_idle_t then
+					self._switch_upper_body_to_idle_t = t + (objective and objective.type == "defend_area" and 4 or 2)
+					return
+				elseif self._switch_upper_body_to_idle_t > t then
+					return
+				end
 			end
 		end
-
-		self._switch_upper_body_to_idle_t = nil
 	end
 
 	return action_request_original(self, action_desc, ...)
 end
+
+Hooks:PostHook(TeamAIMovement, "set_allow_fire", "set_allow_fire_ub", function (self, state)
+	if state then
+		self._switch_upper_body_to_idle_t = nil
+	end
+end)
 
 if Keepers then
 	return
