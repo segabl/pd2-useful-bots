@@ -70,6 +70,10 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 end
 
 function TeamAILogicIdle.intimidate_civilians(data, criminal)
+	if data.unit:movement():chk_action_forbidden("action") then
+		return
+	end
+
 	if data._next_intimidate_t and data.t < data._next_intimidate_t then
 		return
 	end
@@ -123,12 +127,16 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- unit is already surrendering
 		return true
 	end
-	if UsefulBots.settings.dominate_enemies > 1 then
-		-- unit is not surrendering and we only allow domination assists
-		return false
-	end
 	if not managers.groupai:state():has_room_for_police_hostage() then
 		-- no room for police hostage
+		return false
+	end
+	if surrender_window then
+		-- intimidation attempt was started
+		return true
+	end
+	if UsefulBots.settings.dominate_enemies > 1 then
+		-- unit is not surrendering and we only allow domination assists
 		return false
 	end
 	local health_max = 0
@@ -140,7 +148,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		return false
 	end
 	local num = 0
-	local max = 2 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
+	local max = 4 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
 	local dis = tweak_data.player.long_dis_interaction.intimidate_range_enemies
 	for _, v in pairs(data.detected_attention_objects) do
 		local u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
@@ -222,6 +230,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				local been_marked = attention_data.mark_t and data.t - attention_data.mark_t < 10
 				local is_tied = att_anim.hands_tied
 				local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
+				local high_priority = TeamAILogicIdle.is_high_priority(att_movement)
 				-- use the dmg multiplier of the given distance as priority
 				local valid_target = false
 				local target_priority
@@ -234,7 +243,6 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				-- fine tune target priority
 				if att_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
-					local high_priority = TeamAILogicIdle.is_high_priority(att_movement)
 					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
 					local marked_contour = att_unit:contour() and att_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
@@ -287,7 +295,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 							reaction = REACT_AIM
 						end
 					end
-				elseif has_alerted and not_assisting and distance < 2000 then
+				elseif has_alerted and not_assisting and distance < 2000 or high_priority then
 					valid_target = true
 					reaction = math_min(reaction, REACT_AIM)
 					target_priority = target_priority * 0.01

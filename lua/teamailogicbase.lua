@@ -76,38 +76,20 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		return
 	end
 
-	local u_key = unit:key()
-	local att_obj_data = data.detected_attention_objects[u_key]
+	local att_obj_data = CopLogicBase.identify_attention_obj_instant(data, unit:key())
 	if not att_obj_data then
-		TeamAILogicIdle.damage_clbk(data, {attacker_unit = unit, result = {}})
-
-		att_obj_data = data.detected_attention_objects[u_key]
-		if not att_obj_data then
-			return
-		end
+		return
 	end
 
-	local from, to = data.unit:movement():m_head_pos(), att_obj_data.handler:get_detection_m_pos()
-	local ray = World:raycast("ray", from, to, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision")
-	att_obj_data.verified = not ray or ray.unit == unit
-	att_obj_data.pause_expire_t = nil
-	att_obj_data.stare_expire_t = nil
+	CopLogicBase._upd_attention_obj_detection(data, AIAttentionObject.REACT_SHOOT, nil)
 
 	local new_attention, _, new_reaction = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
-	if not new_attention or new_reaction < AIAttentionObject.REACT_SHOOT then
-		new_attention = att_obj_data
-		new_reaction = att_obj_data.verified and AIAttentionObject.REACT_SHOOT or AIAttentionObject.REACT_AIM
-	elseif new_attention ~= att_obj_data then
+	if not new_attention or new_attention.u_key ~= att_obj_data.u_key then
 		return
 	end
 
 	local is_new = data.attention_obj ~= new_attention
-	data.attention_obj = new_attention
-	data.attention_obj.reaction = new_reaction
-
-	if new_attention.dis > (new_attention.verified and 4000 or 400) then
-		return
-	end
+	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
 
 	if data.name ~= "assault" and data.name ~= "travel" then
 		if not data.logic.is_available_for_assignment(data) then
@@ -119,10 +101,6 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		end
 
 		CopLogicBase._exit(data.unit, "assault")
-
-		if data.name ~= "assault" then
-			return
-		end
 	end
 
 	if is_new then
