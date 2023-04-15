@@ -110,7 +110,8 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 	if unit:unit_data().disable_shout then
 		return false
 	end
-	if not unit_tweak.surrender or unit_tweak.surrender == tweak_data.character.presets.surrender.special or unit_anim.hands_tied then
+	local surrender = unit_tweak.surrender
+	if not surrender or surrender == tweak_data.character.presets.surrender.special or unit_anim.hands_tied then
 		-- unit can't surrender
 		return false
 	end
@@ -119,7 +120,8 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- unit will not surrender
 		return false
 	end
-	if distance > tweak_data.player.long_dis_interaction.intimidate_range_enemies then
+	local intimidate_range_enemies = tweak_data.player.long_dis_interaction.intimidate_range_enemies
+	if distance > intimidate_range_enemies then
 		-- unit is too far away
 		return false
 	end
@@ -139,8 +141,13 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- unit is not surrendering and we only allow domination assists
 		return false
 	end
+	if distance > intimidate_range_enemies * 0.75 then
+		-- only start new domination attempts if enemy is close
+		return false
+	end
 	local health_max = 0
-	for k, _ in pairs(unit_tweak.surrender.reasons and unit_tweak.surrender.reasons.health or {}) do
+	local surrender_health = surrender.reasons and surrender.reasons.health or surrender.factors and surrender.factors.health or {}
+	for k, _ in pairs(surrender_health) do
 		health_max = k > health_max and k or health_max
 	end
 	if unit_damage:health_ratio() > health_max / 2 then
@@ -149,7 +156,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 	end
 	local num = 0
 	local max = 4 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
-	local dis = tweak_data.player.long_dis_interaction.intimidate_range_enemies
+	local dis = intimidate_range_enemies * 1.5
 	for _, v in pairs(data.detected_attention_objects) do
 		local u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
 		if v.verified and v.unit ~= unit and v.dis < dis and u_damage and not u_damage:dead() then
