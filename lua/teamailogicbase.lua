@@ -76,6 +76,11 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		return
 	end
 
+	local logic_supports_shooting = data.name == "assault" or data.name == "travel"
+	if not logic_supports_shooting and not data.logic.is_available_for_assignment(data) then
+		return
+	end
+
 	local att_obj_data = CopLogicBase.identify_attention_obj_instant(data, unit:key())
 	if not att_obj_data then
 		return
@@ -91,15 +96,10 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 	local is_new = data.attention_obj ~= new_attention
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
 
-	if data.name ~= "assault" and data.name ~= "travel" then
-		if not data.logic.is_available_for_assignment(data) then
-			return
-		end
-
+	if not logic_supports_shooting then
 		if data.objective and data.objective.type == "act" then
 			data.objective_failed_clbk(data.unit, data.objective)
 		end
-
 		CopLogicBase._exit(data.unit, "assault")
 	end
 
