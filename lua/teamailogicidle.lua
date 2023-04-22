@@ -155,7 +155,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		return false
 	end
 	local num = 0
-	local max = 4 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
+	local max = 2 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
 	local dis = intimidate_range_enemies * 1.5
 	for _, v in pairs(data.detected_attention_objects) do
 		local u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
