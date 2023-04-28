@@ -206,8 +206,8 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local visibility_slotmask = data.visibility_slotmask
 
 	for _, attention_data in pairs(attention_objects) do
-		local att_unit = attention_data.unit
-		if not attention_data.identified or not alive(att_unit) then
+		local a_unit = attention_data.unit
+		if not attention_data.identified or not alive(a_unit) then
 			-- Skip
 		elseif attention_data.pause_expire_t then
 			if data.t > attention_data.pause_expire_t then
@@ -220,13 +220,13 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			end
 		else
 			-- attention unit data
-			local att_base = att_unit:base()
-			local att_damage = att_unit:character_damage()
-			local att_movement = att_unit:movement()
-			if att_base and att_damage and not att_damage:dead() and att_movement and att_movement.team and my_team.foes[att_movement:team().id] then
-				local att_tweak_name = att_base._tweak_table
-				local att_tweak = attention_data.char_tweak or att_tweak_name and tweak_data.character[att_tweak_name] or {}
-				local att_anim = att_unit.anim_data and att_unit:anim_data() or {}
+			local a_base = a_unit:base()
+			local a_dmg = a_unit:character_damage()
+			local a_mvmt = a_unit:movement()
+			if a_base and a_dmg and not a_dmg:dead() and a_mvmt and a_mvmt.team and my_team.foes[a_mvmt:team().id] then
+				local a_tweak_table = a_base._tweak_table
+				local a_tweak = attention_data.char_tweak or a_tweak_table and tweak_data.character[a_tweak_table] or {}
+				local a_anim = a_unit.anim_data and a_unit:anim_data() or {}
 
 				local distance = attention_data.dis
 				local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data)) or AIAttentionObject.REACT_CHECK
@@ -235,9 +235,11 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				local has_alerted = attention_data.alert_t and data.t - attention_data.alert_t < 3
 				local has_damaged = attention_data.dmg_t and data.t - attention_data.dmg_t < 3
 				local been_marked = attention_data.mark_t and data.t - attention_data.mark_t < 10
-				local is_tied = att_anim.hands_tied
-				local is_special = attention_data.is_very_dangerous or att_tweak.priority_shout
-				local high_priority = TeamAILogicIdle.is_high_priority(att_movement)
+				local is_tied = a_anim.hands_tied
+				local is_special = attention_data.is_very_dangerous or a_tweak.priority_shout
+				local high_priority = TeamAILogicIdle.is_high_priority(a_mvmt)
+				local invulnerable = a_dmg._invulnerable or a_dmg._immortal and a_dmg._health <= 1 or (a_dmg._health_ratio or 0) <= (a_dmg._lower_health_percentage_limit or -1)
+
 				-- use the dmg multiplier of the given distance as priority
 				local valid_target = false
 				local target_priority
@@ -249,16 +251,16 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				end
 
 				-- fine tune target priority
-				if att_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
-					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(att_unit, att_tweak, att_anim, att_damage, data, distance)
-					local marked_contour = att_unit:contour() and att_unit:contour():find_id_match("^mark_enemy")
+				if a_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified and not invulnerable then
+					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(a_unit, a_tweak, a_anim, a_dmg, data, distance)
+					local marked_contour = a_unit:contour() and a_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
 
 					-- check for reaction changes
 					reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or marked_contour) and math_max(REACT_SHOOT, reaction) or reaction
 
 					-- get target priority multipliers
-					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (marked_by_player and ub_priority.marked or 1) * (att_base.sentry_gun and ub_priority.enemies.turret or 1) * (ub_priority.enemies[att_tweak_name] or 1)
+					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (marked_by_player and ub_priority.marked or 1) * (a_base.sentry_gun and ub_priority.enemies.turret or 1) * (ub_priority.enemies[a_tweak_table] or 1)
 
 					-- if we have a revive objective and target priority isn't high, ignore the enemy
 					valid_target = not_assisting or target_priority >= 1
@@ -280,7 +282,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						end
 
 						-- reduce reaction and priority if someone is trying to intimidate, but we are not
-						local logic_data = att_unit:brain()._logic_data
+						local logic_data = a_unit:brain()._logic_data
 						if not should_intimidate and logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t then
 							reaction = math_min(REACT_AIM, reaction)
 							target_priority = target_priority * 0.01
@@ -288,7 +290,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 						-- prefer shooting enemies the player is not aiming at
 						if ub_priority.player_aim ~= 1 and follow_look_vec then
-							local att_head_pos = att_movement:m_head_pos()
+							local att_head_pos = a_mvmt:m_head_pos()
 							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", visibility_slotmask, "ray_type", "ai_vision", "report") then
 								mvec_dir(tmp_vec, follow_head_pos, att_head_pos)
 								target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
@@ -297,12 +299,12 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						end
 
 						-- ;)
-						if att_base._shiny_effect and reaction >= REACT_SHOOT and not ub_priority.enemies[att_tweak_name] then
+						if a_base._shiny_effect and reaction >= REACT_SHOOT and not ub_priority.enemies[a_tweak_table] then
 							target_priority = target_priority * 0.01
 							reaction = REACT_AIM
 						end
 					end
-				elseif has_alerted and not_assisting and distance < 2000 or high_priority then
+				elseif (has_alerted or has_damaged) and not_assisting and distance < 1500 or high_priority then
 					valid_target = true
 					reaction = math_min(reaction, REACT_AIM)
 					target_priority = target_priority * 0.01
