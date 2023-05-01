@@ -34,7 +34,7 @@ By default, there is some basic setup for improved bot target priority which sho
 * Improved civilian intimidation code so bots will keep civilians down more reliably and not only when civilians are already running away
 * Improved distance check to determine which bot is selected to revive a player
 * Improved Inspire check to not rely on detected attention objects
-* Changed weapon raycast and enemy slot masks so players and bots can shoot through each other and bots can target SWAT turrets
+* Changed weapon raycast and enemy slot masks so bots can shoot through each other and target SWAT turrets
 * Escort targets are now considered for civilian intimidation and bots will shout at stopped escorts to keep them moving
 * Bots will use player animations for spotting enemies and intimidating civilians
 * Bots will not drop light bags when they are going to revive someone
