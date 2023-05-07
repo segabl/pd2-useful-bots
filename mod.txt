@@ -14,6 +14,7 @@
 	},
 	"hooks" : [
 		{ "hook_id" : "lib/managers/group_ai_states/groupaistatebase", "script_path" : "mod.lua" },
+		{ "hook_id" : "lib/managers/group_ai_states/groupaistatebesiege", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/managers/mission/elementmissionend", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/tweak_data/charactertweakdata", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/contourext", "script_path" : "mod.lua" },

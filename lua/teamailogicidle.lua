@@ -378,3 +378,36 @@ end
 if not Keepers then
 	Hooks:PostHook(TeamAILogicIdle, "action_complete_clbk", "action_complete_clbk_ub", TeamAILogicIdle._check_objective_pos)
 end
+
+-- Enter assault logic on new objective if appropriate
+Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function (data, old_objective)
+	local objective = data.objective
+
+	TeamAILogicBase.on_new_objective(data, old_objective)
+
+	if not data.internal_data.exiting then
+		if objective then
+			if (objective.nav_seg or objective.follow_unit) and not objective.in_place then
+				if data._ignore_first_travel_order then
+					data._ignore_first_travel_order = nil
+				else
+					CopLogicBase._exit(data.unit, "travel")
+				end
+			else
+				local objective_type = objective.type
+				local needs_idle = data.cool or objective.stance == "ntl" or objective_type == "revive" or objective_type == "throw_bag" or objective_type == "act"
+				CopLogicBase._exit(data.unit, needs_idle and "idle" or "assault")
+			end
+		else
+			CopLogicBase._exit(data.unit, data.cool and "idle" or "assault")
+		end
+	end
+
+	if objective and objective.stance then
+		data.unit:movement():set_cool(objective.stance == "ntl")
+	end
+
+	if old_objective and old_objective.fail_clbk then
+		old_objective.fail_clbk(data.unit)
+	end
+end)
