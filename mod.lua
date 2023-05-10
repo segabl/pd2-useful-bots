@@ -115,14 +115,16 @@ if not UsefulBots then
 		}
 	end
 
-	function UsefulBots:get_assist_objective(unit)
+	function UsefulBots:get_assist_objective(unit, receiver)
+		local nav_seg = unit:movement():nav_tracker():nav_segment()
 		return {
 			type = "defend_area",
 			scan = true,
 			assist_unit = unit,
 			haste = "run",
 			pose = "stand",
-			nav_seg = unit:movement():nav_tracker():nav_segment()
+			nav_seg = nav_seg,
+			in_place = receiver and receiver:movement():nav_tracker():nav_segment() == nav_seg
 		}
 	end
 

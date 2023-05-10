@@ -33,16 +33,14 @@ Hooks:PostHook(ReviveInteractionExt, "set_waypoint_paused", "set_waypoint_paused
 	end
 
 	reviving_bot:brain():set_objective(nil)
-
 	reviving_bot:movement():action_request({
 		body_part = 4,
 		type = "stand"
 	})
 
 	if UsefulBots.settings.defend_reviving then
-		reviving_bot:brain():set_logic("assault")
-		local objective = UsefulBots:get_assist_objective(self._unit)
-		objective.in_place = objective.nav_seg == reviving_bot:movement():nav_tracker():nav_segment()
-		reviving_bot:brain():set_objective(objective)
+		reviving_bot:brain():set_objective(UsefulBots:get_assist_objective(self._unit, reviving_bot))
+	else
+		reviving_bot:brain():set_objective(managers.groupai:_determine_objective_for_criminal_AI(reviving_bot))
 	end
 end)
