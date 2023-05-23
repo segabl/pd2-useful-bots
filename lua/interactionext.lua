@@ -41,6 +41,6 @@ Hooks:PostHook(ReviveInteractionExt, "set_waypoint_paused", "set_waypoint_paused
 	if UsefulBots.settings.defend_reviving then
 		reviving_bot:brain():set_objective(UsefulBots:get_assist_objective(self._unit, reviving_bot))
 	else
-		reviving_bot:brain():set_objective(managers.groupai:_determine_objective_for_criminal_AI(reviving_bot))
+		reviving_bot:brain():set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(reviving_bot))
 	end
 end)
