@@ -8,5 +8,7 @@ Hooks:PostHook(TeamAIBase, "init", "init_ub", function (self)
 	self._upgrade_levels = self._upgrade_levels or {}
 	self._temporary_upgrades = self._temporary_upgrades or {}
 	self._temporary_upgrades_map = self._temporary_upgrades_map or {}
-	self:set_upgrade_value("player", "intimidate_enemies", 1)
+	if managers.player:has_category_upgrade("player", "intimidate_enemies") then
+		self:set_upgrade_value("player", "intimidate_enemies", 1)
+	end
 end)

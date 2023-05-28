@@ -204,6 +204,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local my_team = data.unit:movement():team()
 	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
 	local visibility_slotmask = data.visibility_slotmask
+	local can_intimidate = data.unit:base():upgrade_level("player", "intimidate_enemies")
 
 	for _, attention_data in pairs(attention_objects) do
 		local a_unit = attention_data.unit
@@ -252,7 +253,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				-- fine tune target priority
 				if a_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified and not invulnerable then
-					local should_intimidate = not high_priority and TeamAILogicIdle.is_valid_intimidation_target(a_unit, a_tweak, a_anim, a_dmg, data, distance)
+					local should_intimidate = can_intimidate and not high_priority and TeamAILogicIdle.is_valid_intimidation_target(a_unit, a_tweak, a_anim, a_dmg, data, distance)
 					local marked_contour = a_unit:contour() and a_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
 
