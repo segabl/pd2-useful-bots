@@ -104,6 +104,10 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal)
 end
 
 function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_anim, unit_damage, data, distance)
+	if SuperSeriousShooter and managers.groupai:state():get_assault_mode() then
+		--sss not allow surrender cops during assault
+		return false
+	end
 	if UsefulBots.settings.dominate_enemies > 2 then
 		return false
 	end
