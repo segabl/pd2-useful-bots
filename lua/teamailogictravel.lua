@@ -31,6 +31,14 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 	return check_inspire_original(data, attention, ...)
 end
 
+local update_original = TeamAILogicTravel.update
+function TeamAILogicTravel.update(data, ...)
+	if data.objective then
+		return update_original(data, ...)
+	end
+	return CopLogicTravel.upd_advance(data)
+end
+
 if Iter and Iter.settings and Iter.settings.streamline_path then
 	return
 end
