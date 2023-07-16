@@ -105,9 +105,8 @@ if not UsefulBots then
 
 	function UsefulBots:get_assist_SO(unit)
 		return {
-			interval = 1,
-			chance_inc = 1,
-			base_chance = 0,
+			chance_inc = 0,
+			base_chance = 1,
 			usage_amount = 1,
 			AI_group = "friendlies",
 			search_pos = unit:position(),

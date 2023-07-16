@@ -20,11 +20,22 @@ function TeamAIDamage:damage_tase(attack_data, ...)
 			if priority_shout then
 				self._unit:sound():say(priority_shout .. "x_any", true)
 			end
+
+			self._assist_SO_id = "TeamAIDamage_assistance" .. tostring(self._unit:key())
+			managers.groupai:state():add_special_objective(self._assist_SO_id, UsefulBots:get_assist_SO(self._unit))
 		end
 	end
 
 	return result
 end
+
+Hooks:PostHook(TeamAIDamage, "on_tase_ended", "on_tase_ended_ub", function (self)
+	if self._assist_SO_id then
+		managers.groupai:state():remove_special_objective(self._assist_SO_id)
+		UsefulBots:stop_assist_objective(self._unit)
+		self._assist_SO_id = nil
+	end
+end)
 
 -- fix for bots losing their i-frames in rare cases
 local damage_bullet_original = TeamAIDamage.damage_bullet
