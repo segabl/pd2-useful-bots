@@ -62,3 +62,44 @@ function CopLogicTravel._on_destination_reached(data, ...)
 		return _on_destination_reached_original(data, ...)
 	end
 end
+
+if Iter and Iter.settings and Iter.settings.streamline_path then
+	return
+end
+
+-- Go straight to target without stops in between
+local _begin_coarse_pathing_original = CopLogicTravel._begin_coarse_pathing
+function CopLogicTravel._begin_coarse_pathing(data, my_data, ...)
+	if not data.is_team_ai then
+		return _begin_coarse_pathing_original(data, my_data, ...)
+	end
+
+	local nav_seg, pos
+	if data.objective.follow_unit then
+		local follow_tracker = data.objective.follow_unit:movement():nav_tracker()
+		nav_seg = follow_tracker:nav_segment()
+		pos = follow_tracker:field_position()
+	else
+		nav_seg = data.objective.nav_seg or data.objective.area and data.objective.area.pos_nav_seg
+		pos = managers.navigation._nav_segments[nav_seg].pos
+	end
+
+	my_data.coarse_path_index = 1
+	my_data.coarse_path = {
+		{
+			data.unit:movement():nav_tracker():nav_segment(),
+			mvector3.copy(data.m_pos)
+		},
+		{
+			nav_seg,
+			pos
+		}
+	}
+end
+
+local _get_allowed_travel_nav_segs_original = CopLogicTravel._get_allowed_travel_nav_segs
+function CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, ...)
+	if not data.is_team_ai then
+		return _get_allowed_travel_nav_segs_original(data, my_data, ...)
+	end
+end
