@@ -194,20 +194,25 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	end
 
 	reaction_func = reaction_func or TeamAILogicBase._chk_reaction_to_attention_object
+
 	local best_target, best_target_priority, best_target_reaction = nil, 0, nil
 	local REACT_SHOOT = data.cool and AIAttentionObject.REACT_SURPRISED or AIAttentionObject.REACT_SHOOT
-	local REACT_ARREST = AIAttentionObject.REACT_ARREST
-	local REACT_AIM = AIAttentionObject.REACT_AIM
+	local my_team = data.unit:movement():team()
+	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
+	local can_intimidate = data.unit:base():upgrade_level("player", "intimidate_enemies")
+
+	-- following player data
+	local follow_head_pos, follow_look_vec
+	if alive(data._latest_follow_unit) then
+		local follow_movement = data._latest_follow_unit:movement()
+		follow_head_pos = follow_movement:m_head_pos()
+		follow_look_vec = follow_movement:m_head_rot():y()
+	end
+
+	-- equipped weapon data
 	local w_unit = data.unit:inventory():equipped_unit()
 	local w_tweak = alive(w_unit) and w_unit:base():weapon_tweak_data()
 	local w_usage = w_tweak and data.char_tweak.weapon[w_tweak.usage]
-	local follow_movement = alive(data._latest_follow_unit) and data._latest_follow_unit:movement()
-	local follow_head_pos = follow_movement and follow_movement:m_head_pos()
-	local follow_look_vec = follow_movement and follow_movement:m_head_rot():y()
-	local my_team = data.unit:movement():team()
-	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
-	local visibility_slotmask = data.visibility_slotmask
-	local can_intimidate = data.unit:base():upgrade_level("player", "intimidate_enemies")
 
 	for _, attention_data in pairs(attention_objects) do
 		local a_unit = attention_data.unit
@@ -261,7 +266,11 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
 
 					-- check for reaction changes
-					reaction = should_intimidate and REACT_ARREST or (high_priority or is_special or has_damaged or marked_contour) and math_max(REACT_SHOOT, reaction) or reaction
+					if should_intimidate then
+						reaction = AIAttentionObject.REACT_ARREST
+					elseif high_priority or is_special or has_damaged or marked_contour then
+						reaction = math_max(REACT_SHOOT, reaction)
+					end
 
 					-- get target priority multipliers
 					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (marked_by_player and ub_priority.marked or 1) * (a_base.sentry_gun and ub_priority.enemies.turret or 1) * (ub_priority.enemies[a_tweak_table] or 1)
@@ -287,15 +296,15 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 						-- reduce reaction and priority if someone is trying to intimidate, but we are not
 						local logic_data = a_unit:brain()._logic_data
-						if not should_intimidate and logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t then
-							reaction = math_min(REACT_AIM, reaction)
+						if not should_intimidate and logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t - 1 then
+							reaction = math_min(AIAttentionObject.REACT_AIM, reaction)
 							target_priority = target_priority * 0.01
 						end
 
 						-- prefer shooting enemies the player is not aiming at
-						if ub_priority.player_aim ~= 1 and follow_look_vec then
+						if follow_head_pos and ub_priority.player_aim ~= 1 then
 							local att_head_pos = a_mvmt:m_head_pos()
-							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", visibility_slotmask, "ray_type", "ai_vision", "report") then
+							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision", "report") then
 								mvec_dir(tmp_vec, follow_head_pos, att_head_pos)
 								target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
 								target_priority = target_priority * math_map_range(follow_look_vec:dot(tmp_vec), -1, 1, ub_priority.player_aim, 1)
@@ -305,12 +314,12 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						-- ;)
 						if a_base._shiny_effect and reaction >= REACT_SHOOT and not ub_priority.enemies[a_tweak_table] then
 							target_priority = target_priority * 0.01
-							reaction = REACT_AIM
+							reaction = AIAttentionObject.REACT_AIM
 						end
 					end
 				elseif (has_alerted or has_damaged) and not_assisting and distance < 1500 or high_priority then
 					valid_target = true
-					reaction = math_min(reaction, REACT_AIM)
+					reaction = math_min(reaction, AIAttentionObject.REACT_AIM)
 					target_priority = target_priority * 0.01
 				end
 
@@ -335,7 +344,7 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 	local movement = data.unit:movement()
 
 	if not Keepers and secondary then
-		if UsefulBots.settings.stop_at_player then
+		if UsefulBots:player_settings(other_unit).stop_at_player then
 			local tracker = other_unit:movement():nav_tracker()
 			movement:set_should_stay(true, tracker:lost() and tracker:field_position() or tracker:position())
 		else

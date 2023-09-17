@@ -43,6 +43,15 @@ if not UsefulBots then
 			}
 		}
 	}
+	UsefulBots.default_settings = deep_clone(UsefulBots.settings)
+	UsefulBots.peer_settings = setmetatable({
+		[1] = UsefulBots.settings
+	}, {
+		__index = function(t, k)
+			t[k] = deep_clone(UsefulBots.default_settings)
+			return t[k]
+		end
+	})
 	UsefulBots.params = {
 		dominate_enemies = {
 			priority = 99,
@@ -78,7 +87,7 @@ if not UsefulBots then
 			priority = 100,
 			items = { "menu_useful_bots_weapon_stats", "menu_useful_bots_distance", "menu_useful_bots_vanilla" },
 			divider = 16,
-			callback = function (val)
+			callback = function(val)
 				local enabled = val <= 2
 				local menu = MenuHelper:GetMenu("useful_bots_targeting_priority")
 				for _, item in pairs(menu and menu._items_list or {}) do
@@ -154,6 +163,11 @@ if not UsefulBots then
 		end
 	end
 
+	function UsefulBots:player_settings(player_unit)
+		local peer = alive(player_unit) and player_unit:network() and player_unit:network():peer()
+		return self.peer_settings[peer and peer:id() or 1]
+	end
+
 	Hooks:Add("MenuManagerBuildCustomMenus", "MenuManagerBuildCustomMenusUsefulBots", function(menu_manager, nodes)
 		local loc = managers.localization
 		HopLib:load_localization(UsefulBots.mod_path .. "loc/", loc)
@@ -178,6 +192,19 @@ if not UsefulBots then
 		UsefulBots.params.base_priority.callback(UsefulBots.settings.targeting_priority.base_priority)
 	end)
 
+	if Network:is_client() then
+		Hooks:Add("BaseNetworkSessionOnLoadComplete", "BaseNetworkSessionOnLoadCompleteUsefulBots", function(local_peer)
+			LuaNetworking:SendToPeer(1, "useful_bots", json.encode({
+				stop_at_player = UsefulBots.settings.stop_at_player
+			}))
+		end)
+	else
+		Hooks:Add("NetworkReceivedData", "NetworkReceivedDataUsefulBots", function(sender, id, data)
+			if id == "useful_bots" then
+				table.replace(UsefulBots.peer_settings[sender], json.decode(data) or {}, true)
+			end
+		end)
+	end
 end
 
 HopLib:run_required(UsefulBots.mod_path .. "lua/")
