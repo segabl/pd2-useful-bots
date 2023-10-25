@@ -114,14 +114,18 @@ Hooks:PreHook(GroupAIStateBase, "add_special_objective", "add_special_objective_
 		return
 	end
 
-	if id:match("^Playerrevive") or id:match("^PlayerHusk_revive") or id:match("^TeamAIrevive") then
-		if objective_data.search_dis_sq then
-			objective_data.search_dis_sq = (UsefulBots.settings.revive_distance * 100) ^ 2
-		end
+	local player_assist = id:match("^Playerrevive") or id:match("^PlayerHusk_revive")
+	local bot_assist = id:match("^TeamAIrevive") or id:match("^TeamAIDamage_assistance")
+	if not player_assist and not bot_assist then
+		return
+	end
 
-		if objective_data.interval then
-			objective_data.interval = math.min(4, objective_data.interval)
-		end
+	if bot_assist then
+		objective_data.search_dis_sq = (UsefulBots.settings.revive_distance * 100) ^ 2
+	end
+
+	if objective_data.interval then
+		objective_data.interval = math.min(4, objective_data.interval)
 	end
 end)
 
@@ -153,14 +157,10 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 	return _determine_objective_for_criminal_AI_original(self, unit, ...)
 end
 
-Hooks:PostHook(GroupAIStateBase, "on_player_criminal_death", "on_player_criminal_death_ub", function (self)
-	for _, u_data in pairs(self._player_criminals) do
-		if u_data.status ~= "dead" then
-			return
+Hooks:PostHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function (self)
+	if self:num_alive_players() == 0 then
+		for _, u_data in pairs(self._ai_criminals) do
+			u_data.unit:movement():set_should_stay(false)
 		end
-	end
-
-	for _, u_data in pairs(self._ai_criminals) do
-		u_data.unit:movement():set_should_stay(false)
 	end
 end)
