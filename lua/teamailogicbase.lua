@@ -81,26 +81,26 @@ function TeamAILogicBase.force_attention(data, my_data, unit)
 		return
 	end
 
-	local att_obj_data = CopLogicBase.identify_attention_obj_instant(data, unit:key())
+	local att_obj_data = TeamAILogicBase.identify_attention_obj_instant(data, unit:key())
 	if not att_obj_data then
 		return
 	end
 
-	CopLogicBase._upd_attention_obj_detection(data, AIAttentionObject.REACT_SHOOT, nil)
+	TeamAILogicBase._upd_attention_obj_detection(data, AIAttentionObject.REACT_SHOOT, nil)
 
-	local new_attention, _, new_reaction = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
+	local new_attention = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
 	if not new_attention or new_attention.u_key ~= att_obj_data.u_key then
 		return
 	end
 
 	local is_new = data.attention_obj ~= new_attention
-	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
+	TeamAILogicBase._set_attention_obj(data, new_attention, AIAttentionObject.REACT_SHOOT)
 
 	if not logic_supports_shooting then
 		if data.objective and data.objective.type == "act" then
 			data.objective_failed_clbk(data.unit, data.objective)
 		end
-		CopLogicBase._exit(data.unit, "assault")
+		TeamAILogicBase._exit(data.unit, "assault")
 	end
 
 	if is_new then

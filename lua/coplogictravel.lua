@@ -41,6 +41,8 @@ function CopLogicTravel.upd_advance(data, ...)
 			end
 			TeamAILogicAssault._upd_aim(data, my_data)
 
+			data.unit:movement():set_allow_fire(true)
+
 			return
 		end
 	end
