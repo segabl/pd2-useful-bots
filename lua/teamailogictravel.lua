@@ -1,3 +1,8 @@
+-- Don't carry over "firing" variable, it has a chance to stopp bots from shooting
+Hooks:PostHook(TeamAILogicTravel, "enter", "enter_ub", function (data)
+	data.internal_data.firing = nil
+end)
+
 -- Make bots actually use inspire, not only if you are in their detected attention objects
 local check_inspire_original = TeamAILogicTravel.check_inspire
 function TeamAILogicTravel.check_inspire(data, attention, ...)

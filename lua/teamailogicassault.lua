@@ -1,3 +1,8 @@
+-- Don't carry over "firing" variable, it has a chance to stopp bots from shooting
+Hooks:PostHook(TeamAILogicAssault, "enter", "enter_ub", function (data)
+	data.internal_data.firing = nil
+end)
+
 TeamAILogicAssault._mark_special_chk_t = math.huge  -- hacky way to stop the vanilla special mark code
 
 function TeamAILogicAssault.mark_enemy(data, criminal, to_mark)
