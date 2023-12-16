@@ -118,8 +118,9 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- unit can't surrender
 		return false
 	end
+	local t = TimerManager:game():time()
 	local surrender_window = unit:brain()._logic_data.surrender_window
-	if surrender_window and TimerManager:game():time() > surrender_window.window_expire_t then
+	if surrender_window and t > surrender_window.window_expire_t then
 		-- unit will not surrender
 		return false
 	end
@@ -136,7 +137,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		-- no room for police hostage
 		return false
 	end
-	if surrender_window then
+	if surrender_window and t > surrender_window.window_expire_t - surrender_window.window_duration + 0.75 then
 		-- intimidation attempt was started
 		return true
 	end

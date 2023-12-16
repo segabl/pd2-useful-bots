@@ -44,9 +44,21 @@ end
 -- Fix attention unit reset
 Hooks:PostHook(TeamAILogicAssault, "action_complete_clbk", "action_complete_clbk_ub", function (data, action)
 	local my_data = data.internal_data
-	if action:type() == "shoot" and my_data.attention_unit then
-		CopLogicBase._reset_attention(data)
-		my_data.attention_unit = nil
+	if action:type() == "shoot" then
+		if my_data.attention_unit then
+			CopLogicBase._reset_attention(data)
+			my_data.attention_unit = nil
+		end
+
+		if not data.unit:movement():chk_action_forbidden("action") then
+			local mag_total, mag_remaining = data.unit:inventory():equipped_unit():base():ammo_info()
+			if mag_remaining < mag_total ^ 0.75 then
+				data.brain:action_request({
+					body_part = 3,
+					type = "reload"
+				})
+			end
+		end
 	end
 
 	if not Keepers then
