@@ -107,9 +107,6 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 	if UsefulBots.settings.dominate_enemies > 2 then
 		return false
 	end
-	if SuperSeriousShooter and not managers.groupai:state()._rescue_allowed then
-		return false
-	end
 	if unit:unit_data().disable_shout then
 		return false
 	end
