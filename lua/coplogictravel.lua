@@ -77,7 +77,7 @@ function CopLogicTravel._begin_coarse_pathing(data, my_data, ...)
 	end
 
 	local nav_seg, pos
-	if data.objective.follow_unit then
+	if alive(data.objective.follow_unit) then
 		local follow_tracker = data.objective.follow_unit:movement():nav_tracker()
 		nav_seg = follow_tracker:nav_segment()
 		pos = follow_tracker:field_position()
