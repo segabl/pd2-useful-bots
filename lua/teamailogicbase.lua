@@ -113,3 +113,16 @@ end
 function TeamAILogicBase._upd_sneak_spotting() end
 
 function TeamAILogicBase.chk_should_turn() end
+
+-- Wait before switching to idle
+function TeamAILogicBase._get_logic_state_from_reaction(data, reaction)
+	local state = (not reaction or reaction <= AIAttentionObject.REACT_SCARED) and "idle" or "assault"
+
+	if state == "assault" then
+		data.last_assault_state_t = data.t
+	elseif data.last_assault_state_t and data.t < data.last_assault_state_t + (data.objective and data.objective.type == "defend_area" and 10 or 5) then
+		state = "assault"
+	end
+
+	return state
+end

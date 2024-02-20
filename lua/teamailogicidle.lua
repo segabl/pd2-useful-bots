@@ -197,7 +197,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local REACT_SHOOT = data.cool and AIAttentionObject.REACT_SURPRISED or AIAttentionObject.REACT_SHOOT
 	local my_team = data.unit:movement():team()
 	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
-	local can_intimidate = data.unit:base():upgrade_level("player", "intimidate_enemies")
+	local can_intimidate = data.unit:base().upgrade_level and data.unit:base():upgrade_level("player", "intimidate_enemies")
 
 	-- following player data
 	local follow_head_pos, follow_look_vec
@@ -352,12 +352,12 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 	end
 
 	local bag = movement._carry_unit
-	local can_run = bag and movement:carry_tweak() and movement:carry_tweak().can_run
+	local move_speed_modifier = bag and movement:carry_tweak() and movement:carry_tweak().move_speed_modifier or 1
 
 	on_long_dis_interacted_original(data, other_unit, secondary, ...)
 
 	local objective_type = data.objective and data.objective.type
-	if objective_type == "revive" and bag and can_run and not movement:carrying_bag() then
+	if objective_type == "revive" and bag and move_speed_modifier > 0.75 and not movement:carrying_bag() then
 		bag:carry_data():link_to(data.unit, false)
 		movement:set_carrying_bag(bag)
 	end
