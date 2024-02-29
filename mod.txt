@@ -28,6 +28,7 @@
 		{ "hook_id" : "lib/units/enemies/cop/logics/coplogictravel", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/cop/copdamage", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/enemies/spooc/actions/lower_body/actionspooc", "script_path" : "mod.lua" },
+		{ "hook_id" : "lib/units/equipment/sentry_gun/sentrygunbase", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/interactions/interactionext", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/logics/teamailogicidle", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/logics/teamailogicassault", "script_path" : "mod.lua" },
