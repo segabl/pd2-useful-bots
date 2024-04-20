@@ -351,15 +351,15 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 		return
 	end
 
-	local bag = movement._carry_unit
-	local move_speed_modifier = bag and movement:carry_tweak() and movement:carry_tweak().move_speed_modifier or 1
+	local had_bag = movement._carry_unit
+	local move_speed_modifier = movement._carry_speed_modifier or 1
 
 	on_long_dis_interacted_original(data, other_unit, secondary, ...)
 
 	local objective_type = data.objective and data.objective.type
-	if objective_type == "revive" and bag and move_speed_modifier > 0.75 and not movement:carrying_bag() then
-		bag:carry_data():link_to(data.unit, false)
-		movement:set_carrying_bag(bag)
+	if objective_type == "revive" and had_bag and move_speed_modifier > 0.8 and not movement:carrying_bag() then
+		had_bag:carry_data():link_to(data.unit, false)
+		movement:set_carrying_bag(had_bag)
 	end
 end
 
