@@ -24,6 +24,8 @@
 	"menu_useful_bots_save_inspire_desc" : "Bots vão evitarem de usar Inspire quando estiverem perto do jogador",
 	"menu_useful_bots_stop_at_player" : "Parar no Jogador",
 	"menu_useful_bots_stop_at_player_desc" : "Quando usar o comando 'Parar a IA', os bots vão ir e parar na posição atual do jogador invés de simplesmente parar na posição deles.",
+	"menu_useful_bots_drop_bag_percentage" : "Drop bag speed penalty",
+	"menu_useful_bots_drop_bag_percentage_desc" : "Bots will drop bags that slow them more than the specified amount when they are going to revive someone",
 	"menu_useful_bots_defend_reviving" : "Defender jogadores revivendo",
 	"menu_useful_bots_defend_reviving_desc" : "A IA que tinha sido selecionada para reviver defenderá o jogador que estiver revivendo",
 	"menu_useful_bots_revive_distance" : "Distância da IA Reviver",

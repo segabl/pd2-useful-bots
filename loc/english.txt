@@ -24,6 +24,8 @@
 	"menu_useful_bots_save_inspire_desc" : "Bots will avoid using inspire when they are already close enough to the downed player",
 	"menu_useful_bots_stop_at_player" : "Stop at player",
 	"menu_useful_bots_stop_at_player_desc" : "Bots will move to and hold the player's current position instead of their own when told to stay",
+	"menu_useful_bots_drop_bag_percentage" : "Drop bag speed penalty",
+	"menu_useful_bots_drop_bag_percentage_desc" : "Bots will drop bags that slow them more than the specified amount when they are going to revive someone",
 	"menu_useful_bots_defend_reviving" : "Defend reviving players",
 	"menu_useful_bots_defend_reviving_desc" : "The bot that was originally chosen to revive will defend a reviving player",
 	"menu_useful_bots_revive_distance" : "Bot assist distance",

@@ -24,6 +24,8 @@
 	"menu_useful_bots_save_inspire_desc" : "Bots werden Inspire nicht benutzen wenn sie schon nahe genug an einem Spieler sind",
 	"menu_useful_bots_stop_at_player" : "Bei Spieler stoppen",
 	"menu_useful_bots_stop_at_player_desc" : "Bots werden sich zur Position des Spielers bewegen und diese halten wenn sie gestoppt werden",
+	"menu_useful_bots_drop_bag_percentage" : "Taschen-Geschwindigkeitsreduktion",
+	"menu_useful_bots_drop_bag_percentage_desc" : "Bots werden Taschen fallen lassen, die sie mehr als der angegebene Wert verlangsamen wenn sie jemandem aufhelfen.",
 	"menu_useful_bots_defend_reviving" : "Beschütze helfende Spieler",
 	"menu_useful_bots_defend_reviving_desc" : "Der Bot der zuerst fürs Aufhelfen gewählt wurde wird einen helfenden Spieler verteidigen",
 	"menu_useful_bots_revive_distance" : "Bot Hilfs-Distanz",

@@ -24,6 +24,8 @@
 	"menu_useful_bots_save_inspire_desc" : "玩家在较近的距离倒地时，Bot不会使用激励战吼。",
 	"menu_useful_bots_stop_at_player" : "于玩家处坚守",
 	"menu_useful_bots_stop_at_player_desc" : "当被命令停止时，Bot会先移动到玩家发出命令时所在的位置再停下。",
+	"menu_useful_bots_drop_bag_percentage" : "Drop bag speed penalty",
+	"menu_useful_bots_drop_bag_percentage_desc" : "Bots will drop bags that slow them more than the specified amount when they are going to revive someone",
 	"menu_useful_bots_defend_reviving" : "保护正在救援的玩家",
 	"menu_useful_bots_defend_reviving_desc" : "如果bot准备和玩家去救同一个队友，则会保护正在救队友的玩家",
 	"menu_useful_bots_revive_distance" : "bot救援距离 ",

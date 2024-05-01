@@ -19,6 +19,7 @@ if not UsefulBots then
 		stop_at_player = false,
 		defend_reviving = true,
 		revive_distance = 25,
+		drop_bag_percentage = 0.25,
 		targeting_priority = {
 			base_priority = 1, -- 1 = by weapon stats, 2 = by distance, 3 = vanilla
 			player_aim = 1.5,
@@ -71,6 +72,13 @@ if not UsefulBots then
 			min = 0,
 			max = 50,
 			step = 1,
+			display_precision = 0
+		},
+		drop_bag_percentage = {
+			priority = 83,
+			is_percentage = true,
+			display_scale = 100,
+			display_precision = 0,
 			divider = 16
 		},
 		announce_low_hp = { priority = 79 },
