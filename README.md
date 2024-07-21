@@ -8,6 +8,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 
 * Highly customizable target priority settings to tweak which enemies have priority and how priority is calculated
 * Option to make bots dominate enemies on their own or assist player domination attempts (normal game rules apply to bots, only works with custom target priority enabled)
+* Option to make bots help securing loot once the player they follow does it
 * Option to make bots not crouch and always use a standing pose
 * Option to make bots not abandon their positions when they are too far from the player
 * Option to make bots stop at the player's position when they are told to hold position
@@ -20,6 +21,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to make bots avoid using Inspire when they are already within revive range
 * Option to make a bots defend a reviving player
 * Option to increase revive range for bots reviving other bots
+* Option to make bots drop bags only when they exceed a certain weight threshold
 
 ### Target priority
 
@@ -27,6 +29,10 @@ By default, there is some basic setup for improved bot target priority which sho
 "By weapon stats" prioritizes targets based on the bots weapon stats for the target distance.
 "By distance" prioritizes targets only based on their distance to the bot, the bot's weapon stats will not be accounted for.
 "No changes" disables the custom target priority code entirely and use the vanilla code. Any multipliers defined will be ignored if this setting is used.
+
+### Loot securing
+
+If the option is enabled, bots will pick up and secure loot bags when certain conditions are met. For bots to start securing loot, the player they follow must have secured at least one loot bag already. Bots will then pick up bags if they or the player they follow are close to a bag and they will secure bags they carry if they or the player they follow are close to a secure zone. If a player calls a bot that was following them while the bot is trying to pick up or secure bags, that player will have to secure loot again for the bot to continue doing it again as well.
 
 ## Improvements
 
@@ -37,7 +43,6 @@ By default, there is some basic setup for improved bot target priority which sho
 * Changed weapon raycast and enemy slot masks so bots can shoot through each other and target SWAT turrets
 * Escort targets are now considered for civilian intimidation and bots will shout at stopped escorts to keep them moving
 * Bots will use player animations for spotting enemies and intimidating civilians
-* Bots will not drop light bags when they are going to revive someone
 * Bots will try to kill Cloakers and Tasers before starting to revive
 * Bots and Jokers will follow more directly to better keep up with players
 * Bots will stop reviving when someone else starts reviving the same person

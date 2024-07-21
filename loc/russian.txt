@@ -6,6 +6,8 @@
 	"menu_useful_bots_dominate_enemies" : "Доминировать врагов",
 	"menu_useful_bots_dominate_enemies_desc" : "Боты будут пытаться доминировать врагов",
 	"menu_useful_bots_assist_only" : "Только помогать игроку",
+	"menu_useful_bots_secure_loot" : "Secure loot bags",
+	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "Отмечать спец. юнитов",
 	"menu_useful_bots_mark_specials_desc" : "Боты будут отмечать спец. врагов",
 	"menu_useful_bots_announce_low_hp" : "Сообщать о низком уровне здоровья",

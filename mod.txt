@@ -4,7 +4,7 @@
 	"author" : "Hoppip",
 	"color" : "0.043 0.808 0.6",
 	"image" : "mod.png",
-	"version" : "2.4.4",
+	"version" : "2.5.0",
 	"updates" : [{
 		"identifier" : "pd2-useful-bots",
 		"host": { "meta": "https://updates.hoppip.at/pd2-useful-bots" }
@@ -15,7 +15,9 @@
 	"hooks" : [
 		{ "hook_id" : "lib/managers/group_ai_states/groupaistatebase", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/managers/group_ai_states/groupaistatebesiege", "script_path" : "mod.lua" },
+		{ "hook_id" : "lib/managers/mission/elementareatrigger", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/managers/mission/elementmissionend", "script_path" : "mod.lua" },
+		{ "hook_id" : "lib/managers/playermanager", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/tweak_data/charactertweakdata", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/contourext", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/beings/player/states/playerbleedout", "script_path" : "mod.lua" },
@@ -39,6 +41,7 @@
 		{ "hook_id" : "lib/units/player_team/teamaibrain", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/teamaidamage", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/player_team/teamaimovement", "script_path" : "mod.lua" },
+		{ "hook_id" : "lib/units/props/carrydata", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/vehicles/vehicledrivingext", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/weapons/projectiles/projectilebase", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/units/weapons/newnpcraycastweaponbase", "script_path" : "mod.lua" }

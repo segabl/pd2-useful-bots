@@ -6,6 +6,8 @@
 	"menu_useful_bots_dominate_enemies" : "Dominate enemies",
 	"menu_useful_bots_dominate_enemies_desc" : "Bots will try to dominate enemies",
 	"menu_useful_bots_assist_only" : "Only assist",
+	"menu_useful_bots_secure_loot" : "Secure loot bags",
+	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "Mark Specials",
 	"menu_useful_bots_mark_specials_desc" : "Bots will mark special enemies",
 	"menu_useful_bots_announce_low_hp" : "Announce low HP",

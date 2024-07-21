@@ -8,6 +8,7 @@ if not UsefulBots then
 	UsefulBots.settings = {
 		no_crouch = false,
 		dominate_enemies = 1, -- 1 = yes, 2 = assist only, 3 = no
+		secure_loot = false,
 		mark_specials = true,
 		announce_low_hp = true,
 		hold_position = true,
@@ -58,8 +59,12 @@ if not UsefulBots then
 			priority = 99,
 			items = { "dialog_yes", "menu_useful_bots_assist_only", "dialog_no" }
 		},
-		mark_specials = {
+		secure_loot = {
 			priority = 98,
+			disabled = BLT.Mods:GetModByName("Monkeepers") and true
+		},
+		mark_specials = {
+			priority = 97,
 			divider = 16
 		},
 		hold_position = { priority = 89 },

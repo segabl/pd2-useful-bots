@@ -6,6 +6,8 @@
 	"menu_useful_bots_dominate_enemies" : "逮捕敌人",
 	"menu_useful_bots_dominate_enemies_desc" : "Put your hands up MotherFucker!\nBots会吼住附近没有其它敌人的条子并让他们乖乖站好",
 	"menu_useful_bots_assist_only" : "只辅助",
+	"menu_useful_bots_secure_loot" : "Secure loot bags",
+	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "标记特殊敌人",
 	"menu_useful_bots_mark_specials_desc" : "Bots会标记那些想嗦拉斯特牛子的特殊兵种",
 	"menu_useful_bots_announce_low_hp" : "语音提示低血量",

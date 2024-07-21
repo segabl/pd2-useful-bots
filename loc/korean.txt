@@ -6,6 +6,8 @@
 	"menu_useful_bots_dominate_enemies" : "적 제압 시도",
 	"menu_useful_bots_dominate_enemies_desc" : "봇이 적을 제압하게 합니다.",
 	"menu_useful_bots_assist_only" : "도움만",
+	"menu_useful_bots_secure_loot" : "Secure loot bags",
+	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "특수 적 마킹",
 	"menu_useful_bots_mark_specials_desc" : "봇이 특수 적을 마킹하게 합니다.",
 	"menu_useful_bots_announce_low_hp" : "낮은 체력일 때 알려주기",

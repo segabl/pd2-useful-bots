@@ -6,6 +6,8 @@
 	"menu_useful_bots_dominate_enemies" : "Dominar inimigos",
 	"menu_useful_bots_dominate_enemies_desc" : "Bots vão tentar dominar os inimigos",
 	"menu_useful_bots_assist_only" : "Apenas ajudar",
+	"menu_useful_bots_secure_loot" : "Secure loot bags",
+	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "Marcar Especiais",
 	"menu_useful_bots_mark_specials_desc" : "Bots irão marcar os especiais",
 	"menu_useful_bots_announce_low_hp" : "Pedir ajuda com vida baixa",

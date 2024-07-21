@@ -348,6 +348,10 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 			data.unit:movement():throw_bag()
 		end
 		return
+	elseif data.objective and (data.objective.loot_secure_trigger or data.objective.pickup_carry_unit) then
+		if data._latest_follow_unit == other_unit then
+			data.secure_bag_data[other_unit:key()] = {}
+		end
 	end
 
 	if not Keepers and secondary then
@@ -428,3 +432,10 @@ Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function (data, old_
 		old_objective.fail_clbk(data.unit)
 	end
 end)
+
+local update_original = TeamAILogicIdle.update
+function TeamAILogicIdle.update(data, ...)
+	if not TeamAILogicBase._check_deliver_bag(data) then
+		return update_original(data, ...)
+	end
+end

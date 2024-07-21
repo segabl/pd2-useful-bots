@@ -38,6 +38,9 @@ end
 
 local update_original = TeamAILogicTravel.update
 function TeamAILogicTravel.update(data, ...)
+	if TeamAILogicBase._check_deliver_bag(data) then
+		return
+	end
 	if data.objective then
 		return update_original(data, ...)
 	end

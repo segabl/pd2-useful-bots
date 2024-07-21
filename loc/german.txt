@@ -6,6 +6,8 @@
 	"menu_useful_bots_dominate_enemies" : "Gegner dominieren",
 	"menu_useful_bots_dominate_enemies_desc" : "Bots werden versuchen Gegner zu dominieren",
 	"menu_useful_bots_assist_only" : "Nur assistieren",
+	"menu_useful_bots_secure_loot" : "Beutetaschen sichern",
+	"menu_useful_bots_secure_loot_desc" : "Bots Beutetaschen sichern wenn es Spieler tun",
 	"menu_useful_bots_mark_specials" : "Specials markieren",
 	"menu_useful_bots_mark_specials_desc" : "Bots werden Specials markieren",
 	"menu_useful_bots_announce_low_hp" : "Niedrige HP ankündigen",
