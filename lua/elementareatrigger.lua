@@ -58,11 +58,11 @@ Hooks:PreHook(ElementAreaTrigger, "on_executed", "on_executed_ub", function (sel
 end)
 
 function ElementAreaTrigger:ub_can_secure_loot(unit)
-	if not self._values.enabled or not self._loot_secure_elements or not self:is_instigator_valid(unit) then
+	if Monkeepers or not UsefulBots.settings.secure_loot or not self._values.enabled or not self._loot_secure_elements or not self:is_instigator_valid(unit) then
 		return
 	end
 
-	local carry_data = unit:carry_data()
+	local carry_data = alive(unit) and unit:carry_data()
 	if not carry_data then
 		return
 	end
