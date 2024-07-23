@@ -14,15 +14,15 @@ local valid_instigators = {
 
 local function get_loot_secure_elements(current, recursion_depth, found_elements)
 	recursion_depth = recursion_depth or 10
+	found_elements = found_elements or {}
 	for _, params in pairs(current._values.on_executed) do
 		local element = current:get_mission_element(params.id)
 		local element_class = getmetatable(element)
 		if element_class == ElementCarry and valid_carry_operations[element._values.operation] then
-			found_elements = found_elements or {}
 			found_elements[element] = element
 		end
 		if recursion_depth > 0 then
-			get_loot_secure_elements(element, recursion_depth - 1)
+			get_loot_secure_elements(element, recursion_depth - 1, found_elements)
 		end
 	end
 	return found_elements
