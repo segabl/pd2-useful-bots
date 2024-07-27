@@ -67,8 +67,14 @@ if not UsefulBots then
 			priority = 97,
 			divider = 16
 		},
-		hold_position = { priority = 89 },
-		stop_at_player = { priority = 88 },
+		hold_position = {
+			priority = 89,
+			disabled = BLT.Mods:GetModByName("Keepers") and true
+		},
+		stop_at_player = {
+			priority = 88,
+			disabled = BLT.Mods:GetModByName("Keepers") and true
+		},
 		block_slow_vehicles = { priority = 87 },
 		no_crouch = { priority = 86 },
 		defend_reviving = { priority = 85 },

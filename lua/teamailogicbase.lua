@@ -166,7 +166,8 @@ function TeamAILogicBase._check_deliver_bag(data)
 	local secure_info
 	local closest_area_trigger
 	local closest_area_trigger_dis_sq = math.huge
-	local carry_type_tweak = carry_unit:carry_data():carry_type_tweak()
+	local carry_id = carry_unit:carry_data():carry_id()
+	local carry_type_tweak = tweak_data.carry[carry_id] and tweak_data.carry.types[tweak_data.carry[carry_id].type]
 	local carry_throw_multiplier = carry_type_tweak and carry_type_tweak.throw_distance_multiplier or 1
 	for area_trigger, area_trigger_data in pairs(secure_bag_data) do
 		secure_info = area_trigger_data[carry_throw_multiplier] or area_trigger_data[next(area_trigger_data)]
