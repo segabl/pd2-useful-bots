@@ -236,7 +236,9 @@ function TeamAILogicBase._check_pickup_bag(data)
 	local closest_bag
 	local closest_bag_dis_sq = math.huge
 	for u_key, unit in pairs(CarryData.ub_loot) do
-		if not blocked[u_key] and unit:sampled_velocity():length() == 0 then
+		if not alive(unit) then
+			CarryData.ub_loot[u_key] = nil
+		elseif not blocked[u_key] and unit:sampled_velocity():length() == 0 then
 			for area_trigger in pairs(secure_bag_data) do
 				local dis_sq = area_trigger:ub_can_secure_loot(unit) and TeamAILogicBase:_check_bag_dis(data, unit:position(), 1000)
 				if dis_sq and dis_sq < closest_bag_dis_sq then
