@@ -4,7 +4,8 @@ end
 
 local valid_carry_operations = {
 	secure = true,
-	secure_silent = true
+	secure_silent = true,
+	remove = true
 }
 
 local valid_instigators = {
