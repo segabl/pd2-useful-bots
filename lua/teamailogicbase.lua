@@ -204,7 +204,7 @@ function TeamAILogicBase._check_deliver_bag(data)
 				if alive(carry_unit) then
 					unit:movement():throw_bag()
 					carry_unit:carry_data():set_position_and_throw(secure_info.bag_pos, secure_info.dir, 100)
-					carry_unit:carry_data():set_latest_peer_id(nil)
+					CarryData.ub_loot[carry_unit:key()] = nil
 				end
 			end
 		}
@@ -277,7 +277,6 @@ function TeamAILogicBase._check_pickup_bag(data)
 			},
 			complete_clbk = function(unit)
 				if alive(closest_bag) and not closest_bag:carry_data():is_linked_to_unit() and not unit:movement()._carry_unit then
-					unit:movement():set_carrying_bag(closest_bag)
 					closest_bag:carry_data():link_to(unit)
 				end
 			end
