@@ -23,5 +23,8 @@ Hooks:PostHook(TeamAIMovement, "set_should_stay", "set_should_stay_ub", function
 	if should_stay and pos then
 		self._should_stay_pos = mvector3.copy(pos)
 	end
-	self._ext_brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(self._unit))
+	local objective = self._ext_brain:objective()
+	if not objective or not objective.forced then
+		self._ext_brain:set_objective(managers.groupai:state():_determine_objective_for_criminal_AI(self._unit))
+	end
 end)
