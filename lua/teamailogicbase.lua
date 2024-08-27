@@ -128,7 +128,7 @@ function TeamAILogicBase._get_logic_state_from_reaction(data, reaction)
 end
 
 function TeamAILogicBase._check_deliver_bag(data)
-	if Monkeepers or not UsefulBots.settings.secure_loot then
+	if data.cool or Monkeepers or not UsefulBots.settings.secure_loot then
 		return
 	end
 
