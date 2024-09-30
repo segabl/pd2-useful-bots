@@ -16,8 +16,6 @@
 	"menu_useful_bots_hold_position_desc" : "Боты всегда будут удерживать позицию, вне зависимости от того, как далеко вы находитесь",
 	"menu_useful_bots_battle_cries" : "Боевой Клич",
 	"menu_useful_bots_battle_cries_desc" : "Боты будут периодически выкрикивать боевые кличи",
-	"menu_useful_bots_save_hostages" : "Не трогать заложников",
-	"menu_useful_bots_save_hostages_desc" : "Боты не будут наносить урон заложникам",
 	"menu_useful_bots_block_slow_vehicles" : "Избегать медленных транспортов",
 	"menu_useful_bots_block_slow_vehicles_desc" : "Боты не станут садиться в транспорт, который медленнее их.",
 	"menu_useful_bots_ammo_drops" : "Выбрасывание патронов",

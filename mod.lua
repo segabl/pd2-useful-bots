@@ -13,7 +13,6 @@ if not UsefulBots then
 		announce_low_hp = true,
 		hold_position = true,
 		battle_cries = true,
-		save_hostages = true,
 		block_slow_vehicles = true,
 		ammo_drops = true,
 		save_inspire = true,

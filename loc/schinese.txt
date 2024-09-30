@@ -16,8 +16,6 @@
 	"menu_useful_bots_hold_position_desc" : "Bot被命令停止后，无论你离他们多远，他们都会坚守在原地不动",
 	"menu_useful_bots_battle_cries" : "战斗中呼喊",
 	"menu_useful_bots_battle_cries_desc" : "Bot时不时会在战斗中做出呼喊或嘲讽\n例如拉斯特有时候会说：\"Easy, it's fucking easy I tell ya!\"",
-	"menu_useful_bots_save_hostages" : "保住人质",
-	"menu_useful_bots_save_hostages_desc" : "Bot不能伤害被制服的敌人",
 	"menu_useful_bots_block_slow_vehicles" : "别上慢载具",
 	"menu_useful_bots_block_slow_vehicles_desc" : "Bot不会乘上速度比自己慢的载具",
 	"menu_useful_bots_ammo_drops" : "弹药补给",

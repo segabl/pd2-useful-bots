@@ -16,8 +16,6 @@
 	"menu_useful_bots_hold_position_desc" : "Les bots gardent leur position peu importe à quelle distance se trouve le joueur",
 	"menu_useful_bots_battle_cries" : "Cris de guerre",
 	"menu_useful_bots_battle_cries_desc" : "Les bots font des cris de guerre de temps en temps",
-	"menu_useful_bots_save_hostages" : "Sauvent les otages",
-	"menu_useful_bots_save_hostages_desc" : "Les bots ne peuvent pas faire de dégâts aux ennemis attachés",
 	"menu_useful_bots_block_slow_vehicles" : "Évitez les véhicules lents",
 	"menu_useful_bots_block_slow_vehicles_desc" : "Les bots n'iront pas dans les véhicules plus lents qu'eux",
 	"menu_useful_bots_ammo_drops" : "Chute de munitions",

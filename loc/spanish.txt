@@ -16,8 +16,6 @@
 	"menu_useful_bots_hold_position_desc" : "Los bots mantendrán su posición cuando se les indique que se queden, sin importar qué tan lejos se vaya el jugador.",
 	"menu_useful_bots_battle_cries" : "Gritos de batalla",
 	"menu_useful_bots_battle_cries_desc" : "Los bots ocasionalmente harán gritos de batalla.",
-	"menu_useful_bots_save_hostages" : "Cuidan a los rehenes",
-	"menu_useful_bots_save_hostages_desc" : "Los bots no dañarán a los enemigos esposados.",
 	"menu_useful_bots_block_slow_vehicles" : "Evitan los vehículos lentos",
 	"menu_useful_bots_block_slow_vehicles_desc" : "Los bots no se subirán a los vehículos que se muevan más lento que ellos.",
 	"menu_useful_bots_ammo_drops" : "Caída de munición",

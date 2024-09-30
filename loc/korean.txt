@@ -16,8 +16,6 @@
 	"menu_useful_bots_hold_position_desc" : "봇은 플레이어가 얼마나 멀리 있든 관계없이 머물라는 지시를 받으면 위치를 유지합니다.",
 	"menu_useful_bots_battle_cries" : "전투 함성",
 	"menu_useful_bots_battle_cries_desc" : "봇은 가끔 전투 함성을 하게 합니다.",
-	"menu_useful_bots_save_hostages" : "인질 보호",
-	"menu_useful_bots_save_hostages_desc" : "봇이 묶인 적에게 피해를 줄 수 없게합니다.",
 	"menu_useful_bots_block_slow_vehicles" : "느린 차량을 피함",
 	"menu_useful_bots_block_slow_vehicles_desc" : "봇은 자신보다 느리게 움직이는 차량에 탑승하지 않습니다.",
 	"menu_useful_bots_ammo_drops" : "탄약 떨굼",
