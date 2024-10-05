@@ -22,7 +22,7 @@ local function get_loot_secure_elements(current, recursion_depth, found_elements
 		if element_class == ElementCarry and valid_carry_operations[element._values.operation] then
 			found_elements[element] = element
 		end
-		if recursion_depth > 0 then
+		if element and recursion_depth > 0 then
 			get_loot_secure_elements(element, recursion_depth - 1, found_elements)
 		end
 	end
