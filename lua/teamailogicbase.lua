@@ -202,7 +202,8 @@ function TeamAILogicBase._check_deliver_bag(data)
 			complete_clbk = function(unit)
 				carry_unit = unit:movement()._carry_unit
 				if alive(carry_unit) then
-					unit:movement():throw_bag()
+					unit:movement()._was_carrying = { unit = carry_unit }
+					carry_unit:carry_data():unlink()
 					carry_unit:carry_data():set_position_and_throw(secure_info.bag_pos, secure_info.dir, 100)
 					CarryData.ub_loot[carry_unit:key()] = nil
 				end
