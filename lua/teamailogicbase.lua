@@ -182,6 +182,13 @@ function TeamAILogicBase._check_deliver_bag(data)
 		return
 	end
 
+	if data.internal_data.advancing then
+		data.brain:action_request({
+			body_part = 2,
+			type = "idle"
+		})
+	end
+
 	data.brain:set_objective({
 		type = "free",
 		loot_secure_trigger = closest_area_trigger,
@@ -258,6 +265,13 @@ function TeamAILogicBase._check_pickup_bag(data)
 	local pos = tracker:field_position()
 	local nav_seg = tracker:nav_segment()
 	managers.navigation:destroy_nav_tracker(tracker)
+
+	if data.internal_data.advancing then
+		data.brain:action_request({
+			body_part = 2,
+			type = "idle"
+		})
+	end
 
 	data.brain:set_objective({
 		type = "free",
