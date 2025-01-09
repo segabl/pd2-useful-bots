@@ -65,7 +65,7 @@ function CopLogicTravel._on_destination_reached(data, ...)
 	end
 end
 
-if Iter and Iter.settings and Iter.settings.streamline_path then
+if Iter and Iter.settings and Iter.settings.streamline_path or restoration then
 	return
 end
 

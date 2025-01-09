@@ -47,7 +47,7 @@ function TeamAILogicTravel.update(data, ...)
 	return CopLogicTravel.upd_advance(data)
 end
 
-if Iter and Iter.settings and Iter.settings.streamline_path then
+if Iter and Iter.settings and Iter.settings.streamline_path or restoration then
 	return
 end
 
