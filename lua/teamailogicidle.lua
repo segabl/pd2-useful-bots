@@ -198,6 +198,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 	local my_team = data.unit:movement():team()
 	local not_assisting = data.name ~= "travel" or not data.objective or data.objective.type ~= "revive" and not data.objective.assist_unit
 	local can_intimidate = data.unit:base().upgrade_level and data.unit:base():upgrade_level("player", "intimidate_enemies")
+	local get_shoot_falloff = (data.unit:movement()._actions.shoot or CopActionShoot)._get_shoot_falloff
 
 	-- following player data
 	local follow_head_pos, follow_look_vec
@@ -251,7 +252,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				local valid_target = false
 				local target_priority
 				if ub_priority.base_priority == 1 and w_usage then
-					local falloff_data = (TeamAIActionShoot or CopActionShoot)._get_shoot_falloff(nil, distance, w_usage.FALLOFF)
+					local falloff_data = get_shoot_falloff(nil, distance, w_usage.FALLOFF)
 					target_priority = (falloff_data.dmg_mul / w_usage.FALLOFF[1].dmg_mul) * falloff_data.acc[2]
 				else
 					target_priority = math_max(0, 1 - distance / 3000)
