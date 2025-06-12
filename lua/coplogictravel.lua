@@ -72,7 +72,7 @@ end
 -- Go straight to target without stops in between
 local _begin_coarse_pathing_original = CopLogicTravel._begin_coarse_pathing
 function CopLogicTravel._begin_coarse_pathing(data, my_data, ...)
-	if StreamHeist or not data.is_team_ai or data.path_fail_t and data.t - data.path_fail_t < 2 then
+	if not data.is_team_ai or data.path_fail_t and data.t - data.path_fail_t < 2 then
 		return _begin_coarse_pathing_original(data, my_data, ...)
 	end
 
@@ -105,7 +105,7 @@ end
 
 local _get_allowed_travel_nav_segs_original = CopLogicTravel._get_allowed_travel_nav_segs
 function CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, ...)
-	if StreamHeist or not data.is_team_ai then
+	if not data.is_team_ai then
 		return _get_allowed_travel_nav_segs_original(data, my_data, ...)
 	end
 end
