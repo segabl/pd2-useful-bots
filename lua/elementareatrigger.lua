@@ -2,10 +2,14 @@ if not Network:is_server() then
 	return
 end
 
+local secure_only_levels = {
+	nail = true
+}
+
 local valid_carry_operations = {
 	secure = true,
 	secure_silent = true,
-	remove = true
+	remove = not secure_only_levels[Global.game_settings and Global.game_settings.level_id]
 }
 
 local valid_instigators = {
