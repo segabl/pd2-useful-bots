@@ -2,14 +2,17 @@ if not Network:is_server() then
 	return
 end
 
-local secure_only_levels = {
-	nail = true
+local needs_secure_match = {
+	cage_bag = true,
+	nail_muriatic_acid = true,
+	nail_caustic_soda = true,
+	nail_hydrogen_chloride = true
 }
 
 local valid_carry_operations = {
 	secure = true,
 	secure_silent = true,
-	remove = not secure_only_levels[Global.game_settings and Global.game_settings.level_id]
+	remove = true
 }
 
 local valid_instigators = {
@@ -61,6 +64,10 @@ Hooks:PreHook(ElementAreaTrigger, "on_executed", "on_executed_ub", function (sel
 		logic_data.secure_bag_data[u_key][self] = logic_data.secure_bag_data[u_key][self] or {}
 		logic_data.secure_bag_data[u_key][self][carry_throw_multiplier] = throw_params
 	end
+
+	self._ub_match_carry_id = needs_secure_match[carry_id]
+	self._ub_match_carry_id_secured = self._ub_match_carry_id_secured or {}
+	self._ub_match_carry_id_secured[carry_id] = true
 end)
 
 function ElementAreaTrigger:ub_can_secure_loot(unit)
@@ -74,6 +81,10 @@ function ElementAreaTrigger:ub_can_secure_loot(unit)
 	end
 
 	local carry_id = carry_data:carry_id()
+	if self._ub_match_carry_id and not self._ub_match_carry_id_secured[carry_id] then
+		return
+	end
+
 	for element in pairs(self._loot_secure_elements) do
 		if element._values.enabled and (not element._values.type_filter or element._values.type_filter == "none" or carry_id == element._values.type_filter) then
 			return true
