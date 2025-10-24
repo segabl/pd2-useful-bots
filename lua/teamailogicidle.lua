@@ -259,23 +259,31 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				end
 
 				-- fine tune target priority
-				if a_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified and not invulnerable then
+				if a_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
+					local logic_data = a_unit:brain()._logic_data
 					local should_intimidate = can_intimidate and not high_priority and TeamAILogicIdle.is_valid_intimidation_target(a_unit, a_tweak, a_anim, a_dmg, data, distance)
+					local is_being_intimdated = logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t - 1
 					local marked_contour = a_unit:contour() and a_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
 
 					-- check for reaction changes
 					if should_intimidate then
 						reaction = AIAttentionObject.REACT_ARREST
+					elseif is_being_intimdated then
+						reaction = math_min(AIAttentionObject.REACT_AIM, reaction)
 					elseif high_priority or is_special or has_damaged or marked_contour then
 						reaction = math_max(REACT_SHOOT, reaction)
 					end
 
 					-- get target priority multipliers
-					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1) * (high_priority and ub_priority.critical or 1) * (marked_by_player and ub_priority.marked or 1) * (a_base.sentry_gun and ub_priority.enemies.turret or 1) * (ub_priority.enemies[a_tweak_table] or 1)
+					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1)
+					target_priority = target_priority * (high_priority and ub_priority.critical or 1)
+					target_priority = target_priority * (marked_by_player and ub_priority.marked or 1)
+					target_priority = target_priority * (a_base.sentry_gun and ub_priority.enemies.turret or 1)
+					target_priority = target_priority * (ub_priority.enemies[a_tweak_table] or 1)
 
 					-- if we have a revive objective and target priority isn't high, ignore the enemy
-					valid_target = not_assisting or target_priority >= 1
+					valid_target = (not invulnerable or should_intimidate or is_being_intimdated) and (not_assisting or target_priority >= 1)
 
 					if valid_target then
 						-- give a slight boost to priority if this is our current target (to avoid switching targets too much if the other one is still alive and visible)
@@ -293,10 +301,8 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 							target_priority = target_priority * 0.01
 						end
 
-						-- reduce reaction and priority if someone is trying to intimidate, but we are not
-						local logic_data = a_unit:brain()._logic_data
-						if not should_intimidate and logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t - 1 then
-							reaction = math_min(AIAttentionObject.REACT_AIM, reaction)
+						-- reduce priority if someone is trying to intimidate, but we are not
+						if not should_intimidate and is_being_intimdated then
 							target_priority = target_priority * 0.01
 						end
 
@@ -316,7 +322,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 							reaction = AIAttentionObject.REACT_AIM
 						end
 					end
-				elseif (has_alerted or has_damaged) and not_assisting and distance < 1500 or high_priority then
+				elseif (has_alerted or has_damaged) and not_assisting and distance < 1500 and not invulnerable or high_priority then
 					valid_target = true
 					reaction = math_min(reaction, AIAttentionObject.REACT_AIM)
 					target_priority = target_priority * 0.01
