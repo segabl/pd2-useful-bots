@@ -111,7 +111,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		return false
 	end
 	local surrender = unit_tweak.surrender
-	if not surrender or surrender == tweak_data.character.presets.surrender.special or unit_anim.hands_tied then
+	if not surrender or surrender == tweak_data.character.presets.surrender.never or unit_anim.hands_tied then
 		-- unit can't surrender
 		return false
 	end
