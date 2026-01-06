@@ -355,7 +355,7 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary, ...
 			data.unit:movement():throw_bag()
 		end
 		return
-	elseif data.objective and (data.objective.loot_secure_trigger or data.objective.pickup_carry_unit) then
+	elseif not secondary and data.objective and (data.objective.secure_trigger or data.objective.pickup_carry_unit) then
 		if data._latest_follow_unit == other_unit then
 			data.secure_bag_data[other_unit:key()] = {}
 		end

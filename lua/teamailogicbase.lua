@@ -1,6 +1,6 @@
 local tmp_vec = Vector3()
 
-Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function (data, att, react)
+Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", function(data, att, react)
 	if not att or not att.verified or not react then
 		return
 	end
@@ -52,7 +52,7 @@ Hooks:PostHook(TeamAILogicBase, "_set_attention_obj", "_set_attention_obj_ub", f
 	end
 end)
 
-Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", function (data)
+Hooks:PostHook(TeamAILogicBase, "on_new_objective", "on_new_objective_ub", function(data)
 	local objective = data.objective
 	if not objective then
 		return
@@ -127,6 +127,81 @@ function TeamAILogicBase._get_logic_state_from_reaction(data, reaction)
 	return state
 end
 
+-- Bag movement
+function TeamAILogicBase._find_closest_secure_zone(data, carry_unit)
+	if not alive(data._latest_follow_unit) then
+		return
+	end
+
+	local secure_bag_data = data.secure_bag_data[data._latest_follow_unit:key()]
+	if not secure_bag_data then
+		return
+	end
+
+	local blocked = {}
+	for _, v in pairs(managers.groupai:state():all_AI_criminals()) do
+		local other_objective = v.unit:brain():objective()
+		if other_objective and alive(other_objective.zipline_unit) then
+			blocked[other_objective.zipline_unit:key()] = true
+		end
+	end
+
+	local secure_info
+	local closest_secure_trigger
+	local closest_secure_trigger_dis_sq = math.huge
+	local carry_id = carry_unit:carry_data():carry_id()
+	local carry_type_tweak = tweak_data.carry[carry_id] and tweak_data.carry.types[tweak_data.carry[carry_id].type]
+	local carry_throw_multiplier = carry_type_tweak and carry_type_tweak.throw_distance_multiplier or 1
+	for secure_trigger, secure_data in pairs(secure_bag_data) do
+		secure_info = secure_data[carry_throw_multiplier] or secure_data[next(secure_data)]
+		local dis_sq = secure_trigger:ub_can_secure_loot(carry_unit) and TeamAILogicBase:_check_bag_dis(data, secure_info.pos, 1000)
+		local valid_zipline = alive(secure_info.zipline_unit) and not blocked[secure_info.zipline_unit:key()] and not secure_info.zipline_unit:zipline():is_interact_blocked()
+		if dis_sq and dis_sq < closest_secure_trigger_dis_sq and (not secure_info.zipline_unit or valid_zipline) then
+			closest_secure_trigger = secure_trigger
+			break
+		end
+	end
+
+	return closest_secure_trigger, secure_info
+end
+
+function TeamAILogicBase._find_closest_bag(data)
+	if not alive(data._latest_follow_unit) then
+		return
+	end
+
+	local secure_bag_data = data.secure_bag_data[data._latest_follow_unit:key()]
+	if not secure_bag_data then
+		return
+	end
+
+	local blocked = {}
+	for _, v in pairs(managers.groupai:state():all_AI_criminals()) do
+		local other_objective = v.unit:brain():objective()
+		if other_objective and other_objective.pickup_carry_unit then
+			blocked[other_objective.pickup_carry_unit:key()] = true
+		end
+	end
+
+	local closest_carry_unit
+	local closest_carry_unit_dis_sq = math.huge
+	for u_key, unit in pairs(CarryData.ub_loot) do
+		if not alive(unit) then
+			CarryData.ub_loot[u_key] = nil
+		elseif not blocked[u_key] and unit:sampled_velocity():length() == 0 then
+			for secure_trigger in pairs(secure_bag_data) do
+				local dis_sq = secure_trigger:ub_can_secure_loot(unit) and TeamAILogicBase:_check_bag_dis(data, unit:position(), 1000)
+				if dis_sq and dis_sq < closest_carry_unit_dis_sq then
+					closest_carry_unit_dis_sq = dis_sq
+					closest_carry_unit = unit
+				end
+			end
+		end
+	end
+
+	return closest_carry_unit
+end
+
 function TeamAILogicBase._check_deliver_bag(data)
 	if data.cool or Monkeepers or not UsefulBots.settings.secure_loot then
 		return
@@ -138,8 +213,8 @@ function TeamAILogicBase._check_deliver_bag(data)
 	end
 
 	local carry_unit = data.unit:movement()._carry_unit
-	if objective.loot_secure_trigger then
-		if not alive(carry_unit) or not objective.loot_secure_trigger:ub_can_secure_loot(carry_unit) then
+	if objective.secure_trigger then
+		if not alive(carry_unit) or not objective.secure_trigger:ub_can_secure_loot(carry_unit) then
 			data.brain:set_objective(nil)
 			return true
 		end
@@ -150,7 +225,7 @@ function TeamAILogicBase._check_deliver_bag(data)
 		end
 	end
 
-	if objective.type ~= "follow" then
+	if objective.type ~= "follow" and objective.type ~= "defend_area" then
 		return
 	end
 
@@ -158,27 +233,8 @@ function TeamAILogicBase._check_deliver_bag(data)
 		return TeamAILogicBase._check_pickup_bag(data)
 	end
 
-	local secure_bag_data = data.secure_bag_data[objective.follow_unit:key()]
-	if not secure_bag_data then
-		return
-	end
-
-	local secure_info
-	local closest_area_trigger
-	local closest_area_trigger_dis_sq = math.huge
-	local carry_id = carry_unit:carry_data():carry_id()
-	local carry_type_tweak = tweak_data.carry[carry_id] and tweak_data.carry.types[tweak_data.carry[carry_id].type]
-	local carry_throw_multiplier = carry_type_tweak and carry_type_tweak.throw_distance_multiplier or 1
-	for area_trigger, area_trigger_data in pairs(secure_bag_data) do
-		secure_info = area_trigger_data[carry_throw_multiplier] or area_trigger_data[next(area_trigger_data)]
-		local dis_sq = area_trigger:ub_can_secure_loot(carry_unit) and TeamAILogicBase:_check_bag_dis(data, secure_info.pos, 1000)
-		if dis_sq and dis_sq < closest_area_trigger_dis_sq then
-			closest_area_trigger = area_trigger
-			break
-		end
-	end
-
-	if not closest_area_trigger then
+	local secure_trigger, secure_info = TeamAILogicBase._find_closest_secure_zone(data, carry_unit)
+	if not secure_trigger then
 		return
 	end
 
@@ -189,9 +245,11 @@ function TeamAILogicBase._check_deliver_bag(data)
 		})
 	end
 
+	local zipline_unit = secure_info.zipline_unit
 	data.brain:set_objective({
 		type = "free",
-		loot_secure_trigger = closest_area_trigger,
+		secure_trigger = secure_trigger,
+		zipline_unit = zipline_unit,
 		path_ahead = true,
 		haste = "run",
 		pose = "stand",
@@ -200,6 +258,7 @@ function TeamAILogicBase._check_deliver_bag(data)
 		nav_seg = managers.navigation:get_nav_seg_from_pos(secure_info.pos, true),
 		followup_objective = {
 			type = "act",
+			zipline_unit = zipline_unit,
 			in_place = true,
 			action_duration = 0.5,
 			action = {
@@ -207,12 +266,38 @@ function TeamAILogicBase._check_deliver_bag(data)
 				body_part = 1
 			},
 			complete_clbk = function(unit)
-				carry_unit = unit:movement()._carry_unit
-				if alive(carry_unit) then
-					unit:movement()._was_carrying = { unit = carry_unit }
-					carry_unit:carry_data():unlink()
-					carry_unit:carry_data():set_position_and_throw(secure_info.bag_pos, secure_info.dir, 100)
-					CarryData.ub_loot[carry_unit:key()] = nil
+				local carry_unit = unit:movement()._carry_unit
+				local carry_data = alive(carry_unit) and carry_unit:carry_data()
+				if not carry_data then
+					return
+				end
+
+				if zipline_unit and (not alive(zipline_unit) or zipline_unit:zipline():is_interact_blocked()) then
+					return
+				end
+
+				CarryData.ub_loot[carry_unit:key()] = nil
+				unit:movement()._was_carrying = { unit = carry_unit }
+
+				carry_data:unlink()
+				if zipline_unit then
+					managers.network:session():send_to_peers_synched(
+						"sync_carry_data",
+						carry_unit,
+						carry_data:carry_id(),
+						carry_data:multiplier(),
+						carry_data:dye_initiated(),
+						carry_data:has_dye_pack(),
+						carry_data:dye_value_multiplier(),
+						secure_info.bag_pos,
+						secure_info.dir,
+						0,
+						zipline_unit,
+						0
+					)
+					zipline_unit:zipline():attach_bag(carry_unit)
+				else
+					carry_data:set_position_and_throw(secure_info.bag_pos, secure_info.dir, 100)
 				end
 			end
 		}
@@ -228,40 +313,16 @@ function TeamAILogicBase._check_pickup_bag(data)
 
 	data._next_bag_check_t = data.t + 1
 
-	local secure_bag_data = data.secure_bag_data[data.objective.follow_unit:key()]
-	if not secure_bag_data then
+	local carry_unit = TeamAILogicBase._find_closest_bag(data)
+	if not carry_unit then
 		return
 	end
 
-	local blocked = {}
-	for _, v in pairs(managers.groupai:state():all_AI_criminals()) do
-		local other_objective = v.unit:brain():objective()
-		if other_objective and other_objective.pickup_carry_unit then
-			blocked[other_objective.pickup_carry_unit:key()] = true
-		end
-	end
-
-	local closest_bag
-	local closest_bag_dis_sq = math.huge
-	for u_key, unit in pairs(CarryData.ub_loot) do
-		if not alive(unit) then
-			CarryData.ub_loot[u_key] = nil
-		elseif not blocked[u_key] and unit:sampled_velocity():length() == 0 then
-			for area_trigger in pairs(secure_bag_data) do
-				local dis_sq = area_trigger:ub_can_secure_loot(unit) and TeamAILogicBase:_check_bag_dis(data, unit:position(), 1000)
-				if dis_sq and dis_sq < closest_bag_dis_sq then
-					closest_bag_dis_sq = dis_sq
-					closest_bag = unit
-				end
-			end
-		end
-	end
-
-	if not closest_bag then
+	if data.objective.type == "defend_area" and not TeamAILogicBase._find_closest_secure_zone(data, carry_unit) then
 		return
 	end
 
-	local tracker = managers.navigation:create_nav_tracker(closest_bag:position(), false)
+	local tracker = managers.navigation:create_nav_tracker(carry_unit:position(), false)
 	local pos = tracker:field_position()
 	local nav_seg = tracker:nav_segment()
 	managers.navigation:destroy_nav_tracker(tracker)
@@ -275,7 +336,7 @@ function TeamAILogicBase._check_pickup_bag(data)
 
 	data.brain:set_objective({
 		type = "free",
-		pickup_carry_unit = closest_bag,
+		pickup_carry_unit = carry_unit,
 		path_ahead = true,
 		haste = "run",
 		pose = "stand",
@@ -291,8 +352,8 @@ function TeamAILogicBase._check_pickup_bag(data)
 				body_part = 1
 			},
 			complete_clbk = function(unit)
-				if alive(closest_bag) and not closest_bag:carry_data():is_linked_to_unit() and not unit:movement()._carry_unit then
-					closest_bag:carry_data():link_to(unit)
+				if alive(carry_unit) and not carry_unit:carry_data():is_linked_to_unit() and not unit:movement()._carry_unit then
+					carry_unit:carry_data():link_to(unit)
 				end
 			end
 		}
@@ -302,14 +363,23 @@ function TeamAILogicBase._check_pickup_bag(data)
 end
 
 function TeamAILogicBase:_check_bag_dis(data, pos, max_dis)
+	local is_stationary = data.objective and data.objective.type == "defend_area"
+	if is_stationary then
+		max_dis = max_dis * 0.5
+	end
+
 	local max_dis_sq = max_dis ^ 2
 	local dis_sq = mvector3.distance_sq(data.m_pos, pos)
-	if math.abs(data.m_pos.z - pos.z) < 200 and dis_sq < max_dis_sq then
+	if math.abs(data.m_pos.z - pos.z) < 100 and dis_sq < max_dis_sq then
 		return dis_sq
 	end
 
+	if is_stationary then
+		return
+	end
+
 	local follow_pos = alive(data._latest_follow_unit) and data._latest_follow_unit:movement():m_newest_pos()
-	if follow_pos and math.abs(follow_pos.z - pos.z) < 200  and mvector3.distance_sq(follow_pos, pos) < max_dis_sq then
+	if follow_pos and math.abs(follow_pos.z - pos.z) < 100 and mvector3.distance_sq(follow_pos, pos) < max_dis_sq then
 		return dis_sq
 	end
 end
