@@ -1,10 +1,3 @@
-local math_lerp = math.lerp
-local math_map_range = math.map_range
-local math_max = math.max
-local math_min = math.min
-local mvec_dir = mvector3.direction
-local tmp_vec = Vector3()
-
 function TeamAILogicIdle.is_high_priority(unit_movement)
 	if type(unit_movement._active_actions) ~= "table" then
 		return false
@@ -20,6 +13,10 @@ function TeamAILogicIdle.is_high_priority(unit_movement)
 end
 
 function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_shout_shape, max_angle, max_dis)
+	if not UsefulBots.settings.intimidate_civilians then
+		return
+	end
+
 	local head_pos = criminal:movement():m_head_pos()
 	local look_vec = criminal:movement():m_rot():y()
 	local intimidateable_civilians = {}
@@ -48,7 +45,7 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 				if not ray then
 					local inv_wgt = dis * dis * (1 - vec:dot(look_vec))
 					if escort then
-						return unit, inv_wgt, {{ unit = unit, key = key, inv_wgt = inv_wgt }}
+						return unit, inv_wgt, { { unit = unit, key = key, inv_wgt = inv_wgt } }
 					end
 					table.insert(intimidateable_civilians, {
 						unit = unit,
@@ -156,7 +153,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(unit, unit_tweak, unit_ani
 		return false
 	end
 	local num = 0
-	local max = 2 + table.count(managers.groupai:state():all_char_criminals(), function (u_data) return u_data == "dead" end) * 2
+	local max = 2 + table.count(managers.groupai:state():all_char_criminals(), function(u_data) return u_data == "dead" end) * 2
 	local dis = intimidate_range_enemies * 1.5
 	for _, v in pairs(data.detected_attention_objects) do
 		local u_damage = v.unit and v.unit.character_damage and v.unit:character_damage()
@@ -183,6 +180,7 @@ function TeamAILogicIdle.intimidate_cop(data, target)
 	target:brain():on_intimidated(tweak_data.player.long_dis_interaction.intimidate_strength, data.unit)
 end
 
+local tmp_vec = Vector3()
 local _get_priority_attention_original = TeamAILogicIdle._get_priority_attention
 function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func, ...)
 	local ub_priority = UsefulBots.settings.targeting_priority
@@ -255,7 +253,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					local falloff_data = get_shoot_falloff(nil, distance, w_usage.FALLOFF)
 					target_priority = (falloff_data.dmg_mul / w_usage.FALLOFF[1].dmg_mul) * falloff_data.acc[2]
 				else
-					target_priority = math_max(0, 1 - distance / 3000)
+					target_priority = math.max(0, 1 - distance / 3000)
 				end
 
 				-- fine tune target priority
@@ -270,9 +268,9 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					if should_intimidate then
 						reaction = AIAttentionObject.REACT_ARREST
 					elseif is_being_intimdated then
-						reaction = math_min(AIAttentionObject.REACT_AIM, reaction)
+						reaction = math.min(AIAttentionObject.REACT_AIM, reaction)
 					elseif high_priority or is_special or has_damaged or marked_contour then
-						reaction = math_max(REACT_SHOOT, reaction)
+						reaction = math.max(REACT_SHOOT, reaction)
 					end
 
 					-- get target priority multipliers
@@ -310,9 +308,9 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 						if follow_head_pos and ub_priority.player_aim ~= 1 then
 							local att_head_pos = a_mvmt:m_head_pos()
 							if not World:raycast("ray", follow_head_pos, att_head_pos, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision", "report") then
-								mvec_dir(tmp_vec, follow_head_pos, att_head_pos)
-								target_priority = target_priority * math_lerp(ub_priority.player_aim, 1, math_max(0, follow_look_vec:dot(tmp_vec)))
-								target_priority = target_priority * math_map_range(follow_look_vec:dot(tmp_vec), -1, 1, ub_priority.player_aim, 1)
+								mvector3.direction(tmp_vec, follow_head_pos, att_head_pos)
+								target_priority = target_priority * math.lerp(ub_priority.player_aim, 1, math.max(0, follow_look_vec:dot(tmp_vec)))
+								target_priority = target_priority * math.map_range(follow_look_vec:dot(tmp_vec), -1, 1, ub_priority.player_aim, 1)
 							end
 						end
 
@@ -324,7 +322,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					end
 				elseif (has_alerted or has_damaged) and not_assisting and distance < 1500 and not invulnerable or high_priority then
 					valid_target = true
-					reaction = math_min(reaction, AIAttentionObject.REACT_AIM)
+					reaction = math.min(reaction, AIAttentionObject.REACT_AIM)
 					target_priority = target_priority * 0.01
 				end
 
@@ -336,7 +334,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			end
 		end
 	end
-	return best_target, 3 / math_max(best_target_priority, 0.1), best_target_reaction
+	return best_target, 3 / math.max(best_target_priority, 0.1), best_target_reaction
 end
 
 -- Stop bots from dropping light bags when going to revive a player and stop them immediately on being told to hold position
@@ -408,7 +406,7 @@ if not Keepers then
 end
 
 -- Enter assault logic on new objective if appropriate
-Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function (data, old_objective)
+Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function(data, old_objective)
 	local objective = data.objective
 
 	TeamAILogicBase.on_new_objective(data, old_objective)

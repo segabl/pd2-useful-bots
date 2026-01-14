@@ -9,6 +9,10 @@ local needs_secure_match = {
 	nail_hydrogen_chloride = true
 }
 
+local needs_secure_match_level = {
+	framing_frame_2 = true
+}
+
 local valid_carry_operations = {
 	secure = true,
 	secure_silent = true,
@@ -65,7 +69,7 @@ Hooks:PreHook(ElementAreaTrigger, "on_executed", "on_executed_ub", function (sel
 		logic_data.secure_bag_data[u_key][self][carry_throw_multiplier] = throw_params
 	end
 
-	self._ub_match_carry_id = needs_secure_match[carry_id]
+	self._ub_match_carry_id = needs_secure_match[carry_id] or needs_secure_match_level[Global.game_settings.level_id]
 	self._ub_match_carry_id_secured = self._ub_match_carry_id_secured or {}
 	self._ub_match_carry_id_secured[carry_id] = true
 end)

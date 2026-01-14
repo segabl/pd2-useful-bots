@@ -10,6 +10,8 @@
 	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "Отмечать спец. юнитов",
 	"menu_useful_bots_mark_specials_desc" : "Боты будут отмечать спец. врагов",
+	"menu_useful_bots_intimidate_civilians" : "Intimidate Civilians",
+	"menu_useful_bots_intimidate_civilians_desc" : "Bots will intimidate civilians",
 	"menu_useful_bots_announce_low_hp" : "Сообщать о низком уровне здоровья",
 	"menu_useful_bots_announce_low_hp_desc" : "Боты будут сообщать когда у них низкое здоровье",
 	"menu_useful_bots_hold_position" : "Удерживать позицию",

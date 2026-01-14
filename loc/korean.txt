@@ -10,6 +10,8 @@
 	"menu_useful_bots_secure_loot_desc" : "Bots will secure loot bags when players do",
 	"menu_useful_bots_mark_specials" : "특수 적 마킹",
 	"menu_useful_bots_mark_specials_desc" : "봇이 특수 적을 마킹하게 합니다.",
+	"menu_useful_bots_intimidate_civilians" : "Intimidate Civilians",
+	"menu_useful_bots_intimidate_civilians_desc" : "Bots will intimidate civilians",
 	"menu_useful_bots_announce_low_hp" : "낮은 체력일 때 알려주기",
 	"menu_useful_bots_announce_low_hp_desc" : "봇은 체력이 낮을 때 보이스라인을 사용하여 알립니다.",
 	"menu_useful_bots_hold_position" : "위치 유지",
