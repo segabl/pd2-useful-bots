@@ -14,7 +14,7 @@ end
 
 function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_shout_shape, max_angle, max_dis)
 	if not UsefulBots.settings.intimidate_civilians then
-		return
+		return nil, nil, {}
 	end
 
 	local head_pos = criminal:movement():m_head_pos()
