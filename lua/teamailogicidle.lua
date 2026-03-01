@@ -473,8 +473,15 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective, ...)
 	return mvector3.length(dir) > max_allowed_dis_xy
 end
 
-Hooks:PreHook(TeamAILogicIdle, "on_new_objective", "on_new_objective_ub", function(data)
+local on_new_objective_original = TeamAILogicIdle.on_new_objective
+function TeamAILogicIdle.on_new_objective(data, old_objective, ...)
 	if not data.cool and data.objective and data.objective.type == "follow" and not data.objective.called then
 		data._ignore_first_travel_order = not TeamAILogicIdle._check_should_relocate(data, data.internal_data, data.objective)
 	end
-end)
+
+	on_new_objective_original(data, old_objective, ...)
+
+	if data.objective then
+		data._ignore_first_travel_order = nil
+	end
+end
