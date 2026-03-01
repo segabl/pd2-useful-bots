@@ -19,6 +19,7 @@ if not UsefulBots then
 		save_inspire = true,
 		stop_at_player = false,
 		defend_reviving = true,
+		follow_behavior = 1,
 		revive_distance = 25,
 		drop_bag_percentage = 0.25,
 		targeting_priority = {
@@ -70,26 +71,30 @@ if not UsefulBots then
 			priority = 96,
 			divider = 16
 		},
-		hold_position = {
+		follow_behavior = {
 			priority = 89,
-			disabled = BLT.Mods:GetModByName("Keepers") and true
+			items = { "menu_useful_bots_vanilla", "menu_useful_bots_follow_close", "menu_useful_bots_follow_medium", "menu_useful_bots_follow_far" }
 		},
-		stop_at_player = {
+		hold_position = {
 			priority = 88,
 			disabled = BLT.Mods:GetModByName("Keepers") and true
 		},
-		block_slow_vehicles = { priority = 87 },
-		no_crouch = { priority = 86 },
-		defend_reviving = { priority = 85 },
+		stop_at_player = {
+			priority = 87,
+			disabled = BLT.Mods:GetModByName("Keepers") and true
+		},
+		block_slow_vehicles = { priority = 86 },
+		no_crouch = { priority = 85 },
+		defend_reviving = { priority = 84 },
 		revive_distance = {
-			priority = 84,
+			priority = 83,
 			min = 0,
 			max = 50,
 			step = 1,
 			display_precision = 0
 		},
 		drop_bag_percentage = {
-			priority = 83,
+			priority = 82,
 			is_percentage = true,
 			display_scale = 100,
 			display_precision = 0,
@@ -217,7 +222,8 @@ if not UsefulBots then
 	if Network:is_client() then
 		Hooks:Add("BaseNetworkSessionOnLoadComplete", "BaseNetworkSessionOnLoadCompleteUsefulBots", function()
 			LuaNetworking:SendToPeer(1, "useful_bots", json.encode({
-				stop_at_player = UsefulBots.settings.stop_at_player
+				stop_at_player = UsefulBots.settings.stop_at_player,
+				follow_behavior = UsefulBots.settings.follow_behavior
 			}))
 		end)
 	else

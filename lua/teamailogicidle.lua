@@ -444,3 +444,37 @@ function TeamAILogicIdle.update(data, ...)
 		return update_original(data, ...)
 	end
 end
+
+local _check_should_relocate_original = TeamAILogicIdle._check_should_relocate
+function TeamAILogicIdle._check_should_relocate(data, my_data, objective, ...)
+	local follow_behavior = UsefulBots:player_settings(objective.follow_unit).follow_behavior
+	if follow_behavior == 1 then
+		return _check_should_relocate_original(data, my_data, objective, ...)
+	end
+
+	local max_allowed_dis_xy = (follow_behavior - 1) * 500
+	local max_allowed_dis_z = 200 + (follow_behavior - 1) * 50
+
+	local follow_movement = objective.follow_unit:movement()
+	if follow_behavior == 2 then
+		if follow_movement:nav_tracker():nav_segment() == data.unit:movement():nav_tracker():nav_segment() then
+			max_allowed_dis_xy = max_allowed_dis_xy * 2
+		end
+		if data.unit:raycast("ray", data.unit:movement():m_head_pos(), follow_movement:m_head_pos(), "slot_mask", data.visibility_slotmask, "report") then
+			max_allowed_dis_xy = max_allowed_dis_xy / 2
+		end
+	end
+	local dir = follow_movement:m_newest_pos() - data.m_pos
+	if math.abs(dir.z) > max_allowed_dis_z then
+		return true
+	end
+
+	mvector3.set_z(dir, 0)
+	return mvector3.length(dir) > max_allowed_dis_xy
+end
+
+Hooks:PreHook(TeamAILogicIdle, "on_new_objective", "on_new_objective_ub", function(data)
+	if not data.cool and data.objective and data.objective.type == "follow" and not data.objective.called then
+		data._ignore_first_travel_order = not TeamAILogicIdle._check_should_relocate(data, data.internal_data, data.objective)
+	end
+end)
