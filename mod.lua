@@ -27,6 +27,7 @@ if not UsefulBots then
 			player_aim = 1.5,
 			critical = 2,
 			marked = 1.5,
+			defend = 1.5,
 			domination = 2,
 			enemies = { -- multipliers for specific enemy types
 				marshal_marksman = 1,

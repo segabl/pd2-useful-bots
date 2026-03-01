@@ -46,6 +46,8 @@
 	"menu_useful_bots_critical_desc" : "크리티컬 대상에 대한 우선 순위 배율을 조정합니다.\n돌진 공격하는 클로커, 테이저의 전기 공격, 적의 방해 공작도 포함됩니다.",
 	"menu_useful_bots_marked" : "마킹 배율",
 	"menu_useful_bots_marked_desc" : "마킹된 적에 대한 우선 순위 배율을 조정합니다.",
+	"menu_useful_bots_defend" : "Defend player multiplier",
+	"menu_useful_bots_defend_desc" : "Priority multiplier for enemies that are attacking players who are interacting",
 	"menu_useful_bots_domination" : "제압 배율",
 	"menu_useful_bots_domination_desc" : "제압할 수 있는 적에 대한 우선 순위 배율을 조정합니다.",
 	"menu_useful_bots_enemies" : "특수 적 배율",

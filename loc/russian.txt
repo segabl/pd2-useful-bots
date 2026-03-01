@@ -50,6 +50,8 @@
 	"menu_useful_bots_critical_desc" : "Множитель приоритета критических целей\nВключает Клокеров, атакующих Тейзеров и саботажирующих врагов",
 	"menu_useful_bots_marked" : "Множитель по отмеченным врагам",
 	"menu_useful_bots_marked_desc" : "Множитель приоритета по отмеченным врагам",
+	"menu_useful_bots_defend" : "Defend player multiplier",
+	"menu_useful_bots_defend_desc" : "Priority multiplier for enemies that are attacking players who are interacting",
 	"menu_useful_bots_domination" : "Множитель по доминируемым врагам",
 	"menu_useful_bots_domination_desc" : "Множитель приоритета для врагов, которых можно задоминировать",
 	"menu_useful_bots_enemies" : "Множитель конкретных врагов",

@@ -258,11 +258,12 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				-- fine tune target priority
 				if a_unit:in_slot(data.enemy_slotmask) and not is_tied and attention_data.verified then
-					local logic_data = a_unit:brain()._logic_data
+					local logic_data = a_unit:brain()._logic_data or {}
 					local should_intimidate = can_intimidate and not high_priority and TeamAILogicIdle.is_valid_intimidation_target(a_unit, a_tweak, a_anim, a_dmg, data, distance)
-					local is_being_intimdated = logic_data and logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t - 1
+					local is_being_intimdated = logic_data.surrender_window and logic_data.surrender_window.window_expire_t > data.t - 1
 					local marked_contour = a_unit:contour() and a_unit:contour():find_id_match("^mark_enemy")
 					local marked_by_player = marked_contour and (marked_contour ~= "mark_enemy" or not been_marked)
+					local attacking_player = logic_data.attention_obj and alive(logic_data.attention_obj.unit) and logic_data.attention_obj.is_human_player and logic_data.attention_obj.verified and (logic_data.attention_obj.is_local_player and logic_data.attention_obj.unit:movement():current_state():_interacting() or logic_data.attention_obj.unit:movement()._interaction_tweak)
 
 					-- check for reaction changes
 					if should_intimidate then
@@ -277,6 +278,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 					target_priority = target_priority * (should_intimidate and ub_priority.domination or 1)
 					target_priority = target_priority * (high_priority and ub_priority.critical or 1)
 					target_priority = target_priority * (marked_by_player and ub_priority.marked or 1)
+					target_priority = target_priority * (attacking_player and ub_priority.defend or 1)
 					target_priority = target_priority * (a_base.sentry_gun and ub_priority.enemies.turret or 1)
 					target_priority = target_priority * (ub_priority.enemies[a_tweak_table] or 1)
 

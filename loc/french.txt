@@ -50,6 +50,8 @@
 	"menu_useful_bots_critical_desc" : "Multiplicateur de priorité pour les cibles critiques\nIncluant les cloakers chargeants, les tazers tazants et les ennemis sabotants",
 	"menu_useful_bots_marked" : "Multiplicateur des marquées",
 	"menu_useful_bots_marked_desc" : "Multiplicateur de priorité pour les cibles marquées",
+	"menu_useful_bots_defend" : "Defend player multiplier",
+	"menu_useful_bots_defend_desc" : "Priority multiplier for enemies that are attacking players who are interacting",
 	"menu_useful_bots_domination" : "Multiplicateur des dominables",
 	"menu_useful_bots_domination_desc" : "Multiplicateur de priorité pour les ennemis pouvant êtres dominés",
 	"menu_useful_bots_enemies" : "Multiplicateur par ennemis",
