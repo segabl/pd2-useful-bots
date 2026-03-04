@@ -450,12 +450,12 @@ end
 local _check_should_relocate_original = TeamAILogicIdle._check_should_relocate
 function TeamAILogicIdle._check_should_relocate(data, my_data, objective, ...)
 	local follow_behavior = UsefulBots:player_settings(objective.follow_unit).follow_behavior
-	if follow_behavior == 1 then
+	if follow_behavior == 1 or not data.is_team_ai then
 		return _check_should_relocate_original(data, my_data, objective, ...)
 	end
 
-	local max_allowed_dis_xy = (follow_behavior - 1) * 500
-	local max_allowed_dis_z = 200 + (follow_behavior - 1) * 50
+	local max_allowed_dis_xy = 500 + (follow_behavior - 2) * 750
+	local max_allowed_dis_z = 250 + (follow_behavior - 2) * 50
 
 	local follow_movement = objective.follow_unit:movement()
 	if follow_behavior == 2 then
