@@ -355,6 +355,10 @@ function TeamAILogicBase._check_pickup_bag(data)
 				if alive(carry_unit) and not carry_unit:carry_data():is_linked_to_unit() and not unit:movement()._carry_unit then
 					carry_unit:carry_data():link_to(unit)
 				end
+				unit:movement():action_request({
+					type = "idle",
+					body_part = 1
+				})
 			end
 		}
 	})
