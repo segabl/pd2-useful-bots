@@ -477,13 +477,14 @@ end
 
 local on_new_objective_original = TeamAILogicIdle.on_new_objective
 function TeamAILogicIdle.on_new_objective(data, old_objective, ...)
-	if not data.cool and data.objective and data.objective.type == "follow" and not data.objective.called then
+	local objective = data.objective
+	if not data.cool and objective and objective.type == "follow" and alive(objective.follow_unit) and not objective.called then
 		data._ignore_first_travel_order = not TeamAILogicIdle._check_should_relocate(data, data.internal_data, data.objective)
 	end
 
 	on_new_objective_original(data, old_objective, ...)
 
-	if data.objective then
+	if objective then
 		data._ignore_first_travel_order = nil
 	end
 end
