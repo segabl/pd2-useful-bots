@@ -409,25 +409,22 @@ end
 
 -- Enter assault logic on new objective if appropriate
 Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function(data, old_objective)
-	local objective = data.objective
-
 	TeamAILogicBase.on_new_objective(data, old_objective)
 
-	if not data.internal_data.exiting then
-		if objective then
-			if (objective.nav_seg or objective.follow_unit) and not objective.in_place then
-				if data._ignore_first_travel_order then
-					data._ignore_first_travel_order = nil
-				else
-					CopLogicBase._exit(data.unit, "travel")
-				end
-			else
-				local objective_type = objective.type
-				local needs_idle = data.cool or objective.stance == "ntl" or objective_type == "revive" or objective_type == "throw_bag" or objective_type == "act"
-				CopLogicBase._exit(data.unit, needs_idle and "idle" or "assault")
+	local objective = data.objective
+	local my_data = data.internal_data
+	if not my_data.exiting then
+		if objective and (objective.nav_seg or objective.follow_unit) and not objective.in_place then
+			if data._ignore_first_travel_order then
+				data._ignore_first_travel_order = nil
+			elseif data.cool or objective.called or not alive(objective.follow_unit) or TeamAILogicIdle._check_should_relocate(data, my_data, objective) then
+				CopLogicBase._exit(data.unit, "travel")
 			end
 		else
-			CopLogicBase._exit(data.unit, data.cool and "idle" or "assault")
+			local obj_type = objective and objective.type
+			local obj_stance = objective and objective.stance
+			local idle = data.cool or obj_stance == "ntl" or obj_type == "revive" or obj_type == "throw_bag" or obj_type == "act"
+			CopLogicBase._exit(data.unit, idle and "idle" or "assault")
 		end
 	end
 
@@ -473,18 +470,4 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective, ...)
 
 	mvector3.set_z(dir, 0)
 	return mvector3.length(dir) > max_allowed_dis_xy
-end
-
-local on_new_objective_original = TeamAILogicIdle.on_new_objective
-function TeamAILogicIdle.on_new_objective(data, old_objective, ...)
-	local objective = data.objective
-	if not data.cool and objective and objective.type == "follow" and alive(objective.follow_unit) and not objective.called then
-		data._ignore_first_travel_order = not TeamAILogicIdle._check_should_relocate(data, data.internal_data, data.objective)
-	end
-
-	on_new_objective_original(data, old_objective, ...)
-
-	if objective then
-		data._ignore_first_travel_order = nil
-	end
 end
