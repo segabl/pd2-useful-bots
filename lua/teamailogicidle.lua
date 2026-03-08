@@ -414,13 +414,20 @@ Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function(data, old_o
 	local objective = data.objective
 	local my_data = data.internal_data
 	if not my_data.exiting then
+		local exit_logic = false
 		if objective and (objective.nav_seg or objective.follow_unit) and not objective.in_place then
 			if data._ignore_first_travel_order then
 				data._ignore_first_travel_order = nil
 			elseif data.cool or objective.called or not alive(objective.follow_unit) or TeamAILogicIdle._check_should_relocate(data, my_data, objective) then
 				CopLogicBase._exit(data.unit, "travel")
+			elseif data.name == "travel" then
+				exit_logic = true
 			end
 		else
+			exit_logic = true
+		end
+
+		if exit_logic then
 			local obj_type = objective and objective.type
 			local obj_stance = objective and objective.stance
 			local idle = data.cool or obj_stance == "ntl" or obj_type == "revive" or obj_type == "throw_bag" or obj_type == "act"
