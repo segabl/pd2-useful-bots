@@ -418,7 +418,7 @@ Hooks:OverrideFunction(TeamAILogicIdle, "on_new_objective", function(data, old_o
 		if objective and (objective.nav_seg or objective.follow_unit) and not objective.in_place then
 			if data._ignore_first_travel_order then
 				data._ignore_first_travel_order = nil
-			elseif data.cool or objective.called or not alive(objective.follow_unit) or TeamAILogicIdle._check_should_relocate(data, my_data, objective) then
+			elseif data.cool or objective.called or objective.type ~= "follow" or TeamAILogicIdle._check_should_relocate(data, my_data, objective) then
 				CopLogicBase._exit(data.unit, "travel")
 			elseif data.name == "travel" then
 				exit_logic = true
@@ -453,6 +453,10 @@ end
 
 local _check_should_relocate_original = TeamAILogicIdle._check_should_relocate
 function TeamAILogicIdle._check_should_relocate(data, my_data, objective, ...)
+	if not objective or not alive(objective.follow_unit) then
+		return
+	end
+
 	local follow_behavior = UsefulBots:player_settings(objective.follow_unit).follow_behavior
 	if follow_behavior == 1 or not data.is_team_ai then
 		return _check_should_relocate_original(data, my_data, objective, ...)
