@@ -2,13 +2,6 @@ if not Network:is_server() then
 	return
 end
 
-local needs_secure_match = {
-	cage_bag = true,
-	nail_muriatic_acid = true,
-	nail_caustic_soda = true,
-	nail_hydrogen_chloride = true
-}
-
 local needs_secure_match_level = {
 	framing_frame_2 = true
 }
@@ -69,7 +62,8 @@ Hooks:PreHook(ElementAreaTrigger, "on_executed", "on_executed_ub", function (sel
 		logic_data.secure_bag_data[u_key][self][carry_throw_multiplier] = throw_params
 	end
 
-	self._ub_match_carry_id = needs_secure_match[carry_id] or needs_secure_match_level[Global.game_settings.level_id]
+	local has_value = tweak_data.carry[carry_id] and tweak_data.carry[carry_id].bag_value
+	self._ub_match_carry_id = not has_value or needs_secure_match_level[Global.game_settings.level_id]
 	self._ub_match_carry_id_secured = self._ub_match_carry_id_secured or {}
 	self._ub_match_carry_id_secured[carry_id] = true
 end)
