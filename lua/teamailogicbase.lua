@@ -186,7 +186,7 @@ function TeamAILogicBase._find_closest_bag(data)
 	local closest_carry_unit
 	local closest_carry_unit_dis_sq = math.huge
 	for u_key, unit in pairs(CarryData.ub_loot) do
-		if not alive(unit) then
+		if not alive(unit) or not unit:interaction() or not unit:interaction():active() then
 			CarryData.ub_loot[u_key] = nil
 		elseif not blocked[u_key] and unit:sampled_velocity():length() == 0 then
 			for secure_trigger in pairs(secure_bag_data) do
