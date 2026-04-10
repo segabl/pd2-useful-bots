@@ -13,7 +13,7 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 	attention = attention or { unit = data.objective.follow_unit }
 
 	local is_ai = managers.groupai:state():is_unit_team_AI(attention.unit)
-	if (UsefulBots.settings.save_inspire or is_ai) and data.unit:character_damage():health_ratio() > 0.3 then
+	if (UsefulBots.settings.save_inspire or is_ai) and data.unit:character_damage():health_ratio() > 0.4 then
 		local timer = 0
 		if attention.unit:base().is_local_player then
 			timer = attention.unit:character_damage()._downed_timer or timer
@@ -21,14 +21,19 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 			timer = attention.unit:interaction():get_waypoint_time() or timer
 		end
 
-		local path_ratio = 1
-		if attention.unit:movement():nav_tracker():nav_segment() == data.unit:movement():nav_tracker():nav_segment() then
-			path_ratio = 1
-		elseif data.internal_data.coarse_path and data.internal_data.coarse_path_index then
-			path_ratio = math.max(data.internal_data.coarse_path_index, 1) / #data.internal_data.coarse_path
+		local ratio = 1
+		local my_data = data.internal_data
+		if my_data.advancing and my_data.coarse_path and #my_data.coarse_path <= 2 and my_data.advancing._simplified_path then
+			if not my_data._simplified_path_length then
+				my_data._simplified_path_length = #my_data.advancing._simplified_path
+			else
+				ratio = 1 - #my_data.advancing._simplified_path / my_data._simplified_path_length
+			end
+		elseif my_data.advancing and my_data.coarse_path and my_data.coarse_path_index then
+			ratio = math.max(my_data.coarse_path_index, 1) / #my_data.coarse_path
 		end
 
-		if timer * path_ratio > (is_ai and 2 or 8) then
+		if timer * ratio > (is_ai and 2 or 8) then
 			return
 		end
 	end
