@@ -1,6 +1,6 @@
 if not StreamHeist then
 	function GroupAIStateBase:_get_balancing_multiplier(balance_multipliers)
-		return balance_multipliers[math.clamp(table.count(self:all_char_criminals(), function (u_data) return not u_data.status end), 1, #balance_multipliers)]
+		return balance_multipliers[math.clamp(table.count(self:all_char_criminals(), function(u_data) return not u_data.status end), 1, #balance_multipliers)]
 	end
 end
 
@@ -76,7 +76,7 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 
 	for u_key, u_unit_data in pairs(self._ai_criminals) do
 		if check_allowed(u_key, u_unit_data) then
-			local dis_sq =  mvec_dis_sq(pos, u_unit_data.m_pos)
+			local dis_sq = mvec_dis_sq(pos, u_unit_data.m_pos)
 			if dis_sq < max_dis then
 				if inspire_available and not inspire_u_data and dis_sq < 810000 then
 					inspire_u_data = u_unit_data
@@ -109,7 +109,7 @@ function GroupAIStateBase:_execute_so(so_data, so_rooms, so_administered, ...)
 end
 
 -- Increase bot revive distance
-Hooks:PreHook(GroupAIStateBase, "add_special_objective", "add_special_objective_ub", function (self, id, objective_data)
+Hooks:PreHook(GroupAIStateBase, "add_special_objective", "add_special_objective_ub", function(self, id, objective_data)
 	if type(id) ~= "string" then
 		return
 	end
@@ -157,7 +157,11 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 	return _determine_objective_for_criminal_AI_original(self, unit, ...)
 end
 
-Hooks:PostHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function (self)
+Hooks:PreHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function(self, unit)
+	UsefulBots:unregister_unit(unit)
+end)
+
+Hooks:PostHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function(self)
 	if self:num_alive_players() == 0 then
 		for _, u_data in pairs(self._ai_criminals) do
 			u_data.unit:movement():set_should_stay(false)

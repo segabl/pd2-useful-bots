@@ -191,6 +191,15 @@ if not UsefulBots then
 		end
 	end
 
+	function UsefulBots:unregister_unit(unit)
+		for _, c_data in pairs(managers.groupai:state():all_AI_criminals()) do
+			local logic_data = c_data.unit:brain()._logic_data
+			if logic_data._latest_follow_unit == unit then
+				logic_data._latest_follow_unit = nil
+			end
+		end
+	end
+
 	function UsefulBots:player_settings(player_unit)
 		local peer = alive(player_unit) and player_unit:network() and player_unit:network():peer()
 		return self.peer_settings[peer and peer:id() or 1]
