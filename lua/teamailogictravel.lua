@@ -1,10 +1,19 @@
 -- Don't carry over "firing" variable, it has a chance to stopp bots from shooting
-Hooks:PostHook(TeamAILogicTravel, "enter", "enter_ub", function (data)
+Hooks:PostHook(TeamAILogicTravel, "enter", "enter_ub", function(data)
 	data.internal_data.firing = nil
 end)
 
 -- Make bots actually use inspire, not only if you are in their detected attention objects
 local check_inspire_original = TeamAILogicTravel.check_inspire
+local function path_length(path)
+	local dis = 0
+	for i = 1, #path - 1 do
+		local p1 = path[i].x and path[i] or path[i].element:value("position")
+		local p2 = path[i + 1].x and path[i + 1] or path[i + 1].element:value("position")
+		dis = dis + mvector3.distance(p1, p2)
+	end
+	return dis
+end
 function TeamAILogicTravel.check_inspire(data, attention, ...)
 	if data.objective and data.objective.action and data.objective.action.variant == "untie" then
 		return
@@ -21,19 +30,32 @@ function TeamAILogicTravel.check_inspire(data, attention, ...)
 			timer = attention.unit:interaction():get_waypoint_time() or timer
 		end
 
-		local ratio = 1
 		local my_data = data.internal_data
-		if my_data.advancing and my_data.coarse_path and #my_data.coarse_path <= 2 and my_data.advancing._simplified_path then
-			if not my_data._simplified_path_length then
-				my_data._simplified_path_length = #my_data.advancing._simplified_path
-			else
-				ratio = 1 - #my_data.advancing._simplified_path / my_data._simplified_path_length
+		if my_data.advancing and my_data.coarse_path then
+			if #my_data.coarse_path <= 2 and my_data.advancing._simplified_path then
+				local path = my_data.advancing._simplified_path
+				local dis = 0
+				for i = 1, #path - 1 do
+					local p1 = path[i].x and path[i] or path[i].element:value("position")
+					local p2 = path[i + 1].x and path[i + 1] or path[i + 1].element:value("position")
+					dis = dis + mvector3.distance(p1, p2)
+				end
+				local time_to_reach = dis / (data.char_tweak.move_speed.stand.run.cbt.fwd * 0.75)
+				timer = timer - time_to_reach
+			elseif my_data.coarse_path_index and my_data.coarse_path_index < #my_data.coarse_path then
+				local path = my_data.coarse_path
+				local dis = mvector3.distance(data.m_pos, path[my_data.coarse_path_index + 1][2] or data.m_pos)
+				for i = my_data.coarse_path_index + 1, #path - 1 do
+					if path[i][2] and path[i + 1][2] then
+						dis = dis + mvector3.distance(path[i][2], path[i + 1][2])
+					end
+				end
+				local time_to_reach = dis / (data.char_tweak.move_speed.stand.run.cbt.fwd * 0.75)
+				timer = timer - time_to_reach
 			end
-		elseif my_data.advancing and my_data.coarse_path and my_data.coarse_path_index then
-			ratio = math.max(my_data.coarse_path_index, 1) / #my_data.coarse_path
 		end
 
-		if timer * ratio > (is_ai and 2 or 8) then
+		if timer > (is_ai and 4 or 8) then
 			return
 		end
 	end
@@ -57,7 +79,7 @@ if Iter and Iter.settings and Iter.settings.streamline_path or restoration then
 end
 
 -- Update pathing when walking action is finished
-Hooks:PostHook(TeamAILogicTravel, "action_complete_clbk", "action_complete_clbk_ub", function (data, action)
+Hooks:PostHook(TeamAILogicTravel, "action_complete_clbk", "action_complete_clbk_ub", function(data, action)
 	local my_data = data.internal_data
 	if action:type() == "walk" and my_data.coarse_path and my_data.coarse_path_index < #my_data.coarse_path then
 		TeamAILogicTravel.update(data)
