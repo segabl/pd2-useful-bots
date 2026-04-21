@@ -1,13 +1,17 @@
-if not StreamHeist then
-	function GroupAIStateBase:_get_balancing_multiplier(balance_multipliers)
-		return balance_multipliers[math.clamp(table.count(self:all_char_criminals(), function(u_data) return not u_data.status end), 1, #balance_multipliers)]
+local upd_team_AI_distance_original = GroupAIStateBase.upd_team_AI_distance
+function GroupAIStateBase:upd_team_AI_distance(...)
+	if not UsefulBots.settings.hold_position and Network:is_server() then
+		return upd_team_AI_distance_original(self, ...)
 	end
 end
 
-local upd_team_AI_distance_original = GroupAIStateBase.upd_team_AI_distance
-function GroupAIStateBase:upd_team_AI_distance(...)
-	if not UsefulBots.settings.hold_position then
-		return upd_team_AI_distance_original(self, ...)
+if not Network:is_server() then
+	return
+end
+
+if not StreamHeist then
+	function GroupAIStateBase:_get_balancing_multiplier(balance_multipliers)
+		return balance_multipliers[math.clamp(table.count(self:all_char_criminals(), function(u_data) return not u_data.status end), 1, #balance_multipliers)]
 	end
 end
 
@@ -130,9 +134,7 @@ Hooks:PreHook(GroupAIStateBase, "add_special_objective", "add_special_objective_
 end)
 
 Hooks:PreHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function(self, unit)
-	if Network:is_server() then
-		UsefulBots:unregister_unit(unit)
-	end
+	UsefulBots:unregister_unit(unit)
 end)
 
 if Keepers then

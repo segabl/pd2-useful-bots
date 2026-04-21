@@ -17,7 +17,7 @@ A lightweight bot overhaul that improves how bots prioritize enemies, lets them 
 * Option to disable bots marking special enemies
 * Option to disable bot battle cries
 * Option to prevent bots from getting into slow vehicles like forklifts
-* Option to disable ammo drops from enemies killed by bots
+* Option to reduce ammo drops from enemies killed by bots
 * Option to make bots avoid using Inspire when they are already within revive range
 * Option to make a bots defend a reviving player
 * Option to increase revive range for bots reviving other bots

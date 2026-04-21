@@ -15,7 +15,7 @@ if not UsefulBots then
 		hold_position = true,
 		battle_cries = true,
 		block_slow_vehicles = true,
-		ammo_drops = true,
+		ammo_drops = 1,
 		save_inspire = true,
 		stop_at_player = false,
 		defend_reviving = true,
@@ -105,6 +105,11 @@ if not UsefulBots then
 		battle_cries = {
 			priority = 78,
 			divider = 16
+		},
+		ammo_drops = {
+			is_percentage = true,
+			display_scale = 100,
+			display_precision = 0
 		},
 		targeting_priority = {
 			priority = -1000,
