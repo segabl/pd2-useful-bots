@@ -129,6 +129,12 @@ Hooks:PreHook(GroupAIStateBase, "add_special_objective", "add_special_objective_
 	end
 end)
 
+Hooks:PreHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function(self, unit)
+	if Network:is_server() then
+		UsefulBots:unregister_unit(unit)
+	end
+end)
+
 if Keepers then
 	return
 end
@@ -156,10 +162,6 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit, ...)
 
 	return _determine_objective_for_criminal_AI_original(self, unit, ...)
 end
-
-Hooks:PreHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function(self, unit)
-	UsefulBots:unregister_unit(unit)
-end)
 
 Hooks:PostHook(GroupAIStateBase, "unregister_criminal", "unregister_criminal_ub", function(self)
 	if self:num_alive_players() == 0 then
