@@ -1,8 +1,8 @@
 -- Count bots for crew alive bonus
 local on_executed_original = ElementMissionEnd.on_executed
-function ElementMissionEnd:on_executed(instigator, ...)
+Hooks:OverrideFunction(ElementMissionEnd, "on_executed", function(self, ...)
 	if not self._values.enabled or self._values.state ~= "success" or managers.platform:presence() ~= "Playing" then
-		return on_executed_original(self, instigator, ...)
+		return on_executed_original(self, ...)
 	end
 
 	local num_winners = managers.network:session():amount_of_alive_players() + managers.groupai:state():amount_of_winning_ai_criminals()
@@ -13,5 +13,5 @@ function ElementMissionEnd:on_executed(instigator, ...)
 		personal_win = alive(managers.player:player_unit())
 	})
 
-	ElementMissionEnd.super.on_executed(self, instigator)
-end
+	ElementMissionEnd.super.on_executed(self, ...)
+end)
