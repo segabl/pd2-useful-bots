@@ -51,4 +51,6 @@ function TeamAIDamage:damage_bullet(...)
 end
 
 -- Add missing friendly fire check
-TeamAIDamage.is_friendly_fire = PlayerDamage.is_friendly_fire
+function TeamAIDamage:is_friendly_fire(...)
+	return not self:need_revive() and PlayerDamage.is_friendly_fire(self, ...)
+end
