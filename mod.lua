@@ -157,7 +157,14 @@ if not UsefulBots then
 	end
 
 	function UsefulBots:get_assist_objective(unit, receiver)
-		local nav_seg = unit:movement():nav_tracker():nav_segment()
+		local pos = mvector3.copy(math.UP)
+		mvector3.random_orthogonal(pos)
+		mvector3.multiply(pos, 50)
+		mvector3.add(pos, unit:position())
+		local nav_tracker = managers.navigation:create_nav_tracker(pos)
+		local nav_seg = nav_tracker:nav_segment()
+		pos = nav_tracker:field_position()
+		managers.navigation:destroy_nav_tracker(nav_tracker)
 		return {
 			type = "defend_area",
 			scan = true,
@@ -165,7 +172,7 @@ if not UsefulBots then
 			haste = "run",
 			pose = "stand",
 			nav_seg = nav_seg,
-			in_place = receiver and receiver:movement():nav_tracker():nav_segment() == nav_seg
+			pos = pos
 		}
 	end
 
