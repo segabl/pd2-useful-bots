@@ -28,7 +28,6 @@ local sabotage_actions = {
 
 -- Make bots aware of sabotaging enemies
 Hooks:PostHook(CopActionAct, "init", "init_ub", function (self)
-	self._enter_t = TimerManager:game():time()
 	if sabotage_actions[self._action_desc.variant] then
 		self._is_sabotaging_action = true
 		UsefulBots:force_attention(self._unit)
