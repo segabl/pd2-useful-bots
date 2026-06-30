@@ -101,12 +101,13 @@ function TeamAILogicIdle.intimidate_civilians(data, criminal)
 end
 
 function TeamAILogicIdle.is_valid_intimidation_target(other_data, data, distance)
-	if UsefulBots.settings.dominate_enemies > 2 then
+	if data.cool or UsefulBots.settings.dominate_enemies > 2 then
 		return false
 	end
-	if other_data.unit:unit_data().disable_shout then
+	if not alive(other_data.unit) or other_data.unit:unit_data().disable_shout then
 		return false
 	end
+
 	local surrender = other_data.char_tweak.surrender
 	local anim_data = other_data.unit:anim_data()
 	if not surrender or surrender == tweak_data.character.presets.surrender.never or anim_data.hands_tied then
