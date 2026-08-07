@@ -112,7 +112,7 @@ function TeamAILogicIdle.is_valid_intimidation_target(other_data, data, distance
 		return false
 	end
 	local surrender = other_data.char_tweak.surrender
-	if not surrender or surrender == tweak_data.character.presets.surrender.never then
+	if not surrender or surrender.impossible or surrender.base_chance < 1 and (not surrender.reasons or not surrender.factors) then
 		-- unit can't surrender
 		return false
 	end
