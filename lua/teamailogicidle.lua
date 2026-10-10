@@ -464,6 +464,11 @@ function TeamAILogicIdle._check_should_relocate(data, my_data, objective, ...)
 		return
 	end
 
+	if data.ub_force_next_relocate then
+		data.ub_force_next_relocate = nil
+		return true
+	end
+
 	local follow_behavior = UsefulBots:player_settings(objective.follow_unit).follow_behavior
 	if follow_behavior == 1 or not data.is_team_ai then
 		return _check_should_relocate_original(data, my_data, objective, ...)
